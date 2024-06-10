@@ -14,7 +14,8 @@ To generate definitions for words, manage the creation of branches, and handle r
 ## Components
 - **Definition Generator**: Module to generate word definitions using an AI model.
 - **Branch Manager**: Module to manage in-memory branches, check for circular definitions, and ensure branch completion.
-- **API Client**: Module to interact with WordWebDB_API for data storage and retrieval.
+- **WordWebDB_Client**: Module to interact with WordWebDB_API for data storage and retrieval.
+- **WordWebDB_API**: Flask application to serve the API to modify the WordWebDB.
 - **Controller**: Flask application or script to orchestrate the definition generation and branching process.
 
 ## Directory Structure
