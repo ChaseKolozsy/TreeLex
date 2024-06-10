@@ -99,9 +99,3 @@ services:
 volumes:
   pgdata:
   ```
-
-## Project Structure
-
-1. WordWebDB_API as api
-2. WordWebDB_Client as client
-
