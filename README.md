@@ -61,7 +61,7 @@ services:
       - postgres
 
   treelex:
-    build: ./TreeLex
+    build: .
     container_name: treelex
     ports:
       - "5002:5002"

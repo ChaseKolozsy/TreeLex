@@ -1,3 +1,6 @@
 [submodule "api_client"]
 	path = api_client
 	url = https://github.com/ChaseKolozsy/WordWebDB_Client.git
+[submodule "api"]
+	path = api
+	url = https://github.com/ChaseKolozsy/WordWebDB_API.git
