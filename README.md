@@ -1,4 +1,4 @@
-# Treelex
+# TreeLex
 A Branching Logic and Definition Generation Tool
 
 ## Objective
