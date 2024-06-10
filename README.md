@@ -26,8 +26,23 @@ BranchingTool/
 ├── app.py
 ├── definition_generator.py
 ├── branch_manager.py
-├── wordwebdb_client.py
-├── requirements.txt
+├── api
+│   ├── Dockerfile
+│   ├── README.md
+│   ├── app.py
+│   ├── blueprint_Enumerated_Lemmas.py
+│   ├── blueprint_Phrases.py
+│   ├── models.py
+│   ├── requirements.txt
+│   └── .env
+├── client
+│   ├── src
+│   │   ├── operations
+│   │   │   ├── app_ops.py
+│   │   │   ├── enumerated_lemma_ops.py
+│   │   │   ├── phrase_ops.py
+│   ├── requirements.txt
+│   └── .env
 └── .env
 ```
 
@@ -53,7 +68,7 @@ Here is an example `docker-compose.yml` setup to run both components in separate
 ```
 services:
   wordwebdb_api:
-    build: ./WordWebDB_API
+    build: ./api
     container_name: wordwebdb_api
     ports:
       - "5001:5001"
@@ -83,3 +98,9 @@ services:
 volumes:
   pgdata:
   ```
+
+## Project Structure
+
+1. WordWebDB_API as api
+2. WordWebDB_Client as client
+
