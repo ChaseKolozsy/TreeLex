@@ -1,19 +1,21 @@
 # TreeLex
-A Branching Logic and Definition Generation Tool
+A Branching Logic and Definition Generation Tool that also sorts phrases based on how many unknown words in the phrase.
 
 ## Objective
-To generate definitions for words, manage the creation of branches, and handle recursive definitions and circular definition checks.
+To generate definitions for words, manage the creation of branches, and handle recursive definitions and circular definition checks, and prioritize phrases that have the fewest amount of unknown words.
 
 ## Responsibilities
 - Interact with the WordWebDB_API to fetch and store definitions and branches.
 - Generate definitions using GPT-3.5 or other AI models.
 - Implement branching logic to create, complete, and validate branches.
 - Check for and handle circular definitions.
+- Sort phrases based on how many unknown words in the phrase.
 - Provide a user interface or API for initiating definition generation and branch creation.
 
 ## Components
 - **Definition Generator**: Module to generate word definitions using an AI model.
 - **Branch Manager**: Module to manage in-memory branches, check for circular definitions, and ensure branch completion.
+- **Phrase Sorter**: Module to sort phrases based on how many unknown words are in the phrase when compared to the current state of the WordWebDB.
 - **WordWebDB_Client**: Module to interact with WordWebDB_API for data storage and retrieval.
 - **WordWebDB_API**: Flask application to serve the API to modify the WordWebDB.
 - **Controller**: Flask application or script to orchestrate the definition generation and branching process.
@@ -27,6 +29,7 @@ BranchingTool/
 ├── app.py
 ├── definition_generator.py
 ├── branch_manager.py
+├── phrase_sorter.py
 ├── api
 │   ├── Dockerfile
 │   ├── README.md
@@ -58,6 +61,9 @@ BranchingTool/
 1. Use the `branch_manager.py` to manage the current branch in memory.
 2. Check for circular definitions and ensure the branch is complete.
 3. Once complete, store the branch structure in the WordWebDB_API.
+
+### Sort Phrases
+1. Use the `phrase_sorter.py` to sort phrases based on how many unknown words are in the phrase when compared to the current state of the WordWebDB.
 
 ### API Client
 1. Use the `wordwebdb_client.py` to interact with the WordWebDB_API.
