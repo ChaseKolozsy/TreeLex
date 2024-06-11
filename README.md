@@ -39,7 +39,9 @@ BranchingTool/
 │   ├── app.py
 │   ├── blueprint_Enumerated_Lemmas.py
 │   ├── blueprint_Phrases.py
-│   ├── blueprint_GrammarPoints.py
+│   ├── blueprint_grammar_points.py
+│   ├── blueprint_branches.py
+│   ├── blueprint_branch_nodes.py
 │   ├── models.py
 │   ├── requirements.txt
 │   └── .env
