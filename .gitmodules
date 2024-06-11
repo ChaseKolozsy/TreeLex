@@ -1,6 +1,6 @@
 [submodule "api"]
 	path = api
-	url = https://github.com/ChaseKolozsy/WordWebDB_API.git
+	url = https://github.com/ChaseKolozsy/LexiWebDB_API.git
 [submodule "client"]
 	path = client
-	url = https://github.com/ChaseKolozsy/WordWebDB_Client.git
+	url = https://github.com/ChaseKolozsy/LexiWebDB_Client.git
