@@ -1,8 +1,8 @@
 # TreeLex
-A Branching Logic and Definition Generation Tool that also sorts phrases based on how many unknown words in the phrase.
+A Branching Logic and Definition Generation Tool that also sorts phrases based on how many unknown words in the phrase. Also, generates grammar examples for a given grammar point.
 
 ## Objective
-To generate definitions for words, manage the creation of branches, and handle recursive definitions and circular definition checks, and prioritize phrases that have the fewest amount of unknown words.
+To generate definitions for words, manage the creation of branches, and handle recursive definitions and circular definition checks, and prioritize phrases that have the fewest amount of unknown words. Also, generate grammar examples for a given grammar point.
 
 ## Responsibilities
 - Interact with the LexiWebDB_API to fetch and store definitions and branches.
@@ -11,6 +11,7 @@ To generate definitions for words, manage the creation of branches, and handle r
 - Check for and handle circular definitions.
 - Sort phrases based on how many unknown words in the phrase.
 - Provide a user interface or API for initiating definition generation and branch creation.
+- Generate grammar examples for a given grammar point.
 
 ## Components
 - **Definition Generator**: Module to generate word definitions using an AI model.
@@ -18,6 +19,7 @@ To generate definitions for words, manage the creation of branches, and handle r
 - **Phrase Sorter**: Module to sort phrases based on how many unknown words are in the phrase when compared to the current state of the LexiWebDB.
 - **LexiWebDB_Client**: Module to interact with LexiWebDB_API for data storage and retrieval.
 - **LexiWebDB_API**: Flask application to serve the API to modify the LexiWebDB.
+- **GrammarPoint Example Generator**: Module to generate grammar examples for a given grammar point.
 - **Controller**: Flask application or script to orchestrate the definition generation and branching process.
 
 ## Directory Structure
@@ -30,6 +32,7 @@ BranchingTool/
 ├── definition_generator.py
 ├── branch_manager.py
 ├── phrase_sorter.py
+├── gpoint_ex_generator.py
 ├── api
 │   ├── Dockerfile
 │   ├── README.md
@@ -45,6 +48,7 @@ BranchingTool/
 │   │   │   ├── app_ops.py
 │   │   │   ├── enumerated_lemma_ops.py
 │   │   │   ├── phrase_ops.py
+│   │   │   ├── grammar_ops.py
 │   ├── requirements.txt
 │   └── .env
 └── .env
@@ -56,6 +60,10 @@ BranchingTool/
 ### Generate Definitions
 1. Use the `definition_generator.py` to generate definitions for a given lemma.
 2. Store the generated definitions in the LexiWebDB_API via API calls.
+
+### Generate Grammar Examples
+1. Use the `gpoint_ex_generator.py` to generate grammar examples for a given grammar point.
+2. Store the generated grammar examples in the LexiWebDB_API via API calls.
 
 ### Manage Branches
 1. Use the `branch_manager.py` to manage the current branch in memory.
