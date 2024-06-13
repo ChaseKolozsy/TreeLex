@@ -10,3 +10,7 @@ import client.src.operations.routine_ops
 import client.src.operations.state_ops
 import client.src.operations.verb_ops
 
+from openai import OpenAI
+
+client = OpenAI()
+
