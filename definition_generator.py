@@ -19,7 +19,6 @@ import time
 import logging
 from datetime import datetime
 from pathlib import Path
-from fuzzywuzzy import fuzz, process
 import re
 
 def preprocess_text(text):
