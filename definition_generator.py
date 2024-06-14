@@ -282,25 +282,6 @@ class DefinitionGenerator:
             }
         }
 
-    def analyze_list_content(self):
-        # Ensure there's a list to analyze and it has more than 3 items (as we start analyzing from the 4th item)
-        if not self.string_list or len(self.string_list) <= 3:
-            print("List is too short to analyze. Assuming it contains words.")
-            self.is_phrase_list = False
-            return
-
-        # Count how many items from the 4th one onward are phrases (i.e., contain more than one word)
-        phrase_count = sum(1 for line in self.string_list[3:] if len(line.split()) > 1)
-
-        # Calculate the percentage of phrases
-        total_lines_to_analyze = len(self.string_list) - 3
-        percentage_phrases = (phrase_count / total_lines_to_analyze) * 100
-
-        # Set the flag based on whether more than 50% are phrases
-        self.is_phrase_list = percentage_phrases > 50
-
-        print(f"List analyzed. Contains {'mostly phrases' if self.is_phrase_list else 'mostly single words'}.")
-
     def create_definitions(self):
         responses = []
         for item in self.string_list:
