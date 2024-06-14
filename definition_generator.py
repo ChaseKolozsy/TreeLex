@@ -3,7 +3,7 @@ import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
 
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-from utils.deg_gen_util import preprocess_text, extract_definitions
+from utils.def_gen_util import preprocess_text, extract_definitions
 
 import openai
 import json
