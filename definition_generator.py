@@ -81,54 +81,6 @@ class DefinitionGenerator:
         self.base_messages = [self.base_message]
         self.messages = [self.base_message]
     
-    def translate_tool_descriptions(self):
-        """
-            Translates the values of each key into the language of self.language.
-                self.base_descriptions = {
-                    "function_name": "generate_lemma_definitions",
-                    "function_description": "Generate a structured JSON output with definitions for a base lemma. It should look like this:",
-                    "base_lemma_description": "The base word or lemma for which definitions are to be generated",
-                    "definitions_description": f"A list of definitions for the lemma. The definition should be in the language of {self.language} using no {self.native_language} words.",
-                    "enumerated_lemma_description": "The enumerated lemma for the definition, base_lemma_n where n is between 1 and 10, ie top_1, top_2, etc.",
-                    "definition_description": "The definition of the lemma",
-                    "part_of_speech_description": "The part of speech for the definition"
-                }
-        """
-        messages = []
-        for key, value in self.base_descriptions.items():
-            message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n {value}: <translation>"}
-            messages.append(message)
-            response = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=messages,
-                response_format={"type": "json_object"}
-            )
-            response = json.loads(response.choices[0].message.content)
-            print(f"response: {response}")
-            for response_key, translated_value in response.items():
-                self.descriptions[key] = translated_value
-            messages = []
-        with open("descriptions.json", "w", encoding="utf-8") as f:
-            f.write(json.dumps(self.descriptions, indent=4))
-
-    def translate_example_json_small(self):
-        messages = []
-        for key, value in self.example_json_to_translate.items():
-            message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n {value}: <translation>"}
-            messages.append(message)
-            response = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=messages,
-                response_format={"type": "json_object"}
-            )
-            response = json.loads(response.choices[0].message.content)
-            print(f"response: {response}")
-            for response_key, translated_value in response.items():
-                self.example_json_small[key] = translated_value
-            messages = []
-        with open("example_json_small.json", "w", encoding="utf-8") as f:
-            f.write(json.dumps(self.example_json_small, indent=4))
-    
     def translate_instructions(self):
         messages = []
         for key, value in self.base_instructions.items():
@@ -147,9 +99,17 @@ class DefinitionGenerator:
                 self.translated_instructions = translated_value
             messages = []
     
-    def translate_word_phrase(self):
+    def translate_dictionaries(self, base: dict, outfile: str):
+        """
+        Translate a dictionary from one language to another.
+        base: dict - the dictionary to translate
+        outfile: str - the file to save the translated dictionary to, must be json
+        """
+        if not outfile.endswith(".json"):
+            raise ValueError("Outfile must be a json file")
+
         messages = []
-        for key, value in self.base_word_phrase.items():
+        for key, value in base.items():
             message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n {value}: <translation>"}
             messages.append(message)
             response = self.client.chat.completions.create(
@@ -162,7 +122,7 @@ class DefinitionGenerator:
                 self.translated_word_phrase[key] = translated_value
             messages = []
 
-        with open("translated_word_phrase.json", "w", encoding="utf-8") as f:
+        with open(outfile, "w", encoding="utf-8") as f:
             f.write(json.dumps(self.translated_word_phrase, indent=4))
     
     def load_translated_word_phrase(self):
@@ -341,9 +301,10 @@ class DefinitionGenerator:
 if __name__ == "__main__":
     #app_ops.reset_db()
     definition_generator = DefinitionGenerator(list_filepath="phrase_list.txt")
-    #definition_generator.translate_tool_descriptions()
-    #definition_generator.translate_example_json_small()
-    #definition_generator.translate_word_phrase()
+    #definition_generator.translate_dictionaries(definition_generator.base_descriptions, "translated_descriptions.json")
+    #definition_generator.translate_dictionaries(definition_generator.example_json_small, "translated_example_json_small.json")
+    #definition_generator.translate_dictionaries(definition_generator.translated_word_phrase, "translated_word_phrase.json")
+    #definition_generator.translate_instructions()
     definition_generator.run(familiar=True)
 
     #response = enumerated_lemma_ops.get_all_enumerated_lemmas()
