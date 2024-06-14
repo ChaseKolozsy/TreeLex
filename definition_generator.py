@@ -340,7 +340,7 @@ class DefinitionGenerator:
                     break
                 print(f"Retrying... ({retries}/{max_retries})")
     
-    def run(self): 
+    def run(self, familiar=False): 
         self.load_list()
         print(self.string_list)
 
@@ -364,7 +364,7 @@ class DefinitionGenerator:
                     'story_link': '',  # Assuming no story link is provided
                     'media_references': [],  # Assuming no media references are provided
                     'object_exploration_link': '',  # Assuming no object exploration link is provided
-                    'familiar': False,  # Assuming not familiar initially
+                    'familiar': familiar,  # Assuming not familiar initially
                     'active': False,  # Assuming active by default
                     'anki_card_ids': [] # Assuming no anki card ids are provided
                 }
@@ -376,7 +376,7 @@ if __name__ == "__main__":
     #definition_generator.translate_tool_descriptions()
     #definition_generator.translate_example_json_small()
     #definition_generator.translate_word_phrase()
-    definition_generator.run()
+    definition_generator.run(familiar=True)
 
     #response = enumerated_lemma_ops.get_all_enumerated_lemmas()
     #if response.status_code == 200:
