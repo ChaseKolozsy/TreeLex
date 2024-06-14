@@ -398,7 +398,7 @@ class DefinitionGenerator:
                     break
                 print(f"Retrying... ({retries}/{max_retries})")
     
-    def run(self, create=False): 
+    def run(self): 
         self.load_list()
         print(self.string_list)
 
@@ -421,4 +421,4 @@ if __name__ == "__main__":
     #definition_generator.translate_tool_descriptions()
     #definition_generator.translate_example_json_small()
     #definition_generator.translate_word_phrase()
-    definition_generator.run(create=False)
+    definition_generator.run()
