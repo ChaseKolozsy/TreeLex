@@ -84,7 +84,7 @@ def preprocess_text(text):
 class DefinitionGenerator:
     """
     """
-    def __init__(self, list_filepath, language='Hungarian', native_language='English', filepath_ids='definition_ids.txt', model="gpt-3.5-turbo-16k"):
+    def __init__(self, list_filepath, language='Hungarian', native_language='English', filepath_ids='definition_ids.txt', model="gpt-3.5-turbo-0125"):
         self.model = model
         self.client = openai.OpenAI()
         self.language = language
@@ -94,18 +94,157 @@ class DefinitionGenerator:
         self.sleep_interval = 5  # seconds
         self.max_retries = 3
         self.filepath_ids = filepath_ids
+
+        self.base_descriptions = {
+            "function_name": "generate_lemma_definitions",
+            "function_description": "Generate a structured JSON output with definitions for a base lemma. It should look like this",
+            "base_lemma_description": "The base word or lemma for which definitions are to be generated",
+            "definitions_description": f"A list of definitions for the lemma. The definition should be in the language of {self.language} using no {self.native_language} words.",
+            "enumerated_lemma_description": "The enumerated lemma for the definition, base_lemma_n where n is between 1 and 10, ie top_1, top_2, etc.",
+            "definition_description": "The definition of the lemma",
+            "part_of_speech_description": "The part of speech for the definition",
+        }
+        self.descriptions = {}
+        self.tools = []
+        self.example_json_small = {}
+        self.example_json_to_translate = {
+            "top_1": "The highest or uppermost point",
+            "top_2": "extremely; very much",
+            "noun": "noun",
+            "adverb": "adverb"
+        }
+
+
+        self.list_filepath = list_filepath
+        self.definitions = []
+        self.string_list = []
+        self.missing_definitions = []
+        self.base_instructions = {"instructions": "You are an expert lexicographer with a deep understanding " \
+                            "of etymology and semantics. Your task is to provide clear, " \
+                            "concise, and accurate definitions for words." \
+                            f"You will be defining words in the {self.language} language, " \
+                            "drawing on your extensive knowledge to offer precise and " \
+                            "contextually appropriate explanations. You will include no " \
+                            f"{self.native_language} words in the definitions." \
+                            "A phrase is supplied for context to help you articulate " \
+                            "the correct definition and its part of speech. However, you will supply " \
+                            "more than one definition for this word. You will be constructing a " \
+                            "a dictionary entry a given lemma/word. " \
+                            "Please strive for 10 definitions per lemma, " \
+                            "The definitions supplied should represent 10 different distinct meanings. " \
+                            f"An example of a definition is:\n" 
+                            }
+
+    def initialize_instructions(self, translate=False):
+        if translate:
+            self.translate_instructions()
+        with open("translated_instructions.json", "r", encoding="utf-8") as f:
+            tmp = json.load(f)
+        for key, value in tmp.items():
+            self.translated_instructions = value
+
+        self.instructions = self.translated_instructions + f"\n{json.dumps(self.example_json_small, indent=4)}"
+        self.is_phrase_list = False
+        self.base_message = {"role": "system", "content": self.instructions}
+        self.base_messages = [self.base_message]
+        self.messages = [self.base_message]
+        print(self.instructions)
+    
+    def translate_tool_descriptions(self):
+        """
+            Translates the values of each key into the language of self.language.
+                self.base_descriptions = {
+                    "function_name": "generate_lemma_definitions",
+                    "function_description": "Generate a structured JSON output with definitions for a base lemma. It should look like this:",
+                    "base_lemma_description": "The base word or lemma for which definitions are to be generated",
+                    "definitions_description": f"A list of definitions for the lemma. The definition should be in the language of {self.language} using no {self.native_language} words.",
+                    "enumerated_lemma_description": "The enumerated lemma for the definition, base_lemma_n where n is between 1 and 10, ie top_1, top_2, etc.",
+                    "definition_description": "The definition of the lemma",
+                    "part_of_speech_description": "The part of speech for the definition"
+                }
+        """
+        messages = []
+        for key, value in self.base_descriptions.items():
+            message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n {value}: <translation>"}
+            messages.append(message)
+            response = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                response_format={"type": "json_object"}
+            )
+            response = json.loads(response.choices[0].message.content)
+            print(f"response: {response}")
+            for response_key, translated_value in response.items():
+                self.descriptions[key] = translated_value
+            messages = []
+        with open("descriptions.json", "w", encoding="utf-8") as f:
+            f.write(json.dumps(self.descriptions, indent=4))
+
+    def translate_example_json_small(self):
+        messages = []
+        for key, value in self.example_json_to_translate.items():
+            message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n {value}: <translation>"}
+            messages.append(message)
+            response = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                response_format={"type": "json_object"}
+            )
+            response = json.loads(response.choices[0].message.content)
+            print(f"response: {response}")
+            for response_key, translated_value in response.items():
+                self.example_json_small[key] = translated_value
+            messages = []
+        with open("example_json_small.json", "w", encoding="utf-8") as f:
+            f.write(json.dumps(self.example_json_small, indent=4))
+    
+    def translate_instructions(self):
+        messages = []
+        for key, value in self.base_instructions.items():
+            message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n instructions: <translation>"}
+            messages.append(message)
+            response = self.client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                response_format={"type": "json_object"}
+            )
+            response = json.loads(response.choices[0].message.content)
+            print(f"response: {response}")
+            with open("translated_instructions.json", "w", encoding="utf-8") as f:
+                f.write(json.dumps(response, indent=4))
+            for response_key, translated_value in response.items():
+                self.translated_instructions = translated_value
+            messages = []
+    
+    def load_descriptions(self):
+        with open("descriptions.json", "r", encoding="utf-8") as f:
+            self.descriptions = json.load(f)
+    
+    def initialize_example_json_small(self):
+        with open("example_json_small.json", "r", encoding="utf-8") as f:
+            tmp = json.load(f)
+        self.example_json_small = {
+            "base_lemma":  "top",
+            "definitions": [
+                {"enumerated_lemma": "top_1", "definition": f"{tmp['top_1']}", "part_of_speech": f"{tmp['noun']}"},
+                {"enumerated_lemma": "top_2", "definition": f"{tmp['top_2']}", "part_of_speech": f"{tmp['adverb']}"},
+                {"enumerated_lemma": "top_n", "definition": '...', "part_of_speech": "..."},
+            ]
+        }
+    
+    def initialize_tools(self):
         self.tools = [
         {
                 "type": "function",
                 "function": {
-                    "name": "generate_lemma_definitions",
-                    "description": f"Generate a structured JSON output with definitions for a base lemma. It should look like this:\n{json.dumps(example_json_small, indent=4)}",
+                    "name": f"{self.descriptions['function_name']}",
+                    "description": f"{self.descriptions['function_description']}:\n{json.dumps(self.example_json_small, indent=4)}",
                     "parameters": {
                 "type": "object",
                 "properties": {
                     "base_lemma": {
                         "type": "string",
-                        "description": "The base word or lemma for which definitions are to be generated"
+                        "description": f"{self.descriptions['base_lemma_description']}"
                     },
                 "definitions": {
                     "type": "array",
@@ -114,68 +253,28 @@ class DefinitionGenerator:
                     "properties": {
                         "enumerated_lemma": {
                             "type": "string",
-                            "description": "The enumerated lemma for the definition, base_lemma_n where n is between 1 and 10, ie top_1, top_2, etc."
+                            "description": f"{self.descriptions['enumerated_lemma_description']}"
                         },
                         "definition": {
                         "type": "string",
-                        "description": "The definition of the lemma"
+                        "description": f"{self.descriptions['definition_description']}"
                     },
                     "part_of_speech": {
                         "type": "string",
-                        "enum": ["noun", "verb", "adjective", "adverb"],
-                        "description": "The part of speech for the definition"
+                        "description": f"{self.descriptions['part_of_speech_description']}"
                     }
                 },
                     "required": ["definition", "part_of_speech"]
                 },
-                "description": f"A list of definitions for the lemma. The definition should be in the language of {self.language} using no {self.native_language} words."
+                "description": f"{self.descriptions['definitions_description']}"
                     }
                 },
-                    "required": ["lemma", "definitions"]
+                    "required": ["base_lemma", "definitions"]
                 }
             }
         }
         ]
 
-
-        self.list_filepath = list_filepath
-        self.definitions = []
-        self.string_list = []
-        self.missing_definitions = []
-        self.instructions = "You are an expert lexicographer with a deep understanding " \
-                            "of etymology and semantics. Your task is to provide clear, " \
-                            "concise, and accurate definitions for words, ensuring that " \
-                            "each definition captures the essence and nuances of the word. " \
-                            f"You will be defining words in the {self.language} language, " \
-                            "drawing on your extensive knowledge to offer precise and " \
-                            "contextually appropriate explanations. You will include no " \
-                            f"{self.native_language} words in the definitions. Nor should you " \
-                            "include the language that these instructions are in unless told to. " \
-                            "If you are asked to define a word in a different language, you should " \
-                            "define it in that language, not in the language of the instructions. " \
-                            "A word will be supplied to you, one at a time. Its phrase will " \
-                            "accompany it. The phrase is supplied for context to help you articulate " \
-                            "the correct definition and its part of speech. However, you will supply " \
-                            "more than one definition for this word. You will be constructing a " \
-                            "a dictionary entry. Dictionary entries contain multiple definitions for " \
-                            "a given lemma/word. You will create a JSON entry for the base_lemma. " \
-                            "For example, the base lemma might be, 'top'. " \
-                            "You will make the definition enumerated with 1 be the definition that best matches " \
-                            "the phrase. If you are not sure, you can make an educated guess. You will be supplied " \
-                            "with a phrase, and you will need to define the word in the phrase context. Always make " \
-                            "the first enumerated lemma/word be the one that is represented in the phrase. " \
-                            "Please strive for 10 definitions per lemma, " \
-                            "If there are more than 10 definitions, provide the 10 most distinct definitions. " \
-                            "If possible, the definitions supplied should illustrate 10 different distinct meanings " \
-                            "of the word. BUT DO NOT MAKE UP DEFINITIONS TO SERVE THIS PURPOSE. They need to be real " \
-                            "definitions that are used in the language for that word/lemma. Ideally, " \
-                            "each definition should illustrate a different meaning of the word.  " \
-                            f"Again, USE NO {self.native_language.upper()} words in the definitions. " \
-                            f"ONLY USE {self.language.upper()} words. "
-        self.is_phrase_list = False
-        self.base_message = {"role": "system", "content": self.instructions}
-        self.base_messages = [self.base_message]
-        self.messages = [self.base_message]
 
     def load_list(self):
         with open(self.list_filepath, 'r', encoding='utf-8') as file:
@@ -285,4 +384,10 @@ class DefinitionGenerator:
 
 if __name__ == "__main__":
     definition_generator = DefinitionGenerator(list_filepath="phrase_list.txt")
-    definition_generator.run(create=False)
+    #definition_generator.translate_tool_descriptions()
+    #definition_generator.translate_example_json_small()
+    definition_generator.load_descriptions()
+    definition_generator.initialize_example_json_small()
+    definition_generator.initialize_tools()
+    definition_generator.initialize_instructions(translate=False)
+    #definition_generator.run(create=False)
