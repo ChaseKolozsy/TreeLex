@@ -1,0 +1,386 @@
+[
+    [
+        {
+            "Base Lemma": "az",
+            "Enumerated Lemma": "az_1",
+            "Definition": "V\u00e9gtelen mennyis\u00e9g\u0171 lehet\u0151s\u00e9g k\u00f6z\u00fcl val\u00f3 egy.",
+            "Part of Speech": "hat\u00e1roz\u00f3"
+        },
+        {
+            "Base Lemma": "az",
+            "Enumerated Lemma": "az_2",
+            "Definition": "Az a bizonyos vagy ismert dolog vagy szem\u00e9ly.",
+            "Part of Speech": "hat\u00e1roz\u00f3"
+        },
+        {
+            "Base Lemma": "az",
+            "Enumerated Lemma": "az_3",
+            "Definition": "Hangs\u00falyoz\u00e1sra vagy kiemel\u00e9sre szolg\u00e1l\u00f3 sz\u00f3.",
+            "Part of Speech": "hat\u00e1roz\u00f3"
+        },
+        {
+            "Base Lemma": "az",
+            "Enumerated Lemma": "az_4",
+            "Definition": "Az \u00e1ltal\u00e1nos vagy k\u00f6zismert dolog, jelens\u00e9g.",
+            "Part of Speech": "hat\u00e1roz\u00f3"
+        },
+        {
+            "Base Lemma": "az",
+            "Enumerated Lemma": "az_5",
+            "Definition": "Az aktu\u00e1lis vagy konkretiz\u00e1lt dolog, szem\u00e9ly.",
+            "Part of Speech": "hat\u00e1roz\u00f3"
+        },
+        {
+            "Base Lemma": "az",
+            "Enumerated Lemma": "az_6",
+            "Definition": "A meg\u00e9rt\u00e9se vagy az el\u0151zm\u00e9nyekre val\u00f3 hivatkoz\u00e1sra szolg\u00e1l\u00f3 kifejez\u00e9s.",
+            "Part of Speech": "hat\u00e1roz\u00f3"
+        },
+        {
+            "Base Lemma": "az",
+            "Enumerated Lemma": "az_7",
+            "Definition": "Befejez\u00e9sre utal\u00f3 sz\u00f3.",
+            "Part of Speech": "hat\u00e1roz\u00f3"
+        },
+        {
+            "Base Lemma": "az",
+            "Enumerated Lemma": "az_8",
+            "Definition": "A k\u00f6rnyezethez val\u00f3 referenci\u00e1l\u00e1sra szolg\u00e1l\u00f3 kifejez\u00e9s.",
+            "Part of Speech": "hat\u00e1roz\u00f3"
+        },
+        {
+            "Base Lemma": "az",
+            "Enumerated Lemma": "az_9",
+            "Definition": "Els\u0151 szem\u00e9ly\u0171 n\u00e9vm\u00e1s a k\u00f6zl\u00e9sben.",
+            "Part of Speech": "n\u00e9vm\u00e1s"
+        },
+        {
+            "Base Lemma": "az",
+            "Enumerated Lemma": "az_10",
+            "Definition": "Kihangs\u00falyoz\u00e1sra vagy kijelent\u00e9sre szolg\u00e1l\u00f3 sz\u00f3.",
+            "Part of Speech": "sz\u00f3"
+        }
+    ],
+    [
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_1",
+            "Definition": "A biol\u00f3giai \u00e9s pszichol\u00f3giai folyamatok eg\u00e9szess\u00e9ge, amelyre jellemz\u0151 az anyagcsere, n\u00f6veked\u00e9s \u00e9s fejl\u0151d\u00e9s, valamint a szaporod\u00e1s k\u00e9pess\u00e9ge.",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_2",
+            "Definition": "Az \u00e9l\u0151l\u00e9nyek \u00f6sszess\u00e9ge a F\u00f6ld\u00f6n.",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_3",
+            "Definition": "Az emberi l\u00e9tez\u00e9s.",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_4",
+            "Definition": "Az id\u0151szak, amely alatt valamilyen tev\u00e9kenys\u00e9g zajlik vagy valamilyen \u00e1llapot fenn\u00e1ll.",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_5",
+            "Definition": "Egy adott ter\u00fcleten vagy id\u0151szakban megnyilv\u00e1nul\u00f3 \u00e9lettel kapcsolatos jelens\u00e9gek.",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_6",
+            "Definition": "Az \u00e9lettel, \u00e9lvezettel, munk\u00e1val vagy fejl\u0151d\u00e9ssel kapcsolatos fontos szempontok vagy \u00e9rt\u00e9kek.",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_7",
+            "Definition": "Intenz\u00edv vagy magas sz\u00ednvonal\u00fa tapasztalatok vagy tev\u00e9kenys\u00e9gek.",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_8",
+            "Definition": "\u00c9letk\u00f6r\u00fclm\u00e9nyek vagy \u00e9letm\u00f3d.",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_9",
+            "Definition": "Az \u00e9letid\u0151 vagy \u00e9lettartam.",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_10",
+            "Definition": "A l\u00e9legzet, a l\u00e9legz\u00e9s.",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_11",
+            "Definition": "\u00c9l, l\u00e9tezik.",
+            "Part of Speech": "verb"
+        },
+        {
+            "Base Lemma": "\u00e9let",
+            "Enumerated Lemma": "\u00e9let_12",
+            "Definition": "Megtartja valakinek az \u00e9let\u00e9t.",
+            "Part of Speech": "verb"
+        }
+    ],
+    [
+        {
+            "Base Lemma": "sz\u00e9p",
+            "Enumerated Lemma": "sz\u00e9p_1",
+            "Definition": "Kellemes, vonz\u00f3, eszt\u00e9tikus",
+            "Part of Speech": "mell\u00e9kn\u00e9v"
+        },
+        {
+            "Base Lemma": "sz\u00e9p",
+            "Enumerated Lemma": "sz\u00e9p_2",
+            "Definition": "J\u00f3 min\u0151s\u00e9g\u0171, t\u00f6k\u00e9letes",
+            "Part of Speech": "mell\u00e9kn\u00e9v"
+        },
+        {
+            "Base Lemma": "sz\u00e9p",
+            "Enumerated Lemma": "sz\u00e9p_3",
+            "Definition": "Tetszet\u0151s, j\u00f3l megtervezett",
+            "Part of Speech": "mell\u00e9kn\u00e9v"
+        },
+        {
+            "Base Lemma": "sz\u00e9p",
+            "Enumerated Lemma": "sz\u00e9p_4",
+            "Definition": "Csinos, vonz\u00f3 megjelen\u00e9s\u0171",
+            "Part of Speech": "mell\u00e9kn\u00e9v"
+        },
+        {
+            "Base Lemma": "sz\u00e9p",
+            "Enumerated Lemma": "sz\u00e9p_5",
+            "Definition": "Gazdag, b\u0151s\u00e9ges",
+            "Part of Speech": "mell\u00e9kn\u00e9v"
+        },
+        {
+            "Base Lemma": "sz\u00e9p",
+            "Enumerated Lemma": "sz\u00e9p_6",
+            "Definition": "Bar\u00e1ts\u00e1gos, udvarias",
+            "Part of Speech": "mell\u00e9kn\u00e9v"
+        },
+        {
+            "Base Lemma": "sz\u00e9p",
+            "Enumerated Lemma": "sz\u00e9p_7",
+            "Definition": "T\u00e1voli m\u00faltbeli, nosztalgikus, eml\u00e9kezetes",
+            "Part of Speech": "mell\u00e9kn\u00e9v"
+        },
+        {
+            "Base Lemma": "sz\u00e9p",
+            "Enumerated Lemma": "sz\u00e9p_8",
+            "Definition": "J\u00f3 \u00edzl\u00e9ssel kialak\u00edtott, harmonikus",
+            "Part of Speech": "mell\u00e9kn\u00e9v"
+        },
+        {
+            "Base Lemma": "sz\u00e9p",
+            "Enumerated Lemma": "sz\u00e9p_9",
+            "Definition": "\u00c1rtatlan, tiszta, naiv",
+            "Part of Speech": "mell\u00e9kn\u00e9v"
+        },
+        {
+            "Base Lemma": "sz\u00e9p",
+            "Enumerated Lemma": "sz\u00e9p_10",
+            "Definition": "El\u0151ny\u00f6s, kedvez\u0151",
+            "Part of Speech": "mell\u00e9kn\u00e9v"
+        }
+    ],
+    [
+        {
+            "Base Lemma": "\u00e9lvezd",
+            "Enumerated Lemma": "\u00e9lvezd_1",
+            "Definition": "Az az \u00e1llapot, amikor valami \u00f6r\u00f6m\u00f6t, \u00e9lvezetet okoz.",
+            "Part of Speech": "ige"
+        },
+        {
+            "Base Lemma": "\u00e9lvezd",
+            "Enumerated Lemma": "\u00e9lvezd_2",
+            "Definition": "Tudatosan \u00e9lvezni vagy kihaszn\u00e1lni valamit.",
+            "Part of Speech": "ige"
+        },
+        {
+            "Base Lemma": "\u00e9lvezd",
+            "Enumerated Lemma": "\u00e9lvezd_3",
+            "Definition": "\u00c9lvezetet tal\u00e1lni valamiben, \u00f6r\u00f6m\u00e9t lelni benne.",
+            "Part of Speech": "ige"
+        },
+        {
+            "Base Lemma": "\u00e9lvezd",
+            "Enumerated Lemma": "\u00e9lvezd_4",
+            "Definition": "Valaminek az \u00edz\u00e9t vagy \u00e9lvezet\u00e9t ki\u00e9lvezni.",
+            "Part of Speech": "ige"
+        },
+        {
+            "Base Lemma": "\u00e9lvezd",
+            "Enumerated Lemma": "\u00e9lvezd_5",
+            "Definition": "Felhaszn\u00e1lni, kihaszn\u00e1lni valaminek az el\u0151nyeit vagy \u00e9lvezet\u00e9t.",
+            "Part of Speech": "ige"
+        },
+        {
+            "Base Lemma": "\u00e9lvezd",
+            "Enumerated Lemma": "\u00e9lvezd_6",
+            "Definition": "\u00c9lvezni valaki t\u00e1rsas\u00e1g\u00e1t, jelenl\u00e9t\u00e9t, a vele t\u00f6lt\u00f6tt id\u0151t.",
+            "Part of Speech": "ige"
+        },
+        {
+            "Base Lemma": "\u00e9lvezd",
+            "Enumerated Lemma": "\u00e9lvezd_7",
+            "Definition": "Ki\u00e9lvezni vagy \u00e9lvezetet tal\u00e1lni valamiben.",
+            "Part of Speech": "ige"
+        },
+        {
+            "Base Lemma": "\u00e9lvezd",
+            "Enumerated Lemma": "\u00e9lvezd_8",
+            "Definition": "Teljes m\u00e9rt\u00e9kben megtapasztalni vagy kihaszn\u00e1lni valamit.",
+            "Part of Speech": "ige"
+        },
+        {
+            "Base Lemma": "\u00e9lvezd",
+            "Enumerated Lemma": "\u00e9lvezd_9",
+            "Definition": "\u00c9lvezni vagy \u00f6r\u00f6m\u00f6t lelni valamiben vagy valakiben.",
+            "Part of Speech": "ige"
+        },
+        {
+            "Base Lemma": "\u00e9lvezd",
+            "Enumerated Lemma": "\u00e9lvezd_10",
+            "Definition": "\u00c9lvezettel t\u00f6lteni valamit, \u00f6r\u00f6m\u00e9t lelni benne.",
+            "Part of Speech": "ige"
+        }
+    ],
+    [
+        {
+            "Base Lemma": "minden",
+            "Enumerated Lemma": "minden_1",
+            "Definition": "a teljes mennyis\u00e9get vagy ter\u00fcletet tartalmaz\u00f3; semmi kiv\u00e9telt sem tesz",
+            "Part of Speech": "determiner"
+        },
+        {
+            "Base Lemma": "minden",
+            "Enumerated Lemma": "minden_2",
+            "Definition": "minden egy\u00e9ni vagy lehets\u00e9ges dolog; minden dolog \u00e1ltal\u00e1noss\u00e1gban",
+            "Part of Speech": "pronoun"
+        },
+        {
+            "Base Lemma": "minden",
+            "Enumerated Lemma": "minden_3",
+            "Definition": "az \u00f6sszes l\u00e9tez\u0151 vagy lehets\u00e9ges lehet\u0151s\u00e9g",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "minden",
+            "Enumerated Lemma": "minden_4",
+            "Definition": "teljes m\u00e9rt\u00e9kben vagy minden r\u00e9szletre kiterjed\u0151en",
+            "Part of Speech": "adverb"
+        },
+        {
+            "Base Lemma": "minden",
+            "Enumerated Lemma": "minden_5",
+            "Definition": "teljes m\u00e9rt\u00e9kben; maxim\u00e1lisan",
+            "Part of Speech": "adverb"
+        },
+        {
+            "Base Lemma": "minden",
+            "Enumerated Lemma": "minden_6",
+            "Definition": "valamennyi; mindegyik",
+            "Part of Speech": "determiner"
+        },
+        {
+            "Base Lemma": "minden",
+            "Enumerated Lemma": "minden_7",
+            "Definition": "egy\u00e9bk\u00e9nt mindenki; \u00e1ltal\u00e1noss\u00e1gban minden ember",
+            "Part of Speech": "pronoun"
+        },
+        {
+            "Base Lemma": "minden",
+            "Enumerated Lemma": "minden_8",
+            "Definition": "ker\u00fclve semmit; valamennyit mindenb\u0151l",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "minden",
+            "Enumerated Lemma": "minden_9",
+            "Definition": "minden r\u00e9sz\u00e9ben hat\u00f3; teljes kiterjed\u00e9sben el\u00e9r",
+            "Part of Speech": "verb"
+        },
+        {
+            "Base Lemma": "minden",
+            "Enumerated Lemma": "minden_10",
+            "Definition": "\u00e1ltal\u00e1noss\u00e1gban; \u00e1ltal\u00e1ban",
+            "Part of Speech": "adverb"
+        }
+    ],
+    [
+        {
+            "Base Lemma": "pillanat\u00e1t",
+            "Enumerated Lemma": "pillanat\u00e1t_1",
+            "Definition": "A brief, momentary period of time",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "pillanat\u00e1t",
+            "Enumerated Lemma": "pillanat\u00e1t_2",
+            "Definition": "An instant or moment",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "pillanat\u00e1t",
+            "Enumerated Lemma": "pillanat\u00e1t_3",
+            "Definition": "The specific point in time",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "pillanat\u00e1t",
+            "Enumerated Lemma": "pillanat\u00e1t_4",
+            "Definition": "A significant or memorable moment",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "pillanat\u00e1t",
+            "Enumerated Lemma": "pillanat\u00e1t_5",
+            "Definition": "A particular instance or occurrence",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "pillanat\u00e1t",
+            "Enumerated Lemma": "pillanat\u00e1t_6",
+            "Definition": "The duration of a single blink of an eye",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "pillanat\u00e1t",
+            "Enumerated Lemma": "pillanat\u00e1t_7",
+            "Definition": "A split second",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "pillanat\u00e1t",
+            "Enumerated Lemma": "pillanat\u00e1t_8",
+            "Definition": "A short period of time with a specific purpose or activity",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "pillanat\u00e1t",
+            "Enumerated Lemma": "pillanat\u00e1t_9",
+            "Definition": "The instant when something happens",
+            "Part of Speech": "noun"
+        },
+        {
+            "Base Lemma": "pillanat\u00e1t",
+            "Enumerated Lemma": "pillanat\u00e1t_10",
+            "Definition": "A temporary pause or break",
+            "Part of Speech": "noun"
+        }
+    ]
+]

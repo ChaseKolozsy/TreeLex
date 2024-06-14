@@ -9,9 +9,63 @@ import client.src.operations.routine_ops as routine_ops
 import client.src.operations.state_ops as state_ops
 import client.src.operations.verb_ops as verb_ops
 
-from api.models import Enumerated_Lemmas
 import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
 import openai
+from pydantic import BaseModel, Field
+from typing import List, Dict
+
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
+
+# Example usage
+example_json = {
+    "base_lemma": "top",
+    "definitions": [
+        {"enumerated_lemma": "top_1", "definition": "The highest or uppermost point", "part_of_speech": "noun"},
+        {"enumerated_lemma": "top_2", "definition": "To surpass or exceed", "part_of_speech": "verb"},
+        {"enumerated_lemma": "top_3", "definition": "a toy with rounded sides, a flat top, a vertical handle, and a point at the bottom, that turns round and round on the point when the handle is pushed and pulled up and down or twisted", "part_of_speech": "noun"},
+        {"enumerated_lemma": "top_4", "definition": "situated at the highest point or part; uppermost.", "part_of_speech": "adjective"},
+        {"enumerated_lemma": "top_5", "definition": "extremely; very much", "part_of_speech": "adverb"},
+        {"enumerated_lemma": "top_6", "definition": "a garment that is usually worn over the torso, that performs the function of a shirt", "part_of_speech": "noun"},
+        {"enumerated_lemma": "top_7", "definition": "A role that one performs in a sexual relationship, indicating a position of dominance or control.", "part_of_speech": "noun"},
+        {"enumerated_lemma": "top_8", "definition": "A lid or cover for a container", "part_of_speech": "noun"},
+        {"enumerated_lemma": "top_9", "definition": "Of the highest quality or rank", "part_of_speech": "adjective"},
+        {"enumerated_lemma": "top_10", "definition": "The upper part of something", "part_of_speech": "noun"}
+    ]
+}
+
+example_json_small = {
+    "base_lemma":  "top",
+        "definitions": [
+            {"enumerated_lemma": "top_1", "definition": "The highest or uppermost point", "part_of_speech": "noun"},
+            {"enumerated_lemma": "top_2", "definition": "extremely; very much", "part_of_speech": "adverb"},
+            {"enumerated_lemma": "top_n", "definition": "...", "part_of_speech": "..."},
+    ]
+}
+
+import re
+
+def extract_definitions(text):
+    pattern = r'"base_lemma": "(.*?)",\n\s+"definitions": \[\n(.*?)\n\s+\]'
+    matches = re.findall(pattern, text, re.DOTALL)
+
+    extracted_data = []
+    for match in matches:
+        base_lemma = match[0]
+        definitions = match[1]
+
+        definition_pattern = r'"enumerated_lemma": "(.*?)",\n\s+"definition": "(.*?)",\n\s+"part_of_speech": "(.*?)"'
+        individual_definitions = re.findall(definition_pattern, definitions)
+
+        for enumerated_lemma, definition, part_of_speech in individual_definitions:
+            extracted_data.append({
+                "Base Lemma": base_lemma,
+                "Enumerated Lemma": enumerated_lemma,
+                "Definition": definition,
+                "Part of Speech": part_of_speech
+            })
+
+    return extracted_data
 
 
 import json
@@ -30,15 +84,59 @@ def preprocess_text(text):
 class DefinitionGenerator:
     """
     """
-    def __init__(self, list_filepath, language='Hungarian', filepath_ids='nursery_ids.txt', model="gpt-3.5-turbo-16k"):
+    def __init__(self, list_filepath, language='Hungarian', native_language='English', filepath_ids='definition_ids.txt', model="gpt-3.5-turbo-16k"):
         self.model = model
         self.client = openai.OpenAI()
         self.language = language
+        self.native_language = native_language
         self.assistant_id = None
         self.thread_id = None
         self.sleep_interval = 5  # seconds
         self.max_retries = 3
         self.filepath_ids = filepath_ids
+        self.tools = [
+        {
+                "type": "function",
+                "function": {
+                    "name": "generate_lemma_definitions",
+                    "description": f"Generate a structured JSON output with definitions for a base lemma. It should look like this:\n{json.dumps(example_json_small, indent=4)}",
+                    "parameters": {
+                "type": "object",
+                "properties": {
+                    "base_lemma": {
+                        "type": "string",
+                        "description": "The base word or lemma for which definitions are to be generated"
+                    },
+                "definitions": {
+                    "type": "array",
+                    "items": {
+                    "type": "object",
+                    "properties": {
+                        "enumerated_lemma": {
+                            "type": "string",
+                            "description": "The enumerated lemma for the definition, base_lemma_n where n is between 1 and 10, ie top_1, top_2, etc."
+                        },
+                        "definition": {
+                        "type": "string",
+                        "description": "The definition of the lemma"
+                    },
+                    "part_of_speech": {
+                        "type": "string",
+                        "enum": ["noun", "verb", "adjective", "adverb"],
+                        "description": "The part of speech for the definition"
+                    }
+                },
+                    "required": ["definition", "part_of_speech"]
+                },
+                "description": f"A list of definitions for the lemma. The definition should be in the language of {self.language} using no {self.native_language} words."
+                    }
+                },
+                    "required": ["lemma", "definitions"]
+                }
+            }
+        }
+        ]
+
 
         self.list_filepath = list_filepath
         self.definitions = []
@@ -50,145 +148,55 @@ class DefinitionGenerator:
                             "each definition captures the essence and nuances of the word. " \
                             f"You will be defining words in the {self.language} language, " \
                             "drawing on your extensive knowledge to offer precise and " \
-                            "contextually appropriate explanations."
-
+                            "contextually appropriate explanations. You will include no " \
+                            f"{self.native_language} words in the definitions. Nor should you " \
+                            "include the language that these instructions are in unless told to. " \
+                            "If you are asked to define a word in a different language, you should " \
+                            "define it in that language, not in the language of the instructions. " \
+                            "A word will be supplied to you, one at a time. Its phrase will " \
+                            "accompany it. The phrase is supplied for context to help you articulate " \
+                            "the correct definition and its part of speech. However, you will supply " \
+                            "more than one definition for this word. You will be constructing a " \
+                            "a dictionary entry. Dictionary entries contain multiple definitions for " \
+                            "a given lemma/word. You will create a JSON entry for the base_lemma. " \
+                            "For example, the base lemma might be, 'top'. " \
+                            "You will make the definition enumerated with 1 be the definition that best matches " \
+                            "the phrase. If you are not sure, you can make an educated guess. You will be supplied " \
+                            "with a phrase, and you will need to define the word in the phrase context. Always make " \
+                            "the first enumerated lemma/word be the one that is represented in the phrase. " \
+                            "Please strive for 10 definitions per lemma, " \
+                            "If there are more than 10 definitions, provide the 10 most distinct definitions. " \
+                            "If possible, the definitions supplied should illustrate 10 different distinct meanings " \
+                            "of the word. BUT DO NOT MAKE UP DEFINITIONS TO SERVE THIS PURPOSE. They need to be real " \
+                            "definitions that are used in the language for that word/lemma. Ideally, " \
+                            "each definition should illustrate a different meaning of the word.  " \
+                            f"Again, USE NO {self.native_language.upper()} words in the definitions. " \
+                            f"ONLY USE {self.language.upper()} words. "
         self.is_phrase_list = False
-
-    def create_assistant(self, language, instructions=None):
-        """
-        #######################################################################
-        TLDR: creates the assistant and thread, saving their IDs for future reference.
-        #######################################################################
-
-        Creates a definition generation assistant and a thread, saving their
-        IDs. It uses the provided language and instructions for configuring the
-        assistant. The assistant's name reflects its purpose and target language.
-        IDs are stored as instance variables and in a file for persistence.
-
-        Parameters:
-        - language (str): Language for definition generation, e.g., 'English'.
-        - instructions (str): Description of the task for the assistant.
-
-        Side Effects:
-        - Initializes an assistant and a thread with OpenAI API, saving their IDs.
-        - Writes the assistant and thread IDs to a file specified by
-          'self.filepath_ids'.
-
-        Returns:
-        - None
-        """
-        if not instructions:
-            instructions = self.instructions
-        client = self.client
-        self.assistant = client.beta.assistants.create(
-                name=f"{language}_DefinitionGenerator",
-                instructions=instructions,
-                model=self.model
-         )
-        self.assistant_id = self.assistant.id
-        self.thread = self.client.beta.threads.create(messages=[{"role": "user", "content": ""}])
-        self.thread_id = self.thread.id
-
-        with open(self.filepath_ids, 'w', encoding='utf-8') as f:
-            f.write(f"{self.assistant_id}\n")
-            f.write(f"{self.thread_id}\n")
-
-
-    def initialize_assistant(self, instructions=None):
-        """
-        #######################################################################
-        TLDR: loads assistant and thread ids from a file for pregenerated assistant
-        #######################################################################
-
-            Initializes the assistant by reading its ID and the thread ID from
-            a file, preparing it for interaction based on predefined instructions.
-            The method allows for updating the assistant's instructions dynamically
-            if needed, setting them as an instance variable for future reference.
-            It primarily focuses on setting up communication channels with the
-            assistant by retrieving its ID and the associated thread ID from a
-            persistent storage file specified by 'self.filepath_ids'.
-
-            This method is essential for resuming interaction with an already
-            created assistant and thread, ensuring that subsequent operations can
-            leverage these IDs for communication with the OpenAI API.
-
-            Parameters:
-            - instructions (str, optional): Instructions for the assistant's task,
-              defaulting to the instance's 'self.instructions' if not explicitly
-              provided. This allows for dynamic adjustment of the assistant's
-              operational context.
-
-            Side effects:
-            - Reads 'self.filepath_ids' to obtain and set 'self.assistant_id' and
-              'self.thread_id' for use in API interactions.
-            - Optionally updates 'self.instructions' based on the parameter provided,
-              enhancing the adaptability of the assistant's task description.
-            - Prints the assistant and thread IDs to the console for immediate
-              verification, aiding in debugging and operational monitoring.
-        """
-        if not instructions:
-            instructions = self.instructions
-        with open(self.filepath_ids, 'r', encoding='utf-8') as f:
-            self.assistant_id = f.readline().strip()
-            self.thread_id = f.readline().strip()
-            print(f'Assistant ID: {self.assistant_id}, Thread ID: {self.thread_id}')
+        self.base_message = {"role": "system", "content": self.instructions}
+        self.base_messages = [self.base_message]
+        self.messages = [self.base_message]
 
     def load_list(self):
-        """
-        #######################################################################
-        TLDR: 
-            Loads the list of strings from a specified file.
-            Each line in the file represents a separate string in the list.
-        #######################################################################
-
-        Loads a list of strings from a file specified by 'self.list_filepath'.
-
-        This method reads each line from the specified file, treating each line as
-        a separate string. It strips whitespace from the start and end of each line
-        before adding it to 'self.string_list'. This list is used for further
-        processing and operations within the NurseryRhymeGenerator class.
-
-        Side effects:
-        - Sets 'self.string_list' with the strings read from the file, where each
-          string corresponds to a line in the file, with leading and trailing
-          whitespace removed.
-        """
         with open(self.list_filepath, 'r', encoding='utf-8') as file:
-            self.string_list = [line.strip() for line in file.readlines()][3:]
+            self.string_list = [line.strip() for line in file.readlines()]
+
+    def get_validation_schema(self):
+        return {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "Base Lemma": {"type": "string"},
+                    "Enumerated Lemma": {"type": "string"},
+                    "Definition": {"type": "string"},
+                    "Part of Speech": {"type": "string"}
+                },
+                "required": ["Base Lemma", "Enumerated Lemma", "Definition", "Part of Speech"]
+            }
+        }
 
     def analyze_list_content(self):
-        """
-        #######################################################################
-        TLDR:
-            Analyzes the list of strings to determine if they are 
-            predominantly single words or phrases.
-            Sets a flag to indicate if the list contains mostly phrases.
-        #######################################################################
-
-            Analyzes the list of strings to determine if they are predominantly 
-            single words or phrases. Sets a flag to indicate if the list contains 
-            mostly phrases.
-
-            This method first checks if the list is not empty and contains more 
-            than three items, as analysis starts from the fourth item. If the 
-            list is too short, it assumes the list contains words and sets 
-            'self.is_phrase_list' to False.
-
-            For lists with more than three items, it counts how many of these 
-            (starting from the fourth item) are phrases (defined as containing 
-            more than one word). It then calculates the percentage of phrases 
-            in the analyzed part of the list.
-
-            If more than 50% of the analyzed items are phrases, 'self.is_phrase_list' 
-            is set to True, indicating the list predominantly contains phrases. 
-            Otherwise, it is set to False. The result of the analysis is printed 
-            out.
-
-            Side effects:
-            - Sets 'self.is_phrase_list' based on whether the majority of the 
-              list content are phrases or single words.
-            - Outputs to console the result of the analysis.
-        """
         # Ensure there's a list to analyze and it has more than 3 items (as we start analyzing from the 4th item)
         if not self.string_list or len(self.string_list) <= 3:
             print("List is too short to analyze. Assuming it contains words.")
@@ -208,144 +216,73 @@ class DefinitionGenerator:
         print(f"List analyzed. Contains {'mostly phrases' if self.is_phrase_list else 'mostly single words'}.")
 
     def create_definitions(self):
+        responses = []
+        for item in self.string_list:
+            words = preprocess_text(item).split()
+            print(words)
+
+            for word in words:
+                response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word)
+                print(response)
+                if response.status_code == 404:
+                    self.generate_definitions_for_word(word, item, responses)
+
+        return responses
+
+    def generate_definitions_for_word(self, word, item, responses):
         """
-        #######################################################################
-        TLDR:
-            Calls the DefinitionGenerator assistant to generate definitions
-            from the list of strings.
-        #######################################################################
-
-            Invokes the DefinitionGenerator assistant to generate definitions
-            using the provided list of strings as reference material. The method
-            formats the string list into a single string with each item separated
-            by newlines, then sends this formatted string as a prompt to the assistant
-            within a message. Subsequently, it initiates a run to generate the definitions
-            based on these instructions.
-
-            The process involves creating a message in the assistant's thread with the
-            reference material and starting a new run with specific instructions for
-            definition creation. The method waits for the run to complete by calling
-            'wait_for_run_completion', passing the thread and run IDs.
-
-            Preconditions:
-            - The assistant and thread should already be initialized and their IDs
-              stored in 'self.assistant_id' and 'self.thread_id'.
-
-            Postconditions:
-            - Initiates the creation of definitions by the assistant and waits
-              for completion.
-
-            Side effects:
-            - Sends a message to the assistant and starts a run in the OpenAI API,
-              which may consume API quota.
-            - Definitions are generated and their creation is awaited, potentially
-              delaying the execution flow until completion.
+        Helper function to generate definitions for a given word.
+        Retries the operation if it fails.
         """
-        # Prepare the reference material from the loaded string list
-        reference = '\n'.join(self.string_list)
-        message = f'Please create definitions for the following words: \n\n"""{reference}"""\n'
-        message_response = self.client.beta.threads.messages.create(
-            thread_id=self.thread_id,
-            role="user",
-            content=message
-        )
-        
-        run = self.client.beta.threads.runs.create(
-            thread_id=self.thread_id,
-            assistant_id=self.assistant_id,
-            instructions=self.instructions
-        )
-        response = self.wait_for_run_completion(self.thread_id, run.id)
-        return response
+        max_retries = 3 
+        retries = 0
+        success = False
+        message = {"role": "user", "content": f"The word is {word} and the phrase is {item}."}
+        print(f"entering generate_definitions_for_word with messsage: {message}")
 
-    def wait_for_run_completion(self, thread_id, run_id):
-        """
-        #######################################################################
-        TLDR:
-            Waits for a run to complete and prints the elapsed time. Once completed,
-            it retrieves the response and returns the response
-        #######################################################################
-
-            Polls the status of a specified run within a thread and waits until the run
-            is completed. It regularly checks the run status at intervals defined by
-            'sleep_interval'. Upon completion, it calculates and prints the total elapsed
-            time, retrieves the final message from the thread (assumed to contain the
-            generated nursery rhyme), and writes this content to the file specified by
-            'self.nursery_rhyme_filepath'.
-
-            Parameters:
-            - thread_id (str): The ID of the thread containing the run.
-            - run_id (str): The ID of the run to wait for completion.
-            - sleep_interval (int, optional): The time in seconds between status checks.
-              Defaults to 5 seconds.
-
-            Preconditions:
-            - A run should have been started in the specified thread, and both IDs
-              should be correctly provided.
-
-            Postconditions:
-            - The method waits until the specified run is completed and returns the response
-
-            Side effects:
-            - Periodically sends requests to the OpenAI API, potentially consuming API
-              quota.
-            - Outputs the completion time to the console.
-        """
-        while True:
+        while not success and retries < max_retries:
+            print(f"message: {message}")
             try:
-                run = self.client.beta.threads.runs.retrieve(thread_id=thread_id, run_id=run_id)
-                if run.completed_at:
-                    # Get messages here once Run is completed
-                    messages = self.client.beta.threads.messages.list(thread_id=thread_id)
-                    last_message = messages.data[0]
-                    response = last_message.content[0].text.value
-                    return response
+                self.messages.remove(message)
+            except ValueError:
+                pass
+            try:
+                self.messages.append(message)
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=self.messages,
+                    tools=self.tools,
+                    tool_choice=self.tools[0]
+                )
+
+                response_message = response.choices[0].message
+                tool_calls = response_message.tool_calls
+                if tool_calls:
+                    extracted_data = extract_definitions(tool_calls[0].function.arguments)
+                    for data in extracted_data:
+                        print(json.dumps(data, indent=4))
+                    validate(instance=extracted_data, schema=self.get_validation_schema())
+                    responses.append(extracted_data)
+                    success = True
             except Exception as e:
-                logging.error(f"An error occurred while retrieving the run: {e}")
-
-            time.sleep(self.sleep_interval)
-
-
-    def run(self): 
-        """
-        #######################################################################
-        TLDR:
-            Orchestrates the entire process of generating, validating, and 
-            revising nursery rhymes.
-        #######################################################################
-
-            Coordinates the full workflow for generating, assessing, and refining
-            definitions based on a given list of strings or phrases. This method
-            encapsulates the sequence of operations required to create definitions,
-            perform validation through fuzzy matching, and incorporate any missing elements
-            identified during the validation process into a revised version of the nursery rhyme.
-
-            The workflow includes initializing the assistant and thread for communication with
-            the Definition Generator, loading and analyzing the input list, setting up the
-            connection to the database for storing the definitions, generating the initial 
-            definitions. It further handles the inclusion of missing words in a given phrase
-            that for some reason were not generated by the assistant.
-
-            Preconditions:
-            - 'self.list_filepath' should be set to the path of the file containing the list
-              of strings or phrases for the nursery rhyme.
-            - Necessary configurations and credentials for interacting with the 
-              Definition Generator and any other utilized services should be correctly set up.
-
-            Postconditions:
-            - Generates an initial version of the definitions and stores them in the database.
-            - Performs validation to identify and incorporate missing elements, resulting in a
-              complete set of definitions.
-
-            Side effects:
-            - Interacts with external services (e.g., Definition Generator) to generate 
-              definitions, potentially incurring processing time and resource usage.
-            - Modifies the database by writing the generated definitions.
-        """
-        self.create_assistant(self.language)
-        self.initialize_assistant()
+                print(f"Error: {e}")
+                retries += 1
+                if retries >= max_retries:
+                    print(f"Failed to generate definitions for word '{word}' after {max_retries} attempts.")
+                    break
+                print(f"Retrying... ({retries}/{max_retries})")
+    
+    def run(self, create=False): 
         self.load_list()
-        self.create_definitions()
-        # TODO: validate the definitions
-        # TODO: if there are missing definitions, ask assistant to generate them 
+        print(self.string_list)
+
+        responses = self.create_definitions()
+
+        with open("definitions.json", "w", encoding="utf-8") as f:
+            f.write(json.dumps(responses, indent=4))
         # TODO: save the definitions to the database
+
+
+if __name__ == "__main__":
+    definition_generator = DefinitionGenerator(list_filepath="phrase_list.txt")
+    definition_generator.run(create=False)
