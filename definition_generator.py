@@ -6,32 +6,6 @@ import openai
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
-# Example usage
-example_json = {
-    "base_lemma": "top",
-    "definitions": [
-        {"enumerated_lemma": "top_1", "definition": "The highest or uppermost point", "part_of_speech": "noun"},
-        {"enumerated_lemma": "top_2", "definition": "To surpass or exceed", "part_of_speech": "verb"},
-        {"enumerated_lemma": "top_3", "definition": "a toy with rounded sides, a flat top, a vertical handle, and a point at the bottom, that turns round and round on the point when the handle is pushed and pulled up and down or twisted", "part_of_speech": "noun"},
-        {"enumerated_lemma": "top_4", "definition": "situated at the highest point or part; uppermost.", "part_of_speech": "adjective"},
-        {"enumerated_lemma": "top_5", "definition": "extremely; very much", "part_of_speech": "adverb"},
-        {"enumerated_lemma": "top_6", "definition": "a garment that is usually worn over the torso, that performs the function of a shirt", "part_of_speech": "noun"},
-        {"enumerated_lemma": "top_7", "definition": "A role that one performs in a sexual relationship, indicating a position of dominance or control.", "part_of_speech": "noun"},
-        {"enumerated_lemma": "top_8", "definition": "A lid or cover for a container", "part_of_speech": "noun"},
-        {"enumerated_lemma": "top_9", "definition": "Of the highest quality or rank", "part_of_speech": "adjective"},
-        {"enumerated_lemma": "top_10", "definition": "The upper part of something", "part_of_speech": "noun"}
-    ]
-}
-
-example_json_small = {
-    "base_lemma":  "top",
-        "definitions": [
-            {"enumerated_lemma": "top_1", "definition": "The highest or uppermost point", "part_of_speech": "noun"},
-            {"enumerated_lemma": "top_2", "definition": "extremely; very much", "part_of_speech": "adverb"},
-            {"enumerated_lemma": "top_n", "definition": "...", "part_of_speech": "..."},
-    ]
-}
-
 import json
 
 def extract_definitions(text):
