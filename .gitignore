@@ -22,3 +22,6 @@ ENV/
 # Other
 *.bak
 .DS_Store
+
+*.json
+*.txt
