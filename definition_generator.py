@@ -43,27 +43,25 @@ example_json_small = {
     ]
 }
 
-import re
+import json
 
 def extract_definitions(text):
-    pattern = r'"base_lemma": "(.*?)",\n\s+"definitions": \[\n(.*?)\n\s+\]'
-    matches = re.findall(pattern, text, re.DOTALL)
+    data = json.loads(text)
+    base_lemma = data.get("base_lemma")
+    definitions = data.get("definitions", [])
 
     extracted_data = []
-    for match in matches:
-        base_lemma = match[0]
-        definitions = match[1]
+    for definition in definitions:
+        enumerated_lemma = definition.get("enumerated_lemma")
+        definition_text = definition.get("definition")
+        part_of_speech = definition.get("part_of_speech")
 
-        definition_pattern = r'"enumerated_lemma": "(.*?)",\n\s+"definition": "(.*?)",\n\s+"part_of_speech": "(.*?)"'
-        individual_definitions = re.findall(definition_pattern, definitions)
-
-        for enumerated_lemma, definition, part_of_speech in individual_definitions:
-            extracted_data.append({
-                "Base Lemma": base_lemma,
-                "Enumerated Lemma": enumerated_lemma,
-                "Definition": definition,
-                "Part of Speech": part_of_speech
-            })
+        extracted_data.append({
+            "Base Lemma": base_lemma,
+            "Enumerated Lemma": enumerated_lemma,
+            "Definition": definition_text,
+            "Part of Speech": part_of_speech
+        })
 
     return extracted_data
 
@@ -104,7 +102,7 @@ class DefinitionGenerator:
             "function_name": "generate_lemma_definitions",
             "function_description": "Generate a structured JSON output with definitions for a base lemma. It should look like this",
             "base_lemma_description": "The base word or lemma for which definitions are to be generated",
-            "definitions_description": f"A list of definitions for the lemma. The definition should be in the language of {self.language} using no {self.native_language} words.",
+            "definitions_description": f"A list of ten definitions for the lemma. The definition should be in the language of {self.language} using no {self.native_language} words.",
             "enumerated_lemma_description": "The enumerated lemma for the definition, base_lemma_n where n is between 1 and 10, ie top_1, top_2, etc.",
             "definition_description": "The definition of the lemma",
             "part_of_speech_description": "The part of speech for the definition",
@@ -153,7 +151,6 @@ class DefinitionGenerator:
         self.base_message = {"role": "system", "content": self.instructions}
         self.base_messages = [self.base_message]
         self.messages = [self.base_message]
-        print(self.instructions)
     
     def translate_tool_descriptions(self):
         """
@@ -232,7 +229,6 @@ class DefinitionGenerator:
                 response_format={"type": "json_object"}
             )
             response = json.loads(response.choices[0].message.content)
-            print(f"response: {response}")
             for response_key, translated_value in response.items():
                 self.translated_word_phrase[key] = translated_value
             messages = []
@@ -243,7 +239,6 @@ class DefinitionGenerator:
     def load_translated_word_phrase(self):
         with open("translated_word_phrase.json", "r", encoding="utf-8") as f:
             self.translated_word_phrase = json.load(f)
-            print(f"translated_word_phrase: {self.translated_word_phrase}")
     
     def load_descriptions(self):
         with open("descriptions.json", "r", encoding="utf-8") as f:
@@ -263,45 +258,47 @@ class DefinitionGenerator:
     
     def initialize_tools(self):
         self.tools = [
-        {
+            {
                 "type": "function",
                 "function": {
-                    "name": f"{self.descriptions['function_name']}",
+                    "name": f"{self.base_descriptions['function_name']}",
                     "description": f"{self.descriptions['function_description']}:\n{json.dumps(self.example_json_small, indent=4)}",
                     "parameters": {
-                "type": "object",
-                "properties": {
-                    "base_lemma": {
-                        "type": "string",
-                        "description": f"{self.descriptions['base_lemma_description']}"
-                    },
-                "definitions": {
-                    "type": "array",
-                    "items": {
-                    "type": "object",
-                    "properties": {
-                        "enumerated_lemma": {
-                            "type": "string",
-                            "description": f"{self.descriptions['enumerated_lemma_description']}"
+                        "type": "object",
+                        "properties": {
+                            "base_lemma": {
+                                "type": "string",
+                                "description": f"{self.descriptions['base_lemma_description']}"
+                            },
+                            "definitions": {
+                                "type": "array",
+                                "minItems": 10,
+                                "maxItems": 10,
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "enumerated_lemma": {
+                                            "type": "string",
+                                            "description": f"{self.descriptions['enumerated_lemma_description']}"
+                                        },
+                                        "definition": {
+                                            "type": "string",
+                                            "description": f"{self.descriptions['definition_description']}"
+                                        },
+                                        "part_of_speech": {
+                                            "type": "string",
+                                            "description": f"{self.descriptions['part_of_speech_description']}"
+                                        }
+                                    },
+                                    "required": ["definition", "part_of_speech"]
+                                },
+                                "description": f"{self.descriptions['definitions_description']}"
+                            }
                         },
-                        "definition": {
-                        "type": "string",
-                        "description": f"{self.descriptions['definition_description']}"
-                    },
-                    "part_of_speech": {
-                        "type": "string",
-                        "description": f"{self.descriptions['part_of_speech_description']}"
+                        "required": ["base_lemma", "definitions"]
                     }
-                },
-                    "required": ["definition", "part_of_speech"]
-                },
-                "description": f"{self.descriptions['definitions_description']}"
-                    }
-                },
-                    "required": ["base_lemma", "definitions"]
                 }
             }
-        }
         ]
 
 
@@ -354,7 +351,8 @@ class DefinitionGenerator:
                 print(response)
                 if response.status_code == 404:
                     self.generate_definitions_for_word(word, item, responses)
-                    self.messages = [self.base_message]
+                    self.messages = self.base_messages
+                    break
 
         return responses
 
@@ -387,9 +385,8 @@ class DefinitionGenerator:
                 response_message = response.choices[0].message
                 tool_calls = response_message.tool_calls
                 if tool_calls:
+                    #print(f"tool_calls[0].function.arguments: {tool_calls[0].function.arguments}")  # Debug print
                     extracted_data = extract_definitions(tool_calls[0].function.arguments)
-                    for data in extracted_data:
-                        print(json.dumps(data, indent=4))
                     validate(instance=extracted_data, schema=self.get_validation_schema())
                     responses.append(extracted_data)
                     success = True
