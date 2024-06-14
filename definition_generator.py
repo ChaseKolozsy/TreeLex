@@ -1,44 +1,12 @@
 import client.src.operations.app_ops as app_ops
 import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
 
-import openai
-
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
+from utils.deg_gen_util import preprocess_text, extract_definitions
 
+import openai
 import json
-
-def extract_definitions(text):
-    data = json.loads(text)
-    base_lemma = data.get("base_lemma")
-    definitions = data.get("definitions", [])
-
-    extracted_data = []
-    for definition in definitions:
-        enumerated_lemma = definition.get("enumerated_lemma")
-        definition_text = definition.get("definition")
-        part_of_speech = definition.get("part_of_speech")
-
-        extracted_data.append({
-            "Base Lemma": base_lemma,
-            "Enumerated Lemma": enumerated_lemma,
-            "Definition": definition_text,
-            "Part of Speech": part_of_speech
-        })
-
-    return extracted_data
-
-
-import json
-from datetime import datetime
-from pathlib import Path
-import re
-
-def preprocess_text(text):
-    # Remove specified punctuation marks using regular expressions
-    text = re.sub(r'[,:;.\-?!\']', '', text)
-    return text
-
 
 class DefinitionGenerator:
     """
