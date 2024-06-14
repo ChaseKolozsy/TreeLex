@@ -58,7 +58,7 @@ class DefinitionGenerator:
         - run: Executes the process of generating definitions.
 
     """
-    def __init__(self, list_filepath, language='Hungarian', native_language='English', filepath_ids='definition_ids.txt', model="gpt-3.5-turbo-0125"):
+    def __init__(self, list_filepath, language='Hungarian', native_language='English', model="gpt-3.5-turbo-0125"):
         self.model = model
         self.client = openai.OpenAI()
         self.language = language
