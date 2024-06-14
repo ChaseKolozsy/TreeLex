@@ -30,8 +30,6 @@ def extract_definitions(text):
 
 
 import json
-import time
-import logging
 from datetime import datetime
 from pathlib import Path
 import re
