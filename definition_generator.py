@@ -7,6 +7,7 @@ from utils.def_gen_util import preprocess_text, extract_definitions
 
 import openai
 import json
+from pathlib import Path
 
 class DefinitionGenerator:
     """
@@ -300,12 +301,18 @@ class DefinitionGenerator:
 
 if __name__ == "__main__":
     #app_ops.reset_db()
-    definition_generator = DefinitionGenerator(list_filepath="phrase_list.txt")
-    #definition_generator.translate_dictionaries(definition_generator.base_descriptions, "translated_descriptions.json")
-    #definition_generator.translate_dictionaries(definition_generator.example_json_small, "translated_example_json_small.json")
-    #definition_generator.translate_dictionaries(definition_generator.translated_word_phrase, "translated_word_phrase.json")
+    current_dir = Path.cwd()
+    data_dir = current_dir / "data"
+    if not data_dir.exists():
+        data_dir.mkdir(parents=True)
+    print(f"data_dir: {data_dir}")
+    
+    #definition_generator = DefinitionGenerator(list_filepath=data_dir / "phrase_list.txt")
+    #definition_generator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
+    #definition_generator.translate_dictionaries(definition_generator.example_json_small, data_dir / "translated_example_json_small.json")
+    #definition_generator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
     #definition_generator.translate_instructions()
-    definition_generator.run(familiar=True)
+    #definition_generator.run(familiar=True)
 
     #response = enumerated_lemma_ops.get_all_enumerated_lemmas()
     #if response.status_code == 200:
