@@ -94,6 +94,11 @@ class DefinitionGenerator:
         self.sleep_interval = 5  # seconds
         self.max_retries = 3
         self.filepath_ids = filepath_ids
+        self.base_word_phrase = {
+            "word": "word",
+            "phrase": "phrase"
+        }
+        self.translated_word_phrase = {}
 
         self.base_descriptions = {
             "function_name": "generate_lemma_definitions",
@@ -128,8 +133,8 @@ class DefinitionGenerator:
                             f"{self.native_language} words in the definitions." \
                             "A phrase is supplied for context to help you articulate " \
                             "the correct definition and its part of speech. However, you will supply " \
-                            "more than one definition for this word. You will be constructing a " \
-                            "a dictionary entry a given lemma/word. " \
+                            "more than one definition for this word. You will be constructing " \
+                            "a dictionary entry for a given lemma/word. " \
                             "Please strive for 10 definitions per lemma, " \
                             "The definitions supplied should represent 10 different distinct meanings. " \
                             f"An example of a definition is:\n" 
@@ -215,6 +220,30 @@ class DefinitionGenerator:
             for response_key, translated_value in response.items():
                 self.translated_instructions = translated_value
             messages = []
+    
+    def translate_word_phrase(self):
+        messages = []
+        for key, value in self.base_word_phrase.items():
+            message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n {value}: <translation>"}
+            messages.append(message)
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                response_format={"type": "json_object"}
+            )
+            response = json.loads(response.choices[0].message.content)
+            print(f"response: {response}")
+            for response_key, translated_value in response.items():
+                self.translated_word_phrase[key] = translated_value
+            messages = []
+
+        with open("translated_word_phrase.json", "w", encoding="utf-8") as f:
+            f.write(json.dumps(self.translated_word_phrase, indent=4))
+    
+    def load_translated_word_phrase(self):
+        with open("translated_word_phrase.json", "r", encoding="utf-8") as f:
+            self.translated_word_phrase = json.load(f)
+            print(f"translated_word_phrase: {self.translated_word_phrase}")
     
     def load_descriptions(self):
         with open("descriptions.json", "r", encoding="utf-8") as f:
@@ -325,10 +354,11 @@ class DefinitionGenerator:
                 print(response)
                 if response.status_code == 404:
                     self.generate_definitions_for_word(word, item, responses)
+                    self.messages = [self.base_message]
 
         return responses
 
-    def generate_definitions_for_word(self, word, item, responses):
+    def generate_definitions_for_word(self, word, phrase, responses):
         """
         Helper function to generate definitions for a given word.
         Retries the operation if it fails.
@@ -336,7 +366,7 @@ class DefinitionGenerator:
         max_retries = 3 
         retries = 0
         success = False
-        message = {"role": "user", "content": f"The word is {word} and the phrase is {item}."}
+        message = {"role": "user", "content": f"{self.translated_word_phrase['word']}: {word}. {self.translated_word_phrase['phrase']}: {phrase}."}
         print(f"entering generate_definitions_for_word with messsage: {message}")
 
         while not success and retries < max_retries:
@@ -375,6 +405,13 @@ class DefinitionGenerator:
         self.load_list()
         print(self.string_list)
 
+        # load the descriptions, example json, tools and instructions
+        self.load_descriptions()
+        self.initialize_example_json_small()
+        self.initialize_tools()
+        self.initialize_instructions()
+        self.load_translated_word_phrase()
+
         responses = self.create_definitions()
 
         with open("definitions.json", "w", encoding="utf-8") as f:
@@ -386,8 +423,5 @@ if __name__ == "__main__":
     definition_generator = DefinitionGenerator(list_filepath="phrase_list.txt")
     #definition_generator.translate_tool_descriptions()
     #definition_generator.translate_example_json_small()
-    definition_generator.load_descriptions()
-    definition_generator.initialize_example_json_small()
-    definition_generator.initialize_tools()
-    definition_generator.initialize_instructions(translate=False)
-    #definition_generator.run(create=False)
+    #definition_generator.translate_word_phrase()
+    definition_generator.run(create=False)
