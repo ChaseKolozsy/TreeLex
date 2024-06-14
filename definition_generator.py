@@ -1,18 +1,7 @@
 import client.src.operations.app_ops as app_ops
-import client.src.operations.attribute_ops as attribute_ops
-import client.src.operations.branch_node_ops as branch_node_ops
-import client.src.operations.branch_ops as branch_ops
-import client.src.operations.grammar_ops as grammar_ops
-import client.src.operations.object_ops as object_ops
-import client.src.operations.phrase_ops as phrase_ops
-import client.src.operations.routine_ops as routine_ops
-import client.src.operations.state_ops as state_ops
-import client.src.operations.verb_ops as verb_ops
-
 import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
+
 import openai
-from pydantic import BaseModel, Field
-from typing import List, Dict
 
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
