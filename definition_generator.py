@@ -107,10 +107,14 @@ class DefinitionGenerator:
     def initialize_instructions(self, translate=False):
         if translate:
             self.translate_instructions()
-        with open("translated_instructions.json", "r", encoding="utf-8") as f:
-            tmp = json.load(f)
-        for key, value in tmp.items():
-            self.translated_instructions = value
+        try:
+            with open("translated_instructions.json", "r", encoding="utf-8") as f:
+                tmp = json.load(f)
+            for key, value in tmp.items():
+                self.translated_instructions = value
+        except FileNotFoundError:
+            print("Error: translated_instructions.json file not found.")
+            self.translated_instructions = ""
 
         self.instructions = self.translated_instructions + f"\n{json.dumps(self.example_json_small, indent=4)}"
         self.base_message = {"role": "system", "content": self.instructions}
@@ -122,18 +126,22 @@ class DefinitionGenerator:
         for key, value in self.base_instructions.items():
             message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n instructions: <translation>"}
             messages.append(message)
-            response = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=messages,
-                response_format={"type": "json_object"}
-            )
-            response = json.loads(response.choices[0].message.content)
-            print(f"response: {response}")
-            with open("translated_instructions.json", "w", encoding="utf-8") as f:
-                f.write(json.dumps(response, indent=4))
-            for response_key, translated_value in response.items():
-                self.translated_instructions = translated_value
+            try:
+                response = self.client.chat.completions.create(
+                    model="gpt-4o",
+                    messages=messages,
+                    response_format={"type": "json_object"}
+                )
+                response = json.loads(response.choices[0].message.content)
+                print(f"response: {response}")
+                with open("translated_instructions.json", "w", encoding="utf-8") as f:
+                    f.write(json.dumps(response, indent=4))
+                for response_key, translated_value in response.items():
+                    self.translated_instructions = translated_value
+            except Exception as e:
+                print(f"An error occurred: {e}")
             messages = []
+    
     
     def translate_dictionaries(self, base: dict, outfile: str):
         """
@@ -148,38 +156,63 @@ class DefinitionGenerator:
         for key, value in base.items():
             message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n {value}: <translation>"}
             messages.append(message)
-            response = self.client.chat.completions.create(
-                model=self.model,
-                messages=messages,
-                response_format={"type": "json_object"}
-            )
-            response = json.loads(response.choices[0].message.content)
-            for response_key, translated_value in response.items():
-                self.translated_word_phrase[key] = translated_value
-            messages = []
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    response_format={"type": "json_object"}
+                )
+                response = json.loads(response.choices[0].message.content)
+                for response_key, translated_value in response.items():
+                    self.translated_word_phrase[key] = translated_value
+                messages = []
+            except Exception as e:
+                print(f"Error during dictionary translation: {e}")
 
-        with open(outfile, "w", encoding="utf-8") as f:
-            f.write(json.dumps(self.translated_word_phrase, indent=4))
+        try:
+            with open(outfile, "w", encoding="utf-8") as f:
+                f.write(json.dumps(self.translated_word_phrase, indent=4))
+        except Exception as e:
+            print(f"Error writing to file {outfile}: {e}")
+    
     
     def load_translated_word_phrase(self):
-        with open("translated_word_phrase.json", "r", encoding="utf-8") as f:
-            self.translated_word_phrase = json.load(f)
+        try:
+            with open("translated_word_phrase.json", "r", encoding="utf-8") as f:
+                self.translated_word_phrase = json.load(f)
+        except FileNotFoundError:
+            print("Error: translated_word_phrase.json file not found.")
+        except json.JSONDecodeError:
+            print("Error: JSON decode error in translated_word_phrase.json.")
+    
     
     def load_descriptions(self):
-        with open("descriptions.json", "r", encoding="utf-8") as f:
-            self.descriptions = json.load(f)
+        try:
+            with open("descriptions.json", "r", encoding="utf-8") as f:
+                self.descriptions = json.load(f)
+        except FileNotFoundError:
+            print("Error: descriptions.json file not found.")
+        except json.JSONDecodeError:
+            print("Error: JSON decode error in descriptions.json.")
+    
     
     def initialize_example_json_small(self):
-        with open("example_json_small.json", "r", encoding="utf-8") as f:
-            tmp = json.load(f)
-        self.example_json_small = {
-            "base_lemma":  "top",
-            "definitions": [
-                {"enumerated_lemma": "top_1", "definition": f"{tmp['top_1']}", "part_of_speech": f"{tmp['noun']}"},
-                {"enumerated_lemma": "top_2", "definition": f"{tmp['top_2']}", "part_of_speech": f"{tmp['adverb']}"},
-                {"enumerated_lemma": "top_n", "definition": '...', "part_of_speech": "..."},
-            ]
-        }
+        try:
+            with open("example_json_small.json", "r", encoding="utf-8") as f:
+                tmp = json.load(f)
+            self.example_json_small = {
+                "base_lemma":  "top",
+                "definitions": [
+                    {"enumerated_lemma": "top_1", "definition": f"{tmp['top_1']}", "part_of_speech": f"{tmp['noun']}"},
+                    {"enumerated_lemma": "top_2", "definition": f"{tmp['top_2']}", "part_of_speech": f"{tmp['adverb']}"},
+                    {"enumerated_lemma": "top_n", "definition": '...', "part_of_speech": "..."},
+                ]
+            }
+        except FileNotFoundError:
+            print("Error: example_json_small.json file not found.")
+        except json.JSONDecodeError:
+            print("Error: JSON decode error in example_json_small.json.")
+    
     
     def initialize_tools(self):
         """
@@ -240,23 +273,33 @@ class DefinitionGenerator:
         Load the list of strings from the specified file.
         This list will be used in the create_definitions method.
         """
-        with open(self.list_filepath, 'r', encoding='utf-8') as file:
-            self.string_list = [line.strip() for line in file.readlines()]
+        try:
+            with open(self.list_filepath, 'r', encoding='utf-8') as file:
+                self.string_list = [line.strip() for line in file.readlines()]
+        except FileNotFoundError:
+            print(f"Error: {self.list_filepath} file not found.")
+        except Exception as e:
+            print(f"Error loading list from {self.list_filepath}: {e}")
 
     def get_validation_schema(self):
-        return {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "Base Lemma": {"type": "string"},
-                    "Enumerated Lemma": {"type": "string"},
-                    "Definition": {"type": "string"},
-                    "Part of Speech": {"type": "string"}
-                },
-                "required": ["Base Lemma", "Enumerated Lemma", "Definition", "Part of Speech"]
+        try:
+            schema = {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "Base Lemma": {"type": "string"},
+                        "Enumerated Lemma": {"type": "string"},
+                        "Definition": {"type": "string"},
+                        "Part of Speech": {"type": "string"}
+                    },
+                    "required": ["Base Lemma", "Enumerated Lemma", "Definition", "Part of Speech"]
+                }
             }
-        }
+            return schema
+        except Exception as e:
+            print(f"Error generating validation schema: {e}")
+            return None
 
     def create_definitions(self):
         """
@@ -264,16 +307,22 @@ class DefinitionGenerator:
         """
         responses = []
         for item in self.string_list:
-            words = preprocess_text(item).split()
-            print(words)
+            try:
+                words = preprocess_text(item).split()
+                print(words)
 
-            for word in words:
-                response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word)
-                print(response)
-                if response.status_code == 404:
-                    self.generate_definitions_for_word(word, item, responses)
-                    self.messages = self.base_messages
-                    break
+                for word in words:
+                    try:
+                        response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word)
+                        print(response)
+                        if response.status_code == 404:
+                            self.generate_definitions_for_word(word, item, responses)
+                            self.messages = self.base_messages
+                            break
+                    except Exception as e:
+                        print(f"Error processing word '{word}': {e}")
+            except Exception as e:
+                print(f"Error processing item '{item}': {e}")
 
         return responses
 
@@ -285,8 +334,8 @@ class DefinitionGenerator:
         max_retries = self.max_retries
         retries = 0
         success = False
-        message = {"role": "user", "content": f"{self.translated_word_phrase['word']}: {word}. {self.translated_word_phrase['phrase']}: {phrase}."}
-        print(f"entering generate_definitions_for_word with messsage: {message}")
+        message = {"role": "user", "content": f"{self.translated_word_phrase.get('word', 'word')}: {word}. {self.translated_word_phrase.get('phrase', 'phrase')}: {phrase}."}
+        print(f"entering generate_definitions_for_word with message: {message}")
 
         while not success and retries < max_retries:
             print(f"message: {message}")
@@ -306,11 +355,13 @@ class DefinitionGenerator:
                 response_message = response.choices[0].message
                 tool_calls = response_message.tool_calls
                 if tool_calls:
-                    #print(f"tool_calls[0].function.arguments: {tool_calls[0].function.arguments}")  # Debug print
                     extracted_data = extract_definitions(tool_calls[0].function.arguments)
                     validate(instance=extracted_data, schema=self.get_validation_schema())
                     responses.append(extracted_data)
                     success = True
+            except ValidationError as ve:
+                print(f"Validation error: {ve}")
+                retries += 1
             except Exception as e:
                 print(f"Error: {e}")
                 retries += 1
@@ -347,29 +398,32 @@ class DefinitionGenerator:
                     'active': False,  # Assuming active by default
                     'anki_card_ids': [] # Assuming no anki card ids are provided
                 }
-                enumerated_lemma_ops.create_enumerated_lemma(data=data)
+                try:
+                    enumerated_lemma_ops.create_enumerated_lemma(data=data)
+                except Exception as e:
+                    print(f"Error creating enumerated lemma: {e}")
 
 if __name__ == "__main__":
-    #app_ops.reset_db()
     current_dir = Path.cwd()
     data_dir = current_dir / "data"
     if not data_dir.exists():
         data_dir.mkdir(parents=True)
     print(f"data_dir: {data_dir}")
     
-    #definition_generator = DefinitionGenerator(list_filepath=data_dir / "phrase_list.txt")
-    #definition_generator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
-    #definition_generator.translate_dictionaries(definition_generator.example_json_small, data_dir / "translated_example_json_small.json")
-    #definition_generator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
-    #definition_generator.translate_instructions()
-    #definition_generator.run(familiar=True)
+    # Uncomment and configure the following lines as needed
+    # definition_generator = DefinitionGenerator(list_filepath=data_dir / "phrase_list.txt")
+    # definition_generator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
+    # definition_generator.translate_dictionaries(definition_generator.example_json_small, data_dir / "translated_example_json_small.json")
+    # definition_generator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
+    # definition_generator.translate_instructions()
+    # definition_generator.run(familiar=True)
 
-    #response = enumerated_lemma_ops.get_all_enumerated_lemmas()
-    #if response.status_code == 200:
-    #    lemmas = response.json()['enumerated_lemmas']
-    #    for lemma in lemmas:
-    #        for key, value in lemma.items():
-    #            print(f"{key}: {value}")
-    #        print("\n----------------\n")
-    #else:
-    #    print(response.status_code)
+    # response = enumerated_lemma_ops.get_all_enumerated_lemmas()
+    # if response.status_code == 200:
+    #     lemmas = response.json()['enumerated_lemmas']
+    #     for lemma in lemmas:
+    #         for key, value in lemma.items():
+    #             print(f"{key}: {value}")
+    #         print("\n----------------\n")
+    # else:
+    #     print(response.status_code)
