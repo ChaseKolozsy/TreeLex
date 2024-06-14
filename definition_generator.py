@@ -410,15 +410,38 @@ class DefinitionGenerator:
         self.load_translated_word_phrase()
 
         responses = self.create_definitions()
-
-        with open("definitions.json", "w", encoding="utf-8") as f:
-            f.write(json.dumps(responses, indent=4))
-        # TODO: save the definitions to the database
-
+        for response in responses:
+            for definition in response:
+                data = {
+                    'enumerated_lemma': definition['Enumerated Lemma'],
+                    'base_lemma': definition['Base Lemma'],
+                    'part_of_speech': definition['Part of Speech'],
+                    'definition': definition['Definition'],
+                    'frequency': 0,  # Assuming initial frequency is 0
+                    'phrase': '',  # Assuming no phrase is provided
+                    'story_link': '',  # Assuming no story link is provided
+                    'media_references': [],  # Assuming no media references are provided
+                    'object_exploration_link': '',  # Assuming no object exploration link is provided
+                    'familiar': False,  # Assuming not familiar initially
+                    'active': False,  # Assuming active by default
+                    'anki_card_ids': [] # Assuming no anki card ids are provided
+                }
+                enumerated_lemma_ops.create_enumerated_lemma(data=data)
 
 if __name__ == "__main__":
+    #app_ops.reset_db()
     definition_generator = DefinitionGenerator(list_filepath="phrase_list.txt")
     #definition_generator.translate_tool_descriptions()
     #definition_generator.translate_example_json_small()
     #definition_generator.translate_word_phrase()
     definition_generator.run()
+
+    #response = enumerated_lemma_ops.get_all_enumerated_lemmas()
+    #if response.status_code == 200:
+    #    lemmas = response.json()['enumerated_lemmas']
+    #    for lemma in lemmas:
+    #        for key, value in lemma.items():
+    #            print(f"{key}: {value}")
+    #        print("\n----------------\n")
+    #else:
+    #    print(response.status_code)
