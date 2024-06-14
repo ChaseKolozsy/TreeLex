@@ -1,14 +1,15 @@
-import logging
 import client.src.operations.app_ops as app_ops
 import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
 
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-from utils.def_gen_util import preprocess_text, extract_definitions
+from pathlib import Path
+
+from utils.def_gen_util import preprocess_text, extract_definitions, load_config
 
 import openai
 import json
-from pathlib import Path
+import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -418,6 +419,15 @@ if __name__ == "__main__":
     if not data_dir.exists():
         data_dir.mkdir(parents=True)
     print(f"data_dir: {data_dir}")
+
+    config = load_config(data_dir / "def_gen_config.yaml")
+
+    definition_generator = DefinitionGenerator(
+        list_filepath=config['list_filepath'],
+        language=config['language'],
+        native_language=config['native_language'],
+        model=config['model']
+    )
     
     # Uncomment and configure the following lines as needed
     # definition_generator = DefinitionGenerator(list_filepath=data_dir / "phrase_list.txt")

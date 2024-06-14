@@ -1,6 +1,7 @@
 
 import json
 import re
+import yaml
 
 def extract_definitions(text):
     data = json.loads(text)
@@ -26,3 +27,12 @@ def preprocess_text(text):
     # Remove specified punctuation marks using regular expressions
     text = re.sub(r'[,:;.\-?!\']', '', text)
     return text
+
+def load_config(config_path):
+    with open(config_path, 'r') as file:
+        if config_path.endswith('.yaml') or config_path.endswith('.yml'):
+            return yaml.safe_load(file)
+        elif config_path.endswith('.json'):
+            return json.load(file)
+        else:
+            raise ValueError("Unsupported configuration file format")
