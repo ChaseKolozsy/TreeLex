@@ -1,3 +1,4 @@
+import logging
 import client.src.operations.app_ops as app_ops
 import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
 
@@ -8,6 +9,9 @@ from utils.def_gen_util import preprocess_text, extract_definitions
 import openai
 import json
 from pathlib import Path
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DefinitionGenerator:
     """
@@ -113,7 +117,7 @@ class DefinitionGenerator:
             for key, value in tmp.items():
                 self.translated_instructions = value
         except FileNotFoundError:
-            print("Error: translated_instructions.json file not found.")
+            logging.error("Error: translated_instructions.json file not found.")
             self.translated_instructions = ""
 
         self.instructions = self.translated_instructions + f"\n{json.dumps(self.example_json_small, indent=4)}"
@@ -133,14 +137,15 @@ class DefinitionGenerator:
                     response_format={"type": "json_object"}
                 )
                 response = json.loads(response.choices[0].message.content)
-                print(f"response: {response}")
+                logging.info(f"response: {response}")
                 with open("translated_instructions.json", "w", encoding="utf-8") as f:
                     f.write(json.dumps(response, indent=4))
                 for response_key, translated_value in response.items():
                     self.translated_instructions = translated_value
             except Exception as e:
-                print(f"An error occurred: {e}")
+                logging.error(f"An error occurred: {e}")
             messages = []
+    
     
     
     def translate_dictionaries(self, base: dict, outfile: str):
@@ -181,9 +186,10 @@ class DefinitionGenerator:
             with open("translated_word_phrase.json", "r", encoding="utf-8") as f:
                 self.translated_word_phrase = json.load(f)
         except FileNotFoundError:
-            print("Error: translated_word_phrase.json file not found.")
+            logging.error("Error: translated_word_phrase.json file not found.")
         except json.JSONDecodeError:
-            print("Error: JSON decode error in translated_word_phrase.json.")
+            logging.error("Error: JSON decode error in translated_word_phrase.json.")
+    
     
     
     def load_descriptions(self):
@@ -191,9 +197,10 @@ class DefinitionGenerator:
             with open("descriptions.json", "r", encoding="utf-8") as f:
                 self.descriptions = json.load(f)
         except FileNotFoundError:
-            print("Error: descriptions.json file not found.")
+            logging.error("descriptions.json file not found.")
         except json.JSONDecodeError:
-            print("Error: JSON decode error in descriptions.json.")
+            logging.error("JSON decode error in descriptions.json.")
+    
     
     
     def initialize_example_json_small(self):
@@ -209,9 +216,10 @@ class DefinitionGenerator:
                 ]
             }
         except FileNotFoundError:
-            print("Error: example_json_small.json file not found.")
+            logging.error("example_json_small.json file not found.")
         except json.JSONDecodeError:
-            print("Error: JSON decode error in example_json_small.json.")
+            logging.error("JSON decode error in example_json_small.json.")
+    
     
     
     def initialize_tools(self):
@@ -277,9 +285,9 @@ class DefinitionGenerator:
             with open(self.list_filepath, 'r', encoding='utf-8') as file:
                 self.string_list = [line.strip() for line in file.readlines()]
         except FileNotFoundError:
-            print(f"Error: {self.list_filepath} file not found.")
+            logging.error(f"{self.list_filepath} file not found.")
         except Exception as e:
-            print(f"Error loading list from {self.list_filepath}: {e}")
+            logging.error(f"Error loading list from {self.list_filepath}: {e}")
 
     def get_validation_schema(self):
         try:
@@ -309,20 +317,20 @@ class DefinitionGenerator:
         for item in self.string_list:
             try:
                 words = preprocess_text(item).split()
-                print(words)
+                logging.info(words)
 
                 for word in words:
                     try:
                         response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word)
-                        print(response)
+                        logging.info(response)
                         if response.status_code == 404:
                             self.generate_definitions_for_word(word, item, responses)
                             self.messages = self.base_messages
                             break
                     except Exception as e:
-                        print(f"Error processing word '{word}': {e}")
+                        logging.error(f"Error processing word '{word}': {e}")
             except Exception as e:
-                print(f"Error processing item '{item}': {e}")
+                logging.error(f"Error processing item '{item}': {e}")
 
         return responses
 
@@ -335,10 +343,10 @@ class DefinitionGenerator:
         retries = 0
         success = False
         message = {"role": "user", "content": f"{self.translated_word_phrase.get('word', 'word')}: {word}. {self.translated_word_phrase.get('phrase', 'phrase')}: {phrase}."}
-        print(f"entering generate_definitions_for_word with message: {message}")
+        logging.info(f"entering generate_definitions_for_word with message: {message}")
 
         while not success and retries < max_retries:
-            print(f"message: {message}")
+            logging.info(f"message: {message}")
             try:
                 self.messages.remove(message)
             except ValueError:
@@ -360,15 +368,16 @@ class DefinitionGenerator:
                     responses.append(extracted_data)
                     success = True
             except ValidationError as ve:
-                print(f"Validation error: {ve}")
+                logging.error(f"Validation error: {ve}")
                 retries += 1
             except Exception as e:
-                print(f"Error: {e}")
+                logging.error(f"Error: {e}")
                 retries += 1
                 if retries >= max_retries:
-                    print(f"Failed to generate definitions for word '{word}' after {max_retries} attempts.")
+                    logging.error(f"Failed to generate definitions for word '{word}' after {max_retries} attempts.")
                     break
-                print(f"Retrying... ({retries}/{max_retries})")
+                logging.info(f"Retrying... ({retries}/{max_retries})")
+    
     
     def run(self, familiar=False): 
         self.load_list()
@@ -401,7 +410,7 @@ class DefinitionGenerator:
                 try:
                     enumerated_lemma_ops.create_enumerated_lemma(data=data)
                 except Exception as e:
-                    print(f"Error creating enumerated lemma: {e}")
+                    logging.error(f"Error creating enumerated lemma: {e}")
 
 if __name__ == "__main__":
     current_dir = Path.cwd()
