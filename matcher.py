@@ -71,7 +71,6 @@ class Matcher:
             "content": f"{self.base_instructions}"
         }
         self.messages = [self.base_message]
-        self.tools = []
 
     def load_definitions(self, base_lemma):
         response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(base_lemma)
@@ -91,31 +90,6 @@ class Matcher:
             logging.error(f"{self.list_filepath} file not found.")
         except Exception as e:
             logging.error(f"Error loading list from {self.list_filepath}: {e}")
-
-    def initialize_tools(self):
-        """
-        Initialize tools for function definitions.
-        """
-
-        self.tools = [
-            {
-                "type": "function",
-                "function": {
-                    "name": "match_base_lemma",
-                    "description": f"Match the base lemma with the correct enumerated lemma based on the provided phrase and definitions. Example input: {json.dumps(self.example_input, indent=4)}",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "Matched Lemma": {"type": "string", "description": "The correct enumerated lemma."},
-                                    "required": ["Matched Lemma"]
-                                }
-                            }
-                }
-            }
-        ]
- 
-        
- 
 
     def match_lemmas(self):
         """
