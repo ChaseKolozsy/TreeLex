@@ -41,7 +41,6 @@ class Matcher:
             "word": "word",
             "phrase": "phrase"
         }
-        self.translated_word_phrase = {}
         self.string_list = []
         self.definitions = []
         self.example_input = {
@@ -49,16 +48,16 @@ class Matcher:
             "base_lemma": "top",
             "definitions": {
                 "top_1": {
-                    "definition": "the peak, the highest point",
-                    "part_of_speech": "noun"
+                    "def": "the peak, the highest point",
+                    "pos": "noun"
                 },
                 "top_2": {
-                    "definition": "Highest in rank",
-                    "part_of_speech": "adjective"
+                    "def": "Highest in rank",
+                    "pos": "adjective"
                 },
                 "top_3": {
-                    "definition": "A toy that can be spun and maintain its balance until it loses momentum",
-                    "part_of_speech": "noun"
+                    "def": "A toy that can be spun and maintain its balance until it loses momentum",
+                    "pos": "noun"
                 }
             }
         }
@@ -67,6 +66,12 @@ class Matcher:
             "You will use the phrase for context to determine which enumeration is the correct one. You will " \
             "output json with a single key: `Matched Lemma` and the value will be the correct enumerated lemma: " \
             f"{json.dumps(self.get_validation_schema(), indent=4)}"
+        self.base_message = {
+            "role": "system",
+            "content": f"{self.base_instructions}"
+        }
+        self.messages = [self.base_message]
+        self.tools = []
 
     def load_definitions(self, base_lemma):
         response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(base_lemma)
@@ -87,16 +92,9 @@ class Matcher:
         except Exception as e:
             logging.error(f"Error loading list from {self.list_filepath}: {e}")
 
-    def initialize_tools(self, phrase, base_lemma, definitions):
+    def initialize_tools(self):
         """
         Initialize tools for function definitions.
-
-        This method sets up the tools required for defining functions, including the name, description, and parameters.
-
-        Parameters:
-        - phrase: The phrase containing the base lemma.
-        - base_lemma: The base lemma to be defined.
-        - definitions: The definitions for the base lemma.
         """
 
         self.tools = [
@@ -104,40 +102,18 @@ class Matcher:
                 "type": "function",
                 "function": {
                     "name": "match_base_lemma",
-                    "description": f"The function expects following arugments:\n{json.dumps(self.example_input, indent=4)} and it outputs a json with a single key: `Matched Lemma` and the value will be the correct enumerated lemma.",
+                    "description": f"Match the base lemma with the correct enumerated lemma based on the provided phrase and definitions. Example input: {json.dumps(self.example_input, indent=4)}",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "phrase": {
-                                "type": "string",
-                                "description": f"The phrase containing the base lemma: {phrase}"
-                            },
-                            "base_lemma": {
-                                "type": "string",
-                                "description": f"{self.base_descriptions['base_lemma_description']}"
-                            },
-                            "definitions": {
-                                "type": "object",
-                                "properties": {
-                                    base_lemma: {
-                                        "type": "object",
-                                        "properties": {
-                                            f"{base_lemma}_n": {
-                                                "type": "string",
-                                                "description": f"{self.base_descriptions['definition_description']}"
-                                            } for n in range(1, 11)
-                                        },
-                                        "required": [f"{base_lemma}_{n}" for n in range(1, 11)]
-                                    }
-                                },
-                                "description": f"{self.base_descriptions['definitions_description']}"
+                            "Matched Lemma": {"type": "string", "description": "The correct enumerated lemma."},
+                                    "required": ["Matched Lemma"]
+                                }
                             }
-                        },
-                        "required": ["phrase", "base_lemma", "definitions"]
-                    }
                 }
             }
         ]
+ 
         
  
 
@@ -148,7 +124,8 @@ class Matcher:
         max_retries = self.max_retries
         retries = 0
         success = False
-        message = {"role": "user", "content": f"{self.translated_word_phrase.get('word', 'word')}: {self.phrase}."}
+        message = {"role": "user", "content": f"{json.dumps(self.input, indent=4)}"}
+        self.messages.append(message)
         logging.info(f"Entering match_lemmas with message: {message}")
 
         while not success and retries < max_retries:
@@ -156,16 +133,17 @@ class Matcher:
             try:
                 response = self.client.chat.completions.create(
                     model=self.model,
-                    messages=[message],
-                    response_format={"type": "json_object"}
+                    messages=self.messages,
+                    response_format={"type": "json_object"},
+                    tools=self.tools
                 )
 
                 response_message = response.choices[0].message
                 tool_calls = response_message.tool_calls
                 if tool_calls:
                     matched_data = tool_calls[0].function.arguments
-                    validate(instance=matched_data, schema=self.get_validation_schema())
                     logging.info(f"Matched data: {matched_data}")
+                    validate(instance=matched_data, schema=self.get_validation_schema())
                     success = True
             except ValidationError as ve:
                 logging.error(f"Validation error: {ve}")
@@ -194,6 +172,7 @@ class Matcher:
 
     def run(self):
         self.load_list()
+        self.initialize_tools()
         for phrase in self.string_list:
             tmp_list_filepath = f"tmp_{phrase}.txt"
             with open(tmp_list_filepath, 'w', encoding='utf-8') as file:
@@ -222,10 +201,12 @@ class Matcher:
                 self.input['definitions'] = {}
 
                 for definition in self.definitions:
-                    self.input['definitions'][definition['enumerated_lemma']] = definition['definition']
-                    self.input['definitions'][definition['enumerated_lemma']] = definition['part_of_speech']
-                print(self.input)
-                #self.match_lemmas()
+                    self.input['definitions'][definition['enumerated_lemma']] = {
+                        "def": definition['definition'],
+                        "pos": definition['part_of_speech']
+                    }
+                print(json.dumps(self.input, indent=4))
+                self.match_lemmas()
             Path(tmp_list_filepath).unlink()
 
 if __name__ == "__main__":
@@ -234,11 +215,11 @@ if __name__ == "__main__":
     if not data_dir.exists():
         data_dir.mkdir(parents=True)
     logging.info(f"data_dir: {data_dir}")
-    list_filepath = data_dir / "phrase_list.txt"
+    list_filepath = data_dir / "list.txt"
 
     matcher = Matcher(
         language="Hungarian",
         native_language="English",
-        phrase="The quick brown fox jumps over the lazy dog"
+        list_filepath=list_filepath
     )
     matcher.run()
