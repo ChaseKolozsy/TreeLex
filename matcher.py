@@ -37,10 +37,6 @@ class Matcher:
         self.model = model
         self.client = openai.OpenAI()
         self.max_retries = 3
-        self.base_word_phrase = {
-            "word": "word",
-            "phrase": "phrase"
-        }
         self.string_list = []
         self.definitions = []
         self.example_input = {
@@ -195,18 +191,3 @@ class Matcher:
                     logging.error(f"Error: {e}")
 
             Path(tmp_list_filepath).unlink()
-
-if __name__ == "__main__":
-    current_dir = Path.cwd()
-    data_dir = current_dir / "data"
-    if not data_dir.exists():
-        data_dir.mkdir(parents=True)
-    logging.info(f"data_dir: {data_dir}")
-    list_filepath = data_dir / "list.txt"
-
-    matcher = Matcher(
-        language="English",
-        native_language="English",
-        list_filepath=list_filepath
-    )
-    matcher.run()
