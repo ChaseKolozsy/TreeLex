@@ -74,6 +74,7 @@ class Matcher:
 
     def load_definitions(self, base_lemma):
         response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(base_lemma)
+        logging.info(f"Response: {response.json()}")
         if response.status_code == 200:
             self.definitions = response.json()['enumerated_lemmas']
         else:
@@ -103,7 +104,7 @@ class Matcher:
         back_up_messages = self.messages.copy()
 
         while not success and retries < max_retries:
-            logging.info(f"Message: {message}")
+            logging.info(f"Message: {json.dumps(message, indent=4)}")
             try:
                 response = self.client.chat.completions.create(
                     model=self.model,
@@ -112,7 +113,6 @@ class Matcher:
                 )
                 response_message = json.loads(response.choices[0].message.content)
                 logging.info(f"Response message: {response_message}")
-
                 validate(instance=response_message, schema=self.get_validation_schema())
                 success = True
                 return response_message
@@ -154,11 +154,12 @@ class Matcher:
                 file.write(phrase)
             for word in phrase.split():
                 try:
+                    clean_word = word.replace(' ', '_').replace('!', '').replace(',', '').replace('.', '').replace(':', '').replace(';', '').replace('?', '').replace('!', '').lower()
                     # Check if the word exists in the database
-                    response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word)
+                    response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(clean_word)
                     if response.status_code == 404:
                         # If not, generate definitions using DefinitionGenerator
-                        logging.info(f"Base lemma '{word}' not found in database. Generating definitions.")
+                        logging.info(f"Base lemma '{clean_word}' not found in database. Generating definitions.")
                         definition_generator = DefinitionGenerator(
                             list_filepath=tmp_list_filepath,  # Update with the correct path
                             language=self.language,
@@ -167,13 +168,13 @@ class Matcher:
                         )
                         definition_generator.run()
                         # Reload definitions after generation
-                        self.load_definitions(word)
+                        self.load_definitions(clean_word)
                     else:
                         self.definitions = response.json()['enumerated_lemmas']
 
                     self.input = {}
                     self.input['phrase'] = phrase
-                    self.input['base_lemma'] = word
+                    self.input['base_lemma'] = clean_word
                     self.input['definitions'] = {}
 
                     for definition in self.definitions:
@@ -184,17 +185,16 @@ class Matcher:
                     logging.info(json.dumps(self.input, indent=4))
                     matched_lemma = self.match_lemmas()
                     logging.info(f"Matched lemma: {matched_lemma}")
-                    enumerated_lemma_ops.update_enumerated_lemma(matched_lemma, data={'familiar': True})
-                    Path(tmp_list_filepath).unlink()
+                    response = enumerated_lemma_ops.update_enumerated_lemma(matched_lemma['Matched Lemma'], data={'familiar': True})
+                    logging.info(f"Response: {json.dumps(response.json(), indent=4)}")
                     count += 1
                     if count > reset_count:
                         self.messages = [self.base_message]
                         count = 0
                 except Exception as e:
                     logging.error(f"Error: {e}")
-                    Path(tmp_list_filepath).unlink()
-                finally:
-                    Path(tmp_list_filepath).unlink()
+
+            Path(tmp_list_filepath).unlink()
 
 if __name__ == "__main__":
     current_dir = Path.cwd()

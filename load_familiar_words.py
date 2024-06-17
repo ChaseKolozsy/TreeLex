@@ -1,4 +1,5 @@
 from matcher import Matcher
+from definition_generator import DefinitionGenerator
 from pathlib import Path
 import sys
 import logging
@@ -6,6 +7,13 @@ import logging
 def process_text_file(file_path, language="Hungarian", native_language="English"):
     list_filepath = file_path
     logging.info(f"list_filepath: {list_filepath}")
+
+    definition_generator = DefinitionGenerator(
+        list_filepath=list_filepath,
+        language=language,
+        native_language=native_language
+    )
+    definition_generator.run()
 
     matcher = Matcher(
         language=language,

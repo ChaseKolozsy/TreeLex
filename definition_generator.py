@@ -325,9 +325,9 @@ class DefinitionGenerator:
                         response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word)
                         logging.info(response)
                         if response.status_code == 404:
+                            print("Word not found")
                             self.generate_definitions_for_word(word, item, responses)
                             self.messages = self.base_messages
-                            break
                     except Exception as e:
                         logging.error(f"Error processing word '{word}': {e}")
             except Exception as e:
