@@ -115,6 +115,7 @@ class Matcher:
 
                 validate(instance=response_message, schema=self.get_validation_schema())
                 success = True
+                return response_message
             except ValidationError as ve:
                 logging.error(f"Validation error: {ve}")
                 self.messages = back_up_messages
@@ -180,8 +181,10 @@ class Matcher:
                         "def": definition['definition'],
                         "pos": definition['part_of_speech']
                     }
-                print(json.dumps(self.input, indent=4))
-                self.match_lemmas()
+                logging.info(json.dumps(self.input, indent=4))
+                matched_lemma = self.match_lemmas()
+                logging.info(f"Matched lemma: {matched_lemma}")
+                enumerated_lemma_ops.update_enumerated_lemma(matched_lemma, data={'familiar': True})
                 Path(tmp_list_filepath).unlink()
                 count += 1
                 if count > reset_count:
