@@ -113,7 +113,7 @@ class DefinitionGenerator:
         if translate:
             self.translate_instructions()
         try:
-            with open("translated_instructions.json", "r", encoding="utf-8") as f:
+            with open("data/translated_instructions.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
             for key, value in tmp.items():
                 self.translated_instructions = value
@@ -139,7 +139,7 @@ class DefinitionGenerator:
                 )
                 response = json.loads(response.choices[0].message.content)
                 logging.info(f"response: {response}")
-                with open("translated_instructions.json", "w", encoding="utf-8") as f:
+                with open("data/translated_instructions.json", "w", encoding="utf-8") as f:
                     f.write(json.dumps(response, indent=4))
                 for response_key, translated_value in response.items():
                     self.translated_instructions = translated_value
@@ -184,7 +184,7 @@ class DefinitionGenerator:
     
     def load_translated_word_phrase(self):
         try:
-            with open("translated_word_phrase.json", "r", encoding="utf-8") as f:
+            with open("data/translated_word_phrase.json", "r", encoding="utf-8") as f:
                 self.translated_word_phrase = json.load(f)
         except FileNotFoundError:
             logging.error("Error: translated_word_phrase.json file not found.")
@@ -195,7 +195,7 @@ class DefinitionGenerator:
     
     def load_descriptions(self):
         try:
-            with open("descriptions.json", "r", encoding="utf-8") as f:
+            with open("data/descriptions.json", "r", encoding="utf-8") as f:
                 self.descriptions = json.load(f)
         except FileNotFoundError:
             logging.error("descriptions.json file not found.")
@@ -206,7 +206,7 @@ class DefinitionGenerator:
     
     def initialize_example_json_small(self):
         try:
-            with open("example_json_small.json", "r", encoding="utf-8") as f:
+            with open("data/example_json_small.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
             self.example_json_small = {
                 "base_lemma":  "top",
