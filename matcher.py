@@ -153,42 +153,48 @@ class Matcher:
             with open(tmp_list_filepath, 'w', encoding='utf-8') as file:
                 file.write(phrase)
             for word in phrase.split():
-                # Check if the word exists in the database
-                response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word)
-                if response.status_code == 404:
-                    # If not, generate definitions using DefinitionGenerator
-                    logging.info(f"Base lemma '{word}' not found in database. Generating definitions.")
-                    definition_generator = DefinitionGenerator(
-                        list_filepath=tmp_list_filepath,  # Update with the correct path
-                        language=self.language,
-                        native_language=self.native_language,
-                        model=self.model
-                    )
-                    definition_generator.run()
-                    # Reload definitions after generation
-                    self.load_definitions(word)
-                else:
-                    self.definitions = response.json()['enumerated_lemmas']
+                try:
+                    # Check if the word exists in the database
+                    response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word)
+                    if response.status_code == 404:
+                        # If not, generate definitions using DefinitionGenerator
+                        logging.info(f"Base lemma '{word}' not found in database. Generating definitions.")
+                        definition_generator = DefinitionGenerator(
+                            list_filepath=tmp_list_filepath,  # Update with the correct path
+                            language=self.language,
+                            native_language=self.native_language,
+                            model=self.model
+                        )
+                        definition_generator.run()
+                        # Reload definitions after generation
+                        self.load_definitions(word)
+                    else:
+                        self.definitions = response.json()['enumerated_lemmas']
 
-                self.input = {}
-                self.input['phrase'] = phrase
-                self.input['base_lemma'] = word
-                self.input['definitions'] = {}
+                    self.input = {}
+                    self.input['phrase'] = phrase
+                    self.input['base_lemma'] = word
+                    self.input['definitions'] = {}
 
-                for definition in self.definitions:
-                    self.input['definitions'][definition['enumerated_lemma']] = {
-                        "def": definition['definition'],
-                        "pos": definition['part_of_speech']
-                    }
-                logging.info(json.dumps(self.input, indent=4))
-                matched_lemma = self.match_lemmas()
-                logging.info(f"Matched lemma: {matched_lemma}")
-                enumerated_lemma_ops.update_enumerated_lemma(matched_lemma, data={'familiar': True})
-                Path(tmp_list_filepath).unlink()
-                count += 1
-                if count > reset_count:
-                    self.messages = [self.base_message]
-                    count = 0
+                    for definition in self.definitions:
+                        self.input['definitions'][definition['enumerated_lemma']] = {
+                            "def": definition['definition'],
+                            "pos": definition['part_of_speech']
+                        }
+                    logging.info(json.dumps(self.input, indent=4))
+                    matched_lemma = self.match_lemmas()
+                    logging.info(f"Matched lemma: {matched_lemma}")
+                    enumerated_lemma_ops.update_enumerated_lemma(matched_lemma, data={'familiar': True})
+                    Path(tmp_list_filepath).unlink()
+                    count += 1
+                    if count > reset_count:
+                        self.messages = [self.base_message]
+                        count = 0
+                except Exception as e:
+                    logging.error(f"Error: {e}")
+                    Path(tmp_list_filepath).unlink()
+                finally:
+                    Path(tmp_list_filepath).unlink()
 
 if __name__ == "__main__":
     current_dir = Path.cwd()
