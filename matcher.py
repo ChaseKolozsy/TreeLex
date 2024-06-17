@@ -100,6 +100,7 @@ class Matcher:
         success = False
         message = {"role": "user", "content": f"{json.dumps(self.input, indent=4)}"}
         self.messages.append(message)
+        back_up_messages = self.messages.copy()
 
         while not success and retries < max_retries:
             logging.info(f"Message: {message}")
@@ -116,9 +117,11 @@ class Matcher:
                 success = True
             except ValidationError as ve:
                 logging.error(f"Validation error: {ve}")
+                self.messages = back_up_messages
                 retries += 1
             except Exception as e:
                 logging.error(f"Error: {e}")
+                self.messages = back_up_messages
                 retries += 1
                 if retries >= max_retries:
                     logging.error(f"Failed to match lemmas after {max_retries} attempts.")
