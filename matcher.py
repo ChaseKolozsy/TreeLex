@@ -155,8 +155,8 @@ class Matcher:
                     logging.info(f"Base lemma '{word}' not found in database. Generating definitions.")
                     definition_generator = DefinitionGenerator(
                         list_filepath=tmp_list_filepath,  # Update with the correct path
-                        language='Hungarian',  # Example language
-                        native_language='English',  # Example native language
+                        language=self.language,
+                        native_language=self.native_language,
                         model=self.model
                     )
                     definition_generator.run()

@@ -1,12 +1,21 @@
-from definition_generator import DefinitionGenerator
+from matcher import Matcher
+from pathlib import Path
 import sys
+import logging
 
 def process_text_file(file_path):
-    # Create an instance of DefinitionGenerator
-    definition_generator = DefinitionGenerator(list_filepath=file_path)
-    
-    # Run the generator and mark all words as familiar
-    definition_generator.run(familiar=True)
+    current_dir = Path.cwd()
+    data_dir = current_dir / "data"
+    if not data_dir.exists():
+        data_dir.mkdir(parents=True)
+    logging.info(f"data_dir: {data_dir}")
+    list_filepath = data_dir / "list.txt"
+
+    matcher = Matcher(
+        language="Hungarian",
+        native_language="English",
+        list_filepath=list_filepath
+    )
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
