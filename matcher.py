@@ -126,7 +126,6 @@ class Matcher:
         success = False
         message = {"role": "user", "content": f"{json.dumps(self.input, indent=4)}"}
         self.messages.append(message)
-        logging.info(f"Entering match_lemmas with message: {message}")
 
         while not success and retries < max_retries:
             logging.info(f"Message: {message}")
@@ -135,16 +134,12 @@ class Matcher:
                     model=self.model,
                     messages=self.messages,
                     response_format={"type": "json_object"},
-                    tools=self.tools
                 )
+                response_message = json.loads(response.choices[0].message.content)
+                logging.info(f"Response message: {response_message}")
 
-                response_message = response.choices[0].message
-                tool_calls = response_message.tool_calls
-                if tool_calls:
-                    matched_data = tool_calls[0].function.arguments
-                    logging.info(f"Matched data: {matched_data}")
-                    validate(instance=matched_data, schema=self.get_validation_schema())
-                    success = True
+                validate(instance=response_message, schema=self.get_validation_schema())
+                success = True
             except ValidationError as ve:
                 logging.error(f"Validation error: {ve}")
                 retries += 1
@@ -174,7 +169,8 @@ class Matcher:
         self.load_list()
         self.initialize_tools()
         for phrase in self.string_list:
-            tmp_list_filepath = f"tmp_{phrase}.txt"
+            clean_phrase = phrase.replace(' ', '_').replace('!', '').replace(',', '').replace('.', '').replace(':', '').replace(';', '').replace('?', '').replace('!', '')
+            tmp_list_filepath = f"tmp_{clean_phrase}.txt"
             with open(tmp_list_filepath, 'w', encoding='utf-8') as file:
                 file.write(phrase)
             for word in phrase.split():
@@ -207,7 +203,7 @@ class Matcher:
                     }
                 print(json.dumps(self.input, indent=4))
                 self.match_lemmas()
-            Path(tmp_list_filepath).unlink()
+                Path(tmp_list_filepath).unlink()
 
 if __name__ == "__main__":
     current_dir = Path.cwd()
@@ -218,7 +214,7 @@ if __name__ == "__main__":
     list_filepath = data_dir / "list.txt"
 
     matcher = Matcher(
-        language="Hungarian",
+        language="English",
         native_language="English",
         list_filepath=list_filepath
     )
