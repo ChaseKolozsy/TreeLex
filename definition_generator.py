@@ -405,7 +405,7 @@ class DefinitionGenerator:
                     'media_references': [],  # Assuming no media references are provided
                     'object_exploration_link': '',  # Assuming no object exploration link is provided
                     'familiar': familiar,  # Assuming not familiar initially
-                    'active': False,  # Assuming active by default
+                    'active': False,  # Assuming not active by default
                     'anki_card_ids': [] # Assuming no anki card ids are provided
                 }
                 try:

@@ -145,7 +145,6 @@ class Matcher:
 
     def run(self):
         self.load_list()
-        self.initialize_tools()
         count = 0
         reset_count = 10
         for phrase in self.string_list:

@@ -21,7 +21,7 @@ if __name__ == "__main__":
         text_file_path = sys.argv[1]
         language = sys.argv[2]
         native_language = sys.argv[3]
-        print(f"text_file_path: {text_file_path}")
-        print(f"language: {language}")
-        print(f"native_language: {native_language}")
-        #process_text_file(text_file_path, language=language, native_language=native_language)
+        logging.info(f"text_file_path: {text_file_path}")
+        logging.info(f"language: {language}")
+        logging.info(f"native_language: {native_language}")
+        process_text_file(text_file_path, language=language, native_language=native_language)
