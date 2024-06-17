@@ -145,6 +145,8 @@ class Matcher:
     def run(self):
         self.load_list()
         self.initialize_tools()
+        count = 0
+        break_count = 10
         for phrase in self.string_list:
             clean_phrase = phrase.replace(' ', '_').replace('!', '').replace(',', '').replace('.', '').replace(':', '').replace(';', '').replace('?', '').replace('!', '')
             tmp_list_filepath = f"tmp_{clean_phrase}.txt"
@@ -181,6 +183,9 @@ class Matcher:
                 print(json.dumps(self.input, indent=4))
                 self.match_lemmas()
                 Path(tmp_list_filepath).unlink()
+                count += 1
+                if count > break_count:
+                    self.messages = [self.base_message]
 
 if __name__ == "__main__":
     current_dir = Path.cwd()
