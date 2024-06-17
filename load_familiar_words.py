@@ -16,6 +16,7 @@ def process_text_file(file_path):
         native_language="English",
         list_filepath=list_filepath
     )
+    matcher.run()
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
