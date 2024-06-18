@@ -2,7 +2,6 @@
 import openai
 import json
 import logging
-from pathlib import Path
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 
@@ -59,9 +58,13 @@ class MatchReviewer:
                     response_format={"type": "json_object"},
                 )
                 response_message = json.loads(response.choices[0].message.content)
-                validate(instance=response_message, schema=self.get_validation_schema())
-                logging.info(f"Response: {json.dumps(response_message, indent=4)}")
-                return response_message['Is_Correct']
+                try:
+                    validate(instance=response_message, schema=self.get_validation_schema())
+                    logging.info(f"Response: {json.dumps(response_message, indent=4)}")
+                    return response_message['Is_Correct']
+                except ValidationError as e:
+                    logging.error(f"Validation error: {e}")
+                    return None
             except Exception as e:
                 retries += 1
                 logging.error(f"Error reviewing matches: {e}")
