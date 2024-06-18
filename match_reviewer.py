@@ -60,15 +60,18 @@ class MatchReviewer:
                 response_message = json.loads(response.choices[0].message.content)
                 try:
                     validate(instance=response_message, schema=self.get_validation_schema())
-                    logging.info(f"Response: {json.dumps(response_message, indent=4)}")
-                    return response_message['Is_Correct']
+                    logging.info(f"\n\nresponse_message: {json.dumps(response_message, indent=4)}")
+                    logging.info(f"\n\nresponse_message['Is_Correct']: {response_message['Is_Correct']}")
+                    is_correct = response_message['Is_Correct']['value'] if isinstance(response_message['Is_Correct'], dict) else response_message['Is_Correct']
+                    logging.info(f"\n\nIs_Correct value: {is_correct}")
+                    return is_correct
                 except ValidationError as e:
                     logging.error(f"Validation error: {e}")
-                    return None
             except Exception as e:
                 retries += 1
                 logging.error(f"Error reviewing matches: {e}")
         return None
     
     def run(self, match_to_validate):
-        self.review_matches(match_to_validate)
+        self.messages = [self.base_message]
+        return self.review_matches(match_to_validate)
