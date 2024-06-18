@@ -20,8 +20,11 @@ class MatchReviewer:
             "base_lemma": "top",
             "definition": "A toy that can be spun and maintain its balance until it loses momentum"
         }
-        self.example_output = {
+        self.example_output_1 = {
             "Is_Correct": False
+        }
+        self.example_output_2 = {
+            "Is_Correct": True
         }
         self.bad_input = {
             "phrase": "The man achieved top performance at his job.",
@@ -32,7 +35,7 @@ class MatchReviewer:
             f"a given base_lemma. You will take a dictionary like this: {json.dumps(self.example_input, indent=4)} " \
             "You will use the phrase for context to determine whether or not the definiton matches the base lemma. " \
             "You will output json with a single key: `Is_Correct` and the value will be a boolean: " \
-            f"{json.dumps(self.example_output, indent=4)}"
+            f"{json.dumps(self.example_output_1, indent=4)} or {json.dumps(self.example_output_2, indent=4)}"
 
         self.base_message = {
             "role": "system",
@@ -91,8 +94,15 @@ class MatchReviewer:
 
 if __name__ == "__main__":
     match_reviewer = MatchReviewer(language="English", native_language="English")
-    is_correct = match_reviewer.run(match_to_validate=match_reviewer.bad_input)
-    if is_correct:
-        print(f"Is True: {is_correct}")
-    if not is_correct:
-        print(f"Is False: {is_correct}")
+    is_correct_bad = match_reviewer.run(match_to_validate=match_reviewer.bad_input)
+    is_correct_good = match_reviewer.run(match_to_validate=match_reviewer.example_input)
+
+    if is_correct_bad and is_correct_bad is not None:
+        print(f"Test Failed: Is True: {is_correct_bad}, should be False\n\n")
+    if not is_correct_bad and is_correct_bad is not None:
+        print(f"Test Passed: Is False: {is_correct_bad}\n\n")
+
+    if is_correct_good and is_correct_good is not None:
+        print(f"Test Passed: Is True: {is_correct_good}")
+    if not is_correct_good and is_correct_good is not None:
+        print(f"Test Failed: Is False: {is_correct_good}, should be True")
