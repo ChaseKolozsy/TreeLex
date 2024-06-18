@@ -50,6 +50,8 @@ class MatchReviewer:
             "content": f"{json.dumps(match_to_validate, indent=4)}"
         })
         logging.info(f"Messages: {self.messages}")
+        backup_messages = self.messages.copy()
+
         while retries < max_retries:
             try:
                 response = self.client.chat.completions.create(
@@ -67,6 +69,7 @@ class MatchReviewer:
                     return is_correct
                 except ValidationError as e:
                     logging.error(f"Validation error: {e}")
+                    self.messages = backup_messages
             except Exception as e:
                 retries += 1
                 logging.error(f"Error reviewing matches: {e}")
