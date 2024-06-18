@@ -6,6 +6,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from client.src.operations import enumerated_lemma_ops
 from definition_generator import DefinitionGenerator
+from match_reviewer import MatchReviewer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -36,6 +37,7 @@ class Matcher:
         self.native_language = native_language
         self.model = model
         self.client = openai.OpenAI()
+        self.match_reviewer = MatchReviewer(language, native_language, model)
         self.max_retries = 3
         self.string_list = []
         self.definitions = []
@@ -181,12 +183,28 @@ class Matcher:
                     logging.info(json.dumps(self.input, indent=4))
                     matched_lemma = self.match_lemmas()
                     logging.info(f"Matched lemma: {matched_lemma}")
-                    response = enumerated_lemma_ops.update_enumerated_lemma(matched_lemma['Matched Lemma'], data={'familiar': True})
-                    logging.info(f"Response: {json.dumps(response.json(), indent=4)}")
-                    count += 1
-                    if count > reset_count:
+
+                    definition_to_validate = self.input['definitions'][matched_lemma['Matched Lemma']]['def']
+
+                    match_to_validate = {}
+                    match_to_validate['phrase'] = phrase
+                    match_to_validate['base_lemma'] = clean_word
+                    match_to_validate['definition'] = definition_to_validate
+
+                    is_valid = self.match_reviewer.run(match_to_validate)
+                    logging.info(f"Is valid: {is_valid}")
+                    if is_valid:
+                        response = enumerated_lemma_ops.update_enumerated_lemma(matched_lemma['Matched Lemma'], data={'familiar': True})
+                        logging.info(f"Response: {json.dumps(response.json(), indent=4)}")
+                        count += 1
+                        if count > reset_count:
+                            self.messages = [self.base_message]
+                            count = 0
+                    else:
+                        logging.info(f"Definition is not valid for base lemma '{clean_word}': {definition_to_validate}")
                         self.messages = [self.base_message]
                         count = 0
+                        raise Exception(f"Definition is not valid for base lemma '{clean_word}': {definition_to_validate}")
                 except Exception as e:
                     logging.error(f"Error: {e}")
 
