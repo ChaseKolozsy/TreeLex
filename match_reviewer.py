@@ -20,11 +20,19 @@ class MatchReviewer:
             "base_lemma": "top",
             "definition": "A toy that can be spun and maintain its balance until it loses momentum"
         }
+        self.example_output = {
+            "Is_Correct": False
+        }
+        self.bad_input = {
+            "phrase": "The man achieved top performance at his job.",
+            "base_lemma": "top",
+            "definition": "A toy that can be spun and maintain its balance until it loses momentum"
+        }
         self.base_instructions = "You are a helpful assistant that verifies that the definition is correct for " \
             f"a given base_lemma. You will take a dictionary like this: {json.dumps(self.example_input, indent=4)} " \
             "You will use the phrase for context to determine whether or not the definiton matches the base lemma. " \
             "You will output json with a single key: `Is_Correct` and the value will be a boolean: " \
-            f"{json.dumps(self.get_validation_schema(), indent=4)}"
+            f"{json.dumps(self.example_output, indent=4)}"
 
         self.base_message = {
             "role": "system",
@@ -79,3 +87,12 @@ class MatchReviewer:
     def run(self, match_to_validate):
         self.messages = [self.base_message]
         return self.review_matches(match_to_validate)
+
+
+if __name__ == "__main__":
+    match_reviewer = MatchReviewer(language="English", native_language="English")
+    is_correct = match_reviewer.run(match_to_validate=match_reviewer.bad_input)
+    if is_correct:
+        print(f"Is True: {is_correct}")
+    if not is_correct:
+        print(f"Is False: {is_correct}")
