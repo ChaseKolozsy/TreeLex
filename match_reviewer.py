@@ -69,6 +69,7 @@ class MatchReviewer:
                     model=self.model,
                     messages=self.messages,
                     response_format={"type": "json_object"},
+                    temperature=0.0
                 )
                 response_message = json.loads(response.choices[0].message.content)
                 try:
