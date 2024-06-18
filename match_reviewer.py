@@ -69,9 +69,10 @@ class MatchReviewer:
                     return is_correct
                 except ValidationError as e:
                     logging.error(f"Validation error: {e}")
-                    self.messages = backup_messages
+                    raise e
             except Exception as e:
                 retries += 1
+                self.messages = backup_messages
                 logging.error(f"Error reviewing matches: {e}")
         return None
     
