@@ -32,7 +32,7 @@ class InstructionTranslator:
             return None
 
     def translate_instructions(self, base_instructions: dict, outfile: str):
-        if not outfile.endswith(".json"):
+        if not outfile.suffix == ".json":
             raise ValueError("Outfile must be a json file")
 
         messages = []
