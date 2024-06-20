@@ -5,7 +5,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pathlib import Path
 
-from utils.def_gen_util import preprocess_text, load_config
+from utils.def_gen_util import preprocess_text, load_config, pos_do_not_match
 from pydict_translator import PydictTranslator
 from instruction_translator import InstructionTranslator
 from pos_identifier import POSIdentifier
@@ -204,9 +204,10 @@ class DefinitionGenerator:
                 for word in words:
                     logging.info(f"\n------- word: {word} -----\n")
                     try:
-                        response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
-                        if response.status_code == 404:
-                            logging.info(f"\n------- status code: {response.status_code} Word not found -----\n")
+                        base_lemmas = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
+                        pos_do_not_match = pos_do_not_match(base_lemmas, pos, self.translated_word_phrase['pos'])
+                        if base_lemmas.status_code == 404 or pos_do_not_match:
+                            logging.info(f"\n------- status code: {base_lemmas.status_code} Word not found -----\n")
                             pos = self.get_pos(word, phrase)
                             self.generate_definition_for_word(word, phrase, pos, entries)
                             self.messages = self.base_messages

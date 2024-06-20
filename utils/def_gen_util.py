@@ -37,3 +37,9 @@ def load_config(config_path):
             return json.load(file)
         else:
             raise ValueError("Unsupported configuration file format")
+
+def pos_do_not_match(base_lemmas, pos, translated_pos):
+    for lemma in base_lemmas:
+        if lemma[f'{translated_pos}'] != pos:
+            return True
+    return False
