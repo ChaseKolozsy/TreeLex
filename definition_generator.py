@@ -6,6 +6,8 @@ from jsonschema.exceptions import ValidationError
 from pathlib import Path
 
 from utils.def_gen_util import preprocess_text, extract_definitions, load_config
+from pydict_translator import PydictTranslator
+from instruction_translator import InstructionTranslator
 
 import openai
 import json
@@ -129,7 +131,12 @@ class DefinitionGenerator:
 
     def initialize_instructions(self, translate=False):
         if translate:
-            self.translate_instructions()
+            InstructionTranslator(
+                language=self.language, 
+                model=self.model, 
+                base_instructions=self.base_instructions, 
+                outfile="data/translated_instructions.json"
+            )
         try:
             with open("data/translated_instructions.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
@@ -143,60 +150,6 @@ class DefinitionGenerator:
         self.base_message = {"role": "system", "content": self.instructions}
         self.base_messages = [self.base_message]
         self.messages = [self.base_message]
-    
-    def translate_instructions(self):
-        messages = []
-        for key, value in self.base_instructions.items():
-            message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n instructions: <translation>"}
-            messages.append(message)
-            try:
-                response = self.client.chat.completions.create(
-                    model="gpt-4o",
-                    messages=messages,
-                    response_format={"type": "json_object"}
-                )
-                response = json.loads(response.choices[0].message.content)
-                logging.info(f"response: {response}")
-                with open("data/translated_instructions.json", "w", encoding="utf-8") as f:
-                    f.write(json.dumps(response, indent=4))
-                for response_key, translated_value in response.items():
-                    self.translated_instructions = translated_value
-            except Exception as e:
-                logging.error(f"An error occurred: {e}")
-            messages = []
-    
-    def translate_dictionaries(self, base: dict, outfile: str):
-        """
-        Translate a dictionary from one language to another.
-        base: dict - the dictionary to translate
-        outfile: str - the file to save the translated dictionary to, must be json
-        """
-        if not outfile.endswith(".json"):
-            raise ValueError("Outfile must be a json file")
-
-        messages = []
-        for key, value in base.items():
-            message = {"role": "user", "content": f"Translate '{value}' to {self.language} with json format:\n {value}: <translation>"}
-            messages.append(message)
-            try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    response_format={"type": "json_object"}
-                )
-                response = json.loads(response.choices[0].message.content)
-                for response_key, translated_value in response.items():
-                    self.translated_word_phrase[key] = translated_value
-                messages = []
-            except Exception as e:
-                print(f"Error during dictionary translation: {e}")
-
-        try:
-            with open(outfile, "w", encoding="utf-8") as f:
-                f.write(json.dumps(self.translated_word_phrase, indent=4))
-        except Exception as e:
-            print(f"Error writing to file {outfile}: {e}")
-    
     
     def load_translated_word_phrase(self):
         try:
@@ -428,10 +381,14 @@ if __name__ == "__main__":
     )
     
     # Uncomment and configure the following lines as needed
-    definition_generator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
-    definition_generator.translate_dictionaries(definition_generator.example_json_small, data_dir / "translated_example_json_small.json")
-    #definition_generator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
-    #definition_generator.translate_instructions()
+    dict_translator = PydictTranslator(
+        language=definition_generator.language, 
+        model=definition_generator.model
+    )
+
+    dict_translator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
+    dict_translator.translate_dictionaries(definition_generator.example_json_small, data_dir / "translated_example_json_small.json")
+    #dict_translator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
 
     definition_generator.run()
 #
