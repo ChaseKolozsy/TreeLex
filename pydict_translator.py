@@ -3,6 +3,7 @@ import json
 import logging
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -34,9 +35,10 @@ class PydictTranslator:
             logging.error(f"Error getting validation schema: {e}")
             return None
 
-    def translate_dictionaries(self, base: dict, outfile: str):
-        if not outfile.endswith(".json"):
+    def translate_dictionaries(self, base: dict, outfile: Path):
+        if not outfile.suffix == ".json":
             raise ValueError("Outfile must be a json file")
+        print(f"Translating {len(base)} entries to {self.language}")
 
         messages = self.messages.copy()
         for key, value in base.items():

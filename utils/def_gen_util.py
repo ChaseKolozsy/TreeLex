@@ -2,6 +2,7 @@
 import json
 import re
 import yaml
+from pathlib import Path
 
 def extract_definitions(text):
     data = json.loads(text)
@@ -30,9 +31,9 @@ def preprocess_text(text):
 
 def load_config(config_path):
     with open(config_path, 'r') as file:
-        if config_path.endswith('.yaml') or config_path.endswith('.yml'):
+        if config_path.suffix == '.yaml' or config_path.suffix == '.yml':
             return yaml.safe_load(file)
-        elif config_path.endswith('.json'):
+        elif config_path.suffix == '.json':
             return json.load(file)
         else:
             raise ValueError("Unsupported configuration file format")

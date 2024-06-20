@@ -180,8 +180,9 @@ class DefinitionGenerator:
     
     def initialize_example_json_small(self):
         try:
-            with open(f"{self.data_dir}/example_json_small.json", "r", encoding="utf-8") as f:
+            with open(f"{self.data_dir}/translated_example_json_small.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
+                logging.info(f"tmp: {tmp}")
             self.example_json_small = {
                 "word":  "top",
                 "def": f"{tmp['top']}"
@@ -363,10 +364,10 @@ class DefinitionGenerator:
         logging.info(self.string_list)
 
         # load the descriptions, example json, tools and instructions
-        self.load_and_initialize(translate=True)
+        self.load_and_initialize(translate=False)
 
-        responses = self.create_definitions()
-        self.add_definition_to_db(responses)
+        #responses = self.create_definitions()
+        #self.add_definition_to_db(responses)
 
 
 if __name__ == "__main__":
@@ -376,7 +377,7 @@ if __name__ == "__main__":
         data_dir.mkdir(parents=True)
     print(f"data_dir: {data_dir}")
 #
-    config = load_config(data_dir / "def_gen_config.yaml")
+    config = load_config(Path(data_dir) / "def_gen_config.yaml")
 #
     definition_generator = DefinitionGenerator(
         list_filepath=config['list_filepath'],
@@ -391,8 +392,8 @@ if __name__ == "__main__":
         model=definition_generator.model
     )
 
-    dict_translator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
-    dict_translator.translate_dictionaries(definition_generator.example_json_small, data_dir / "translated_example_json_small.json")
+    #dict_translator.translate_dictionaries(definition_generator.example_json_to_translate, data_dir / "translated_example_json_small.json")
+    #dict_translator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
     #dict_translator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
 
     definition_generator.run()
