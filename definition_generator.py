@@ -169,12 +169,12 @@ class DefinitionGenerator:
     
     def load_descriptions(self):
         try:
-            with open(f"{self.data_dir}/descriptions.json", "r", encoding="utf-8") as f:
+            with open(f"{self.data_dir}/translated_descriptions.json", "r", encoding="utf-8") as f:
                 self.descriptions = json.load(f)
         except FileNotFoundError:
-            logging.error(f"Error: {self.data_dir}/descriptions.json file not found.")
+            logging.error(f"Error: {self.data_dir}/translated_descriptions.json file not found.")
         except json.JSONDecodeError:
-            logging.error(f"Error: JSON decode error in {self.data_dir}/descriptions.json.")
+            logging.error(f"Error: JSON decode error in {self.data_dir}/translated_descriptions.json.")
     
     
     
@@ -396,6 +396,11 @@ if __name__ == "__main__":
     #dict_translator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
 
     definition_generator.run()
+    print(definition_generator.example_json_small)
+    print(definition_generator.translated_word_phrase)
+    for key, value in definition_generator.descriptions.items():
+        print(f"[{key}: {value}]")
+
 #
 #    # response = enumerated_lemma_ops.get_all_enumerated_lemmas()
 #    # if response.status_code == 200:
