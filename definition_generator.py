@@ -93,31 +93,6 @@ class DefinitionGenerator:
         self.example_json_to_translate = {
             "top": "The highest or uppermost point" 
         }
-        self.pos_to_translate = {
-                "noun": "név", 
-                "pronoun": "pronomen", 
-                "verb": "verb", 
-                "adjective": "adjectiv", 
-                "adverb": "adverb", 
-                "preposition": "előadás", 
-                "conjunction": "konjunkció", 
-                "interjection": "interjekció", 
-                "article": "artikul", 
-                "determiner": "determinátor", 
-                "particle": "partikula", 
-                "gerund": "gerund", 
-                "infinitive": "infinitive", 
-                "auxiliary verb": "auxiliary verb", 
-                "modal verb": "modal verb",
-                "definite article": "definite article",
-                "indefinite article": "indefinite article",
-                "demonstrative pronoun": "demonstrative pronoun",
-                "personal pronoun": "personal pronoun",
-                "relative pronoun": "relative pronoun",
-                "interrogative pronoun": "interrogative pronoun"
-        }
-        self.translated_pos = {}
-
 
         self.list_filepath = list_filepath
         self.string_list = []
@@ -250,9 +225,15 @@ class DefinitionGenerator:
         return pos_identifier.identify_pos(word, phrase)
     
     def get_enumeration(self, word):
-        #TODO: this should find the largest enumeration in the database and then add 1 to it and return that
-        enumeration = {"enumeration": "1"}
-        return enumeration.get('enumeration', '1')
+        response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
+        if response.status_code == 200:
+            enumerated_lemmas = response.json()['enumerated_lemmas']
+            return str(int(enumerated_lemmas[-1]['enumerated_lemma'].split('_')[1]) + 1)
+        else:
+            logging.info(f"No Base lemma found for word: {word}")
+        
+
+        return None
 
     def generate_definition_for_word(self, word, phrase, pos, entries):
         """
@@ -285,7 +266,7 @@ class DefinitionGenerator:
                 logging.info(f"response_content: {response_content}")
                 validate(instance=response_content, schema=self.get_validation_schema())
                 entry = {
-                    "enumeration": self.get_enumeration(word),
+                    "enumeration": word + '_' + self.get_enumeration(word),
                     "base_lemma": word,
                     "part_of_speech": pos,
                     "definition": response_content['def']
@@ -314,32 +295,30 @@ class DefinitionGenerator:
     def add_definition_to_db(self, entries):
         for entry in entries:
             logging.info(json.dumps(entry, indent=4))
-            for definition in entry:
-                logging.info(json.dumps(definition, indent=4))
-                data = {
-                    'enumerated_lemma': definition['Enumerated Lemma'],
-                    'base_lemma': definition['Base Lemma'].lower(),
-                    'part_of_speech': definition['Part of Speech'],
-                    'definition': definition['Definition'],
-                    'english_translation': '',
-                    'frequency': 0,  # Assuming initial frequency is 0
-                    'phrase': '',  # Assuming no phrase is provided
-                    'story_link': '',  # Assuming no story link is provided
-                    'media_references': [],  # Assuming no media references are provided
-                    'object_exploration_link': '',  # Assuming no object exploration link is provided
-                    'familiar': False,  # Assuming not familiar initially
-                    'active': False,  # Assuming not active by default
-                    'anki_card_ids': [] # Assuming no anki card ids are provided
-                }
-                try:
+            data = {
+                'enumerated_lemma': entry['enumeration'],
+                'base_lemma': entry['base_lemma'].lower(),
+                'part_of_speech': entry['part_of_speech'],
+                'definition': entry['definition'],
+                'english_translation': '',
+                'frequency': 0,  # Assuming initial frequency is 0
+                'phrase': '',  # Assuming no phrase is provided
+                'story_link': '',  # Assuming no story link is provided
+                'media_references': [],  # Assuming no media references are provided
+                'object_exploration_link': '',  # Assuming no object exploration link is provided
+                'familiar': False,  # Assuming not familiar initially
+                'active': False,  # Assuming not active by default
+                'anki_card_ids': [] # Assuming no anki card ids are provided
+            }
+            try:
+                response = enumerated_lemma_ops.create_enumerated_lemma(data=data)
+                logging.info(json.dumps(response.json(), indent=4))
+            except Exception as e:
+                logging.error(f"Error creating enumerated lemma: {e}")
+                if "Enumerated Lemma already exists" in str(e):
+                    data['enumerated_lemma'] = data['base_lemma'] + '_' + str(int(data['enumerated_lemma'].split('_')[1]) + 10)
                     response = enumerated_lemma_ops.create_enumerated_lemma(data=data)
                     logging.info(json.dumps(response.json(), indent=4))
-                except Exception as e:
-                    logging.error(f"Error creating enumerated lemma: {e}")
-                    if "Enumerated Lemma already exists" in str(e):
-                        data['enumerated_lemma'] = data['base_lemma'] + '_' + str(int(data['enumerated_lemma'].split('_')[1]) + 10)
-                        response = enumerated_lemma_ops.create_enumerated_lemma(data=data)
-                        logging.info(json.dumps(response.json(), indent=4))
 
     def load_and_initialize(self, translate=False):
         # load the descriptions, example json, tools and instructions
@@ -347,7 +326,8 @@ class DefinitionGenerator:
         self.initialize_example_json_small()
         self.load_translated_word_phrase()
         self.load_translated_pos()
-        self.base_instructions = {"instructions": "You are an expert lexicographer " \
+        self.base_instructions = {
+            "instructions": "You are an expert lexicographer " \
                             f"You will be defining words in the {self.language} language, " \
                             "offering precise and " \
                             "contextually appropriate explanations. You will include no " \
@@ -356,7 +336,7 @@ class DefinitionGenerator:
                             "the correct definition. You will be constructing " \
                             "a dictionary entry for a given lemma/word. " \
                             f"An example of a definition is:\n {json.dumps(self.example_json_small, indent=4)}" 
-                            }
+        }
         self.initialize_instructions(translate=translate)
     
     def run_single_word(self, word, phrase):
@@ -412,9 +392,10 @@ if __name__ == "__main__":
     
     # Uncomment and configure the following lines as needed
 
-    definition_generator.run()
+    print(definition_generator.get_enumeration("dog"))
+    #definition_generator.run()
     #print(definition_generator.translated_instructions)
-    print(definition_generator.translated_pos)
+    #print(definition_generator.translated_pos)
     #print(definition_generator.example_json_small)
     #print(definition_generator.translated_word_phrase)
     #for key, value in definition_generator.descriptions.items():
