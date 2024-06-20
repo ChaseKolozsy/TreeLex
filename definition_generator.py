@@ -5,7 +5,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pathlib import Path
 
-from utils.def_gen_util import preprocess_text, extract_definitions, load_config
+from utils.def_gen_util import preprocess_text, load_config
 from pydict_translator import PydictTranslator
 from instruction_translator import InstructionTranslator
 
