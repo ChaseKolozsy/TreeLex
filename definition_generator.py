@@ -74,6 +74,7 @@ class DefinitionGenerator:
             "pos": "part of speech"
         }
         self.translated_word_phrase = {}
+        self.data_dir = "data"
 
         self.base_descriptions = {
             "function_name": "generate_lemma_definitions",
@@ -135,15 +136,15 @@ class DefinitionGenerator:
                 language=self.language, 
                 model=self.model, 
                 base_instructions=self.base_instructions, 
-                outfile="data/translated_instructions.json"
+                outfile=f"{self.data_dir}/translated_instructions.json"
             )
         try:
-            with open("data/translated_instructions.json", "r", encoding="utf-8") as f:
+            with open(f"{self.data_dir}/translated_instructions.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
             for key, value in tmp.items():
                 self.translated_instructions = value
         except FileNotFoundError:
-            logging.error("Error: translated_instructions.json file not found.")
+            logging.error(f"Error: {self.data_dir}/translated_instructions.json file not found.")
             self.translated_instructions = ""
 
         self.instructions = self.translated_instructions + f"\n{json.dumps(self.example_json_small, indent=4)}"
@@ -153,38 +154,38 @@ class DefinitionGenerator:
     
     def load_translated_word_phrase(self):
         try:
-            with open("data/translated_word_phrase.json", "r", encoding="utf-8") as f:
+            with open(f"{self.data_dir}/translated_word_phrase.json", "r", encoding="utf-8") as f:
                 self.translated_word_phrase = json.load(f)
         except FileNotFoundError:
-            logging.error("Error: translated_word_phrase.json file not found.")
+            logging.error(f"Error: {self.data_dir}/translated_word_phrase.json file not found.")
         except json.JSONDecodeError:
-            logging.error("Error: JSON decode error in translated_word_phrase.json.")
+            logging.error(f"Error: JSON decode error in {self.data_dir}/translated_word_phrase.json.")
     
     
     
     def load_descriptions(self):
         try:
-            with open("data/descriptions.json", "r", encoding="utf-8") as f:
+            with open(f"{self.data_dir}/descriptions.json", "r", encoding="utf-8") as f:
                 self.descriptions = json.load(f)
         except FileNotFoundError:
-            logging.error("descriptions.json file not found.")
+            logging.error(f"Error: {self.data_dir}/descriptions.json file not found.")
         except json.JSONDecodeError:
-            logging.error("JSON decode error in descriptions.json.")
+            logging.error(f"Error: JSON decode error in {self.data_dir}/descriptions.json.")
     
     
     
     def initialize_example_json_small(self):
         try:
-            with open("data/example_json_small.json", "r", encoding="utf-8") as f:
+            with open(f"{self.data_dir}/example_json_small.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
             self.example_json_small = {
                 "word":  "top",
                 "def": f"{tmp['top']}"
             }
         except FileNotFoundError:
-            logging.error("example_json_small.json file not found.")
+            logging.error(f"Error: {self.data_dir}/example_json_small.json file not found.")
         except json.JSONDecodeError:
-            logging.error("JSON decode error in example_json_small.json.")
+            logging.error(f"Error: JSON decode error in {self.data_dir}/example_json_small.json.")
     
     def load_list(self):
         """
