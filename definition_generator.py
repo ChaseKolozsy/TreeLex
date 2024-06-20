@@ -21,7 +21,7 @@ class DefinitionGenerator:
     DefinitionGenerator class is responsible for generating structured JSON output with definitions for base lemmas. 
     It provides functionality to define words in a specified language, ensuring clear, concise, and accurate definitions. 
     The class leverages extensive knowledge of etymology and semantics to offer contextually appropriate explanations. 
-    It aims to provide 10 distinct meanings for each lemma, excluding any words from the native language. 
+    It aims to provide at least one distinct meaning for each lemma, excluding any words from the native language. 
 
     Attributes:
         - model (str): The model used for generating definitions.
@@ -29,6 +29,7 @@ class DefinitionGenerator:
         - language (str): The target language for defining words.
         - native_language (str): The native language for exclusion in definitions.
         - max_retries (int): The maximum number of retries for an operation.
+        - min_definitions (int): The minimum number of definitions to generate.
         - base_word_phrase (dict): Dictionary containing base word and phrase keys.
         - translated_word_phrase (dict): Dictionary containing translated word and phrase keys.
         - base_descriptions (dict): Dictionary containing base descriptions for definitions.
@@ -36,6 +37,7 @@ class DefinitionGenerator:
         - tools (list): List of tools for function definitions.
         - example_json_small (dict): Example JSON structure for translation.
         - example_json_to_translate (dict): Example JSON for translation.
+        - pos_enum (dict): Dictionary containing parts of speech enumeration.
         - list_filepath (str): The file path for the list of strings.
         - string_list (list): List of strings loaded from file.
         - base_instructions (dict): Instructions for the lexicographer.
@@ -48,18 +50,20 @@ class DefinitionGenerator:
     Methods:
         - __init__: Initializes the DefinitionGenerator with specified parameters.
         - initialize_instructions: Initializes instructions for generating definitions.
-        - translate_instructions: Translates instructions to the target language.
-        - translate_dictionaries: Translates dictionaries to the target language.
         - load_translated_word_phrase: Loads translated word phrases from file.
         - load_descriptions: Loads descriptions for tools from file.
         - initialize_example_json_small: Initializes example JSON structure.
-        - initialize_tools: Initializes tools for function definitions.
         - load_list: Loads the list of strings from the specified file.
         - get_validation_schema: Retrieves the validation schema for definitions.
         - create_definitions: Creates definitions for each word in the string list.
-        - generate_definitions_for_word: Generates definitions for a given word.
-        - run: Executes the process of generating definitions.
-
+        - get_pos: Retrieves the part of speech for a given word. (to be implemented)
+        - get_enumeration: Retrieves the enumeration for a given word.
+        - generate_definition_for_word: Generates definitions for a given word.
+        - get_definitions_from_online_dict: Retrieves definitions from an online dictionary (to be implemented).
+        - add_definition_to_db: Adds generated definitions to the database.
+        - load_and_initialize: Loads and initializes necessary data and instructions.
+        - run_single_word: Runs the definition generation process for a single word.
+        - run: Executes the process of generating definitions for the list of strings.
     """
     def __init__(self, list_filepath, language='Hungarian', native_language='English', model="gpt-3.5-turbo-0125"):
         self.model = model
