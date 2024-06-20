@@ -8,6 +8,7 @@ from pathlib import Path
 from utils.def_gen_util import preprocess_text, load_config
 from pydict_translator import PydictTranslator
 from instruction_translator import InstructionTranslator
+from pos_identifier import POSIdentifier
 
 import openai
 import json
@@ -226,7 +227,7 @@ class DefinitionGenerator:
                         if response.status_code == 404:
                             logging.info(f"\n------- status code: {response.status_code} Word not found -----\n")
                             pos = self.get_pos(word, phrase)
-                            self.generate_definitions_for_word(word, phrase, pos, entries)
+                            self.generate_definitio_for_word(word, phrase, pos, entries)
                             self.messages = self.base_messages
                     except Exception as e:
                         logging.error(f"Error processing word '{word}': {e}")
@@ -236,9 +237,11 @@ class DefinitionGenerator:
         return entries
 
     def get_pos(self, word, phrase):
-        # TODO: implement this
-        pos = {"pos": "noun"}
-        return pos.get('pos', 'noun')
+        pos_identifier = POSIdentifier(
+            language=self.language, 
+            model=self.model
+        )
+        return pos_identifier.identify_pos(word, phrase)
     
     def get_enumeration(self, word):
         #TODO: this should find the largest enumeration in the database and then add 1 to it and return that
@@ -374,8 +377,8 @@ class DefinitionGenerator:
         # load the descriptions, example json, tools and instructions
         self.load_and_initialize(translate=translate)
 
-        #responses = self.create_definitions()
-        #self.add_definition_to_db(responses)
+        entries = self.create_definitions()
+        self.add_definition_to_db(entries)
 
 
 if __name__ == "__main__":
