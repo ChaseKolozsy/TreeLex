@@ -5,7 +5,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pathlib import Path
 
-from utils.def_gen_util import preprocess_text, load_config, pos_do_not_match
+from utils.def_gen_util import preprocess_text, load_config, pos_do_not_match, matches_by_pos
 from pydict_translator import PydictTranslator
 from instruction_translator import InstructionTranslator
 from pos_identifier import POSIdentifier
@@ -211,6 +211,9 @@ class DefinitionGenerator:
                         logging.info(f"\n------- pos: {pos} -----\n")
                         pos_no_match = pos_do_not_match(enumerated_lemmas, pos) 
                         logging.info(f"\n------- pos_no_match: {pos_no_match} -----\n")
+                        if not pos_no_match:
+                            matches = matches_by_pos(enumerated_lemmas, pos)
+                            logging.info(f"\n------- matches: {matches} -----\n")
                         if response.status_code == 404 or pos_no_match:
                             pass
                             #self.generate_definition_for_word(word, phrase, pos, entries)
@@ -224,9 +227,14 @@ class DefinitionGenerator:
         return entries
 
     def get_pos(self, word, phrase):
+        if len(word) < 4:
+            model = "gpt-4o"
+        else:
+            model = self.model
+
         pos_identifier = POSIdentifier(
             language=self.language, 
-            model=self.model
+            model=model
         )
         return pos_identifier.identify_pos(word, phrase)
     

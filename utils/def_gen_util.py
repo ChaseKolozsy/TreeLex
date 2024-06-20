@@ -48,3 +48,10 @@ def pos_do_not_match(base_lemmas, pos):
             at_least_one_match = True
             break  # Exit the loop as soon as a mismatch is found
     return not at_least_one_match  # Return True if there is no match
+
+def matches_by_pos(base_lemmas, pos):
+    matches = []
+    for lemma in base_lemmas:
+        if lemma['part_of_speech'] == pos:
+            matches.append(lemma)
+    return matches
