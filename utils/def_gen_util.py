@@ -39,7 +39,9 @@ def load_config(config_path):
             raise ValueError("Unsupported configuration file format")
 
 def pos_do_not_match(base_lemmas, pos, translated_pos):
+    at_least_one_match = False  # Assume no lemmas match initially
     for lemma in base_lemmas:
-        if lemma[f'{translated_pos}'] != pos:
-            return True
-    return False
+        if lemma.get(translated_pos) == pos:
+            at_least_one_match = True
+            break  # Exit the loop as soon as a mismatch is found
+    return not at_least_one_match  # Return True if there is no match
