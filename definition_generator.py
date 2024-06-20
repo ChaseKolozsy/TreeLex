@@ -79,7 +79,7 @@ class DefinitionGenerator:
             "pos": "part of speech"
         }
         self.translated_word_phrase = {}
-        self.data_dir = "data"
+        self.data_dir = Path("data")
 
         self.base_descriptions = {
             "function_name": "generate_lemma_definitions",
@@ -104,7 +104,7 @@ class DefinitionGenerator:
                 language=self.language, 
                 model="gpt-4o", 
                 base_instructions=self.base_instructions, 
-                outfile=f"{self.data_dir}/translated_instructions.json"
+                outfile=self.data_dir / "translated_instructions.json"
             )
         try:
             with open(f"{self.data_dir}/translated_instructions.json", "r", encoding="utf-8") as f:
@@ -208,7 +208,7 @@ class DefinitionGenerator:
                         if response.status_code == 404:
                             logging.info(f"\n------- status code: {response.status_code} Word not found -----\n")
                             pos = self.get_pos(word, phrase)
-                            self.generate_definitio_for_word(word, phrase, pos, entries)
+                            self.generate_definition_for_word(word, phrase, pos, entries)
                             self.messages = self.base_messages
                     except Exception as e:
                         logging.error(f"Error processing word '{word}': {e}")
@@ -245,8 +245,8 @@ class DefinitionGenerator:
         success = False
         message = {
             "role": "user", "content": f"{self.translated_word_phrase.get('word', 'word')}: {word}."\
-            f"{self.translated_word_phrase.get('phrase', 'phrase')}: {phrase}."\
-            f"{self.translated_word_phrase.get('pos', 'part of speech')}: {pos}."
+            f" {self.translated_word_phrase.get('phrase', 'phrase')}: {phrase}."\
+            f" {self.translated_word_phrase.get('pos', 'part of speech')}: {pos}."
         }
         logging.info(f"message: {message}")
         self.messages.append(message)
@@ -266,7 +266,7 @@ class DefinitionGenerator:
                 logging.info(f"response_content: {response_content}")
                 validate(instance=response_content, schema=self.get_validation_schema())
                 entry = {
-                    "enumeration": word + '_' + self.get_enumeration(word),
+                    "enumeration": word + '_' + self.get_enumeration(word) if self.get_enumeration(word) else word + '_1',
                     "base_lemma": word,
                     "part_of_speech": pos,
                     "definition": response_content['def']
@@ -294,7 +294,7 @@ class DefinitionGenerator:
     
     def add_definition_to_db(self, entries):
         for entry in entries:
-            logging.info(json.dumps(entry, indent=4))
+            logging.info(json.dumps(entry, indent=4, ensure_ascii=False))
             data = {
                 'enumerated_lemma': entry['enumeration'],
                 'base_lemma': entry['base_lemma'].lower(),
@@ -330,12 +330,12 @@ class DefinitionGenerator:
             "instructions": "You are an expert lexicographer " \
                             f"You will be defining words in the {self.language} language, " \
                             "offering precise and " \
-                            "contextually appropriate explanations. You will include no " \
+                            "contextually appropriate explanations in json format. You will include no " \
                             f"{self.native_language} words in the definitions. " \
                             "A phrase and part of speech is supplied for context to help you articulate " \
                             "the correct definition. You will be constructing " \
                             "a dictionary entry for a given lemma/word. " \
-                            f"An example of a definition is:\n {json.dumps(self.example_json_small, indent=4)}" 
+                            f"An example of a definition in json format is:\n {json.dumps(self.example_json_small, indent=4)}" 
         }
         self.initialize_instructions(translate=translate)
     
@@ -361,17 +361,11 @@ class DefinitionGenerator:
             dict_translator.translate_dictionaries(self.descriptions, data_dir / "translated_descriptions.json")
             dict_translator.translate_dictionaries(self.translated_word_phrase, data_dir / "translated_word_phrase.json")
 
-        dict_translator = PydictTranslator(
-            language=self.language, 
-            model="gpt-4o"
-        )
-        dict_translator.translate_dictionaries(self.pos_to_translate, data_dir / "translated_pos.json")
-
         # load the descriptions, example json, tools and instructions
         self.load_and_initialize(translate=translate)
 
-        #entries = self.create_definitions()
-        #self.add_definition_to_db(entries)
+        entries = self.create_definitions()
+        self.add_definition_to_db(entries)
 
 
 if __name__ == "__main__":
@@ -392,8 +386,9 @@ if __name__ == "__main__":
     
     # Uncomment and configure the following lines as needed
 
-    print(definition_generator.get_enumeration("dog"))
-    #definition_generator.run()
+    definition_generator.run()
+
+    #print(definition_generator.get_enumeration("dog"))
     #print(definition_generator.translated_instructions)
     #print(definition_generator.translated_pos)
     #print(definition_generator.example_json_small)

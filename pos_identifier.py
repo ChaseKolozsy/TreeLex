@@ -44,11 +44,11 @@ class POSIdentifier:
 
     def load_translated_content(self):
         try:
-            with open(self.data_dir / "translated_content.txt", "r", encoding="utf-8") as f:
+            with open(self.data_dir / "translated_content.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
                 self.translated_content = tmp
         except FileNotFoundError:
-            logging.error(f"Error: {self.data_dir}/translated_content.txt file not found.")
+            logging.error(f"Error: {self.data_dir}/translated_content.json file not found.")
             self.translated_content = ""
 
     def load_translated_content_keys(self):
