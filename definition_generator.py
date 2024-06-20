@@ -121,32 +121,20 @@ class DefinitionGenerator:
 
         self.list_filepath = list_filepath
         self.string_list = []
-        self.base_instructions = {"instructions": "You are an expert lexicographer with a deep understanding " \
-                            "of etymology and semantics. Your task is to provide clear, " \
-                            "concise, and accurate definitions for words." \
-                            f"You will be defining words in the {self.language} language, " \
-                            "drawing on your extensive knowledge to offer precise and " \
-                            "contextually appropriate explanations. You will include no " \
-                            f"{self.native_language} words in the definitions." \
-                            "A phrase and part of speech is supplied for context to help you articulate " \
-                            "the correct definition. You will be constructing " \
-                            "a dictionary entry for a given lemma/word. " \
-                            f"An example of a definition is:\n {json.dumps(self.example_json_small, indent=4)}" 
-                            }
 
     def initialize_instructions(self, translate=False):
         if translate:
+            logging.info(f"translating instructions: {self.base_instructions}")
             InstructionTranslator(
                 language=self.language, 
-                model=self.model, 
+                model="gpt-4o", 
                 base_instructions=self.base_instructions, 
                 outfile=f"{self.data_dir}/translated_instructions.json"
             )
         try:
             with open(f"{self.data_dir}/translated_instructions.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
-            for key, value in tmp.items():
-                self.translated_instructions = value
+                self.translated_instructions = tmp
         except FileNotFoundError:
             logging.error(f"Error: {self.data_dir}/translated_instructions.json file not found.")
             self.translated_instructions = ""
@@ -186,6 +174,7 @@ class DefinitionGenerator:
                 "word":  "top",
                 "def": f"{tmp['top']}"
             }
+            logging.info(f"example_json_small: {self.example_json_small}")
         except FileNotFoundError:
             logging.error(f"Error: {self.data_dir}/translated_example_json_small.json file not found.")
         except json.JSONDecodeError:
@@ -347,8 +336,18 @@ class DefinitionGenerator:
         # load the descriptions, example json, tools and instructions
         self.load_descriptions()
         self.initialize_example_json_small()
-        #self.initialize_instructions(translate=translate)
         self.load_translated_word_phrase()
+        self.base_instructions = {"instructions": "You are an expert lexicographer " \
+                            f"You will be defining words in the {self.language} language, " \
+                            "offering precise and " \
+                            "contextually appropriate explanations. You will include no " \
+                            f"{self.native_language} words in the definitions. " \
+                            "A phrase and part of speech is supplied for context to help you articulate " \
+                            "the correct definition. You will be constructing " \
+                            "a dictionary entry for a given lemma/word. " \
+                            f"An example of a definition is:\n {json.dumps(self.example_json_small, indent=4)}" 
+                            }
+        self.initialize_instructions(translate=translate)
     
     def run_single_word(self, word, phrase):
         self.load_and_initialize()
@@ -358,12 +357,22 @@ class DefinitionGenerator:
         self.add_definition_to_db(responses)
 
     
-    def run(self, familiar=False): 
+    def run(self, familiar=False, translate=False): 
         self.load_list()
         logging.info(self.string_list)
 
+        if translate:
+            dict_translator = PydictTranslator(
+                language=self.language, 
+                model=self.model
+            )
+
+            dict_translator.translate_dictionaries(definition_generator.example_json_to_translate, data_dir / "translated_example_json_small.json")
+            dict_translator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
+            dict_translator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
+
         # load the descriptions, example json, tools and instructions
-        self.load_and_initialize(translate=False)
+        self.load_and_initialize(translate=translate)
 
         #responses = self.create_definitions()
         #self.add_definition_to_db(responses)
@@ -386,20 +395,13 @@ if __name__ == "__main__":
     )
     
     # Uncomment and configure the following lines as needed
-    dict_translator = PydictTranslator(
-        language=definition_generator.language, 
-        model=definition_generator.model
-    )
-
-    #dict_translator.translate_dictionaries(definition_generator.example_json_to_translate, data_dir / "translated_example_json_small.json")
-    #dict_translator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
-    #dict_translator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
 
     definition_generator.run()
-    print(definition_generator.example_json_small)
-    print(definition_generator.translated_word_phrase)
-    for key, value in definition_generator.descriptions.items():
-        print(f"[{key}: {value}]")
+    print(definition_generator.translated_instructions)
+    #print(definition_generator.example_json_small)
+    #print(definition_generator.translated_word_phrase)
+    #for key, value in definition_generator.descriptions.items():
+    #    print(f"[{key}: {value}]")
 
 #
 #    # response = enumerated_lemma_ops.get_all_enumerated_lemmas()

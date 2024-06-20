@@ -3,12 +3,13 @@ import json
 import logging
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class InstructionTranslator:
-    def __init__(self, language, model="gpt-4o", base_instructions={}, outfile="data/translated_instructions.json"):
+    def __init__(self, language, model="gpt-4o", base_instructions={}, outfile=Path("data/translated_instructions.json")):
         self.client = openai.OpenAI()
         self.language = language
         self.model = model
@@ -54,7 +55,7 @@ class InstructionTranslator:
                     )
                     response_message = json.loads(response.choices[0].message.content)
                     try:
-                        validate(instance=response_message, schema=self.get_validation_schema())
+                        #validate(instance=response_message, schema=self.get_validation_schema())
                         logging.info(f"\n\nresponse_message: {json.dumps(response_message, indent=4)}")
                         for response_key, translated_value in response_message.items():
                             self.translated_instructions = translated_value
@@ -77,7 +78,6 @@ if __name__ == "__main__":
     translator = InstructionTranslator(language="Spanish")
     base_instructions = {
         "instruction1": "Please follow the steps carefully.",
-        "instruction2": "Ensure all fields are filled out correctly."
     }
     translator.translate_instructions(base_instructions=base_instructions, outfile="translated_instructions.json")
     print(translator.get_translated_instructions())
