@@ -182,15 +182,14 @@ class DefinitionGenerator:
         try:
             with open(f"{self.data_dir}/translated_example_json_small.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
-                logging.info(f"tmp: {tmp}")
             self.example_json_small = {
                 "word":  "top",
                 "def": f"{tmp['top']}"
             }
         except FileNotFoundError:
-            logging.error(f"Error: {self.data_dir}/example_json_small.json file not found.")
+            logging.error(f"Error: {self.data_dir}/translated_example_json_small.json file not found.")
         except json.JSONDecodeError:
-            logging.error(f"Error: JSON decode error in {self.data_dir}/example_json_small.json.")
+            logging.error(f"Error: JSON decode error in {self.data_dir}/translated_example_json_small.json.")
     
     def load_list(self):
         """
@@ -348,7 +347,7 @@ class DefinitionGenerator:
         # load the descriptions, example json, tools and instructions
         self.load_descriptions()
         self.initialize_example_json_small()
-        self.initialize_instructions(translate=translate)
+        #self.initialize_instructions(translate=translate)
         self.load_translated_word_phrase()
     
     def run_single_word(self, word, phrase):
