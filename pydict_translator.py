@@ -41,13 +41,13 @@ class PydictTranslator:
         print(f"Translating {len(base)} entries to {self.language}")
 
         messages = self.messages.copy()
+        backup_messages = messages.copy()
         for key, value in base.items():
             messages.append({
                 "role": "user",
                 "content": f"Translate '{value}' to {self.language} with json format:\n {key}: <translation>"
             })
             logging.info(f"Messages: {messages}")
-            backup_messages = messages.copy()
 
             retries = 0
             while retries < self.max_retries:
@@ -72,6 +72,7 @@ class PydictTranslator:
                     retries += 1
                     messages = backup_messages
                     logging.error(f"Error translating dictionary: {e}")
+                messages = backup_messages
 
         try:
             with open(outfile, "w", encoding="utf-8") as f:

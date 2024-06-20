@@ -38,7 +38,7 @@ class DefinitionGenerator:
         - tools (list): List of tools for function definitions.
         - example_json_small (dict): Example JSON structure for translation.
         - example_json_to_translate (dict): Example JSON for translation.
-        - pos_enum (dict): Dictionary containing parts of speech enumeration.
+        - pos_to_translate (dict): Dictionary containing parts of speech enumeration.
         - list_filepath (str): The file path for the list of strings.
         - string_list (list): List of strings loaded from file.
         - base_instructions (dict): Instructions for the lexicographer.
@@ -93,31 +93,30 @@ class DefinitionGenerator:
         self.example_json_to_translate = {
             "top": "The highest or uppermost point" 
         }
-        self.pos_enum = {
-            "enum": [
-                "noun", 
-                "pronoun", 
-                "verb", 
-                "adjective", 
-                "adverb", 
-                "preposition", 
-                "conjunction", 
-                "interjection", 
-                "article", 
-                "determiner", 
-                "particle", 
-                "gerund", 
-                "infinitive", 
-                "auxiliary verb", 
-                "modal verb",
-                "definite article",
-                "indefinite article",
-                "demonstrative pronoun",
-                "personal pronoun",
-                "relative pronoun",
-                "interrogative pronoun",
-            ]
+        self.pos_to_translate = {
+                "noun": "név", 
+                "pronoun": "pronomen", 
+                "verb": "verb", 
+                "adjective": "adjectiv", 
+                "adverb": "adverb", 
+                "preposition": "előadás", 
+                "conjunction": "konjunkció", 
+                "interjection": "interjekció", 
+                "article": "artikul", 
+                "determiner": "determinátor", 
+                "particle": "partikula", 
+                "gerund": "gerund", 
+                "infinitive": "infinitive", 
+                "auxiliary verb": "auxiliary verb", 
+                "modal verb": "modal verb",
+                "definite article": "definite article",
+                "indefinite article": "indefinite article",
+                "demonstrative pronoun": "demonstrative pronoun",
+                "personal pronoun": "personal pronoun",
+                "relative pronoun": "relative pronoun",
+                "interrogative pronoun": "interrogative pronoun"
         }
+        self.translated_pos = {}
 
 
         self.list_filepath = list_filepath
@@ -180,6 +179,13 @@ class DefinitionGenerator:
             logging.error(f"Error: {self.data_dir}/translated_example_json_small.json file not found.")
         except json.JSONDecodeError:
             logging.error(f"Error: JSON decode error in {self.data_dir}/translated_example_json_small.json.")
+
+    def load_translated_pos(self):
+        try:
+            with open(f"{self.data_dir}/translated_pos.json", "r", encoding="utf-8") as f:
+                self.translated_pos = json.load(f)
+        except FileNotFoundError:
+            logging.error(f"Error: {self.data_dir}/translated_pos.json file not found.")
     
     def load_list(self):
         """
@@ -340,6 +346,7 @@ class DefinitionGenerator:
         self.load_descriptions()
         self.initialize_example_json_small()
         self.load_translated_word_phrase()
+        self.load_translated_pos()
         self.base_instructions = {"instructions": "You are an expert lexicographer " \
                             f"You will be defining words in the {self.language} language, " \
                             "offering precise and " \
@@ -367,18 +374,24 @@ class DefinitionGenerator:
         if translate:
             dict_translator = PydictTranslator(
                 language=self.language, 
-                model=self.model
+                model="gpt-4o"
             )
 
-            dict_translator.translate_dictionaries(definition_generator.example_json_to_translate, data_dir / "translated_example_json_small.json")
-            dict_translator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
-            dict_translator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
+            dict_translator.translate_dictionaries(self.example_json_small, data_dir / "translated_example_json_small.json")
+            dict_translator.translate_dictionaries(self.descriptions, data_dir / "translated_descriptions.json")
+            dict_translator.translate_dictionaries(self.translated_word_phrase, data_dir / "translated_word_phrase.json")
+
+        dict_translator = PydictTranslator(
+            language=self.language, 
+            model="gpt-4o"
+        )
+        dict_translator.translate_dictionaries(self.pos_to_translate, data_dir / "translated_pos.json")
 
         # load the descriptions, example json, tools and instructions
         self.load_and_initialize(translate=translate)
 
-        entries = self.create_definitions()
-        self.add_definition_to_db(entries)
+        #entries = self.create_definitions()
+        #self.add_definition_to_db(entries)
 
 
 if __name__ == "__main__":
@@ -400,7 +413,8 @@ if __name__ == "__main__":
     # Uncomment and configure the following lines as needed
 
     definition_generator.run()
-    print(definition_generator.translated_instructions)
+    #print(definition_generator.translated_instructions)
+    print(definition_generator.translated_pos)
     #print(definition_generator.example_json_small)
     #print(definition_generator.translated_word_phrase)
     #for key, value in definition_generator.descriptions.items():
