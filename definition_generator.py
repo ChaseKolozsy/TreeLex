@@ -65,32 +65,27 @@ class DefinitionGenerator:
         self.language = language
         self.native_language = native_language
         self.max_retries = 3
-        self.min_definitions = 20
+        self.min_definitions = 1
         self.base_word_phrase = {
             "word": "word",
-            "phrase": "phrase"
+            "phrase": "phrase",
+            "pos": "part of speech"
         }
         self.translated_word_phrase = {}
 
         self.base_descriptions = {
             "function_name": "generate_lemma_definitions",
-            "function_description": "Generate a structured JSON output with definitions for a base lemma. It should look like this",
-            "base_lemma_description": "The base word or lemma for which definitions are to be generated",
-            "definitions_description": f"A list of {self.min_definitions} definitions for the lemma. The definition should be in the language of {self.language} using no {self.native_language} words.",
-            f"enumerated_lemma_description": f"The enumerated lemma for the definition, base_lemma_n where n is between 1 and {self.min_definitions}, ie top_1, top_2, etc.",
-            "definition_description": "The definition of the lemma",
-            "part_of_speech_description": "The part of speech for the definition",
+            "function_description": f"Generate a structured JSON output with {self.min_definitions} definition for a word. It should look like this: ",
+            "base_lemma_description": "The base word or lemma for which a definition is to be generated",
+            "definition_description": f"{self.min_definitions} definition for the word. The definition should be in the language of {self.language} using no {self.native_language} words.",
         }
         self.descriptions = {}
         self.tools = []
         self.example_json_small = {}
         self.example_json_to_translate = {
-            "top_1": "The highest or uppermost point",
-            "top_2": "extremely; very much",
-            "noun": "noun",
-            "adverb": "adverb"
+            "top": "The highest or uppermost point" 
         }
-        self.enum = {
+        self.pos_enum = {
             "enum": [
                 "noun", 
                 "pronoun", 
@@ -126,13 +121,10 @@ class DefinitionGenerator:
                             "drawing on your extensive knowledge to offer precise and " \
                             "contextually appropriate explanations. You will include no " \
                             f"{self.native_language} words in the definitions." \
-                            "A phrase is supplied for context to help you articulate " \
-                            "the correct definition and its part of speech. However, you will supply " \
-                            "more than one definition for this word. You will be constructing " \
+                            "A phrase and part of speech is supplied for context to help you articulate " \
+                            "the correct definition. You will be constructing " \
                             "a dictionary entry for a given lemma/word. " \
-                            f"Please strive for {self.min_definitions} definitions per lemma, " \
-                            f"The definitions supplied should represent {self.min_definitions} different distinct meanings " \
-                            f"with varying parts of speech. An example of a definition is:\n {json.dumps(self.example_json_small, indent=4)}" 
+                            f"An example of a definition is:\n {json.dumps(self.example_json_small, indent=4)}" 
                             }
 
     def initialize_instructions(self, translate=False):
@@ -172,8 +164,6 @@ class DefinitionGenerator:
             except Exception as e:
                 logging.error(f"An error occurred: {e}")
             messages = []
-    
-    
     
     def translate_dictionaries(self, base: dict, outfile: str):
         """
@@ -235,75 +225,14 @@ class DefinitionGenerator:
             with open("data/example_json_small.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
             self.example_json_small = {
-                "base_lemma":  "top",
-                "definitions": [
-                    {"enumerated_lemma": "top_1", "definition": f"{tmp['top_1']}", "part_of_speech": f"{tmp['noun']}"},
-                    {"enumerated_lemma": "top_2", "definition": f"{tmp['top_2']}", "part_of_speech": f"{tmp['adverb']}"},
-                    {"enumerated_lemma": "top_n", "definition": '...', "part_of_speech": "..."},
-                ]
+                "word":  "top",
+                "def": f"{tmp['top']}"
             }
         except FileNotFoundError:
             logging.error("example_json_small.json file not found.")
         except json.JSONDecodeError:
             logging.error("JSON decode error in example_json_small.json.")
     
-    
-    
-    def initialize_tools(self):
-        """
-        Initialize tools for function definitions.
-
-        This method sets up the tools required for defining functions, including the name, description, and parameters.
-
-        Parameters:
-        - self: the object instance
-        """
-        self.tools = [
-            {
-                "type": "function",
-                "function": {
-                    "name": f"{self.base_descriptions['function_name']}",
-                    "description": f"{self.descriptions['function_description']}:\n{json.dumps(self.example_json_small, indent=4)}",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "base_lemma": {
-                                "type": "string",
-                                "description": f"{self.descriptions['base_lemma_description']}"
-                            },
-                            "definitions": {
-                                "type": "array",
-                                "minItems": self.min_definitions,
-                                "maxItems": self.min_definitions,
-                                "items": {
-                                    "type": "object",
-                                    "properties": {
-                                        "enumerated_lemma": {
-                                            "type": "string",
-                                            "description": f"{self.descriptions['enumerated_lemma_description']}"
-                                        },
-                                        "definition": {
-                                            "type": "string",
-                                            "description": f"{self.descriptions['definition_description']}"
-                                        },
-                                        "part_of_speech": {
-                                            "type": "string",
-                                            "description": f"{self.descriptions['part_of_speech_description']}",
-                                            "enum": self.enum['enum']
-                                        }
-                                    },
-                                    "required": ["definition", "part_of_speech"]
-                                },
-                                "description": f"{self.descriptions['definitions_description']}"
-                            }
-                        },
-                        "required": ["base_lemma", "definitions"]
-                    }
-                }
-            }
-        ]
-
-
     def load_list(self):
         """
         Load the list of strings from the specified file.
@@ -320,20 +249,13 @@ class DefinitionGenerator:
     def get_validation_schema(self):
         try:
             schema = {
-                "type": "array",
-                "items": {
-                    "type": "object",
+                "type": "object",
                     "properties": {
-                        "Base Lemma": {"type": "string"},
-                        "Enumerated Lemma": {"type": "string"},
-                        "Definition": {"type": "string"},
-                        "Part of Speech": {
-                            "type": "string",
-                        }
+                        "word": {"type": "string"},
+                        "def": {"type": "string"}
                     },
-                    "required": ["Base Lemma", "Enumerated Lemma", "Definition", "Part of Speech"]
+                    "required": ["word", "def"]
                 }
-            }
             return schema
         except Exception as e:
             print(f"Error generating validation schema: {e}")
@@ -343,11 +265,11 @@ class DefinitionGenerator:
         """
         Create definitions for each word in the string list.
         """
-        responses = []
-        for item in self.string_list:
-            logging.info(f"\n------- item: {item} -----\n")
+        entries = []
+        for phrase in self.string_list:
+            logging.info(f"\n------- phrase: {phrase} -----\n")
             try:
-                words = preprocess_text(item).split()
+                words = preprocess_text(phrase).split()
                 logging.info(f"\n------- words: {words}-----\n")
 
                 for word in words:
@@ -356,30 +278,42 @@ class DefinitionGenerator:
                         response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
                         if response.status_code == 404:
                             logging.info(f"\n------- status code: {response.status_code} Word not found -----\n")
-                            self.generate_definitions_for_word(word, item, responses)
+                            pos = self.get_pos(word, phrase)
+                            self.generate_definitions_for_word(word, phrase, pos, entries)
                             self.messages = self.base_messages
                     except Exception as e:
                         logging.error(f"Error processing word '{word}': {e}")
             except Exception as e:
-                logging.error(f"Error processing item '{item}': {e}")
+                logging.error(f"Error processing phrase '{phrase}': {e}")
 
-        return responses
+        return entries
 
-    def generate_definitions_for_word(self, word, phrase, responses):
+    def get_pos(self, word, phrase):
+        # TODO: implement this
+        pos = {"pos": "noun"}
+        return pos.get('pos', 'noun')
+    
+    def get_enumeration(self, word):
+        #TODO: this should find the largest enumeration in the database and then add 1 to it and return that
+        enumeration = {"enumeration": "1"}
+        return enumeration.get('enumeration', '1')
+
+    def generate_definition_for_word(self, word, phrase, pos, entries):
         """
         Helper function to generate definitions for a given word.
         Retries the operation if it fails.
         """
         max_retries = self.max_retries
         retries = 0
-        leeway = 3
-        min_definitions = self.min_definitions - leeway
         success = False
-        message = {"role": "user", "content": f"{self.translated_word_phrase.get('word', 'word')}: {word}. {self.translated_word_phrase.get('phrase', 'phrase')}: {phrase}."}
+        message = {
+            "role": "user", "content": f"{self.translated_word_phrase.get('word', 'word')}: {word}."\
+            f"{self.translated_word_phrase.get('phrase', 'phrase')}: {phrase}."\
+            f"{self.translated_word_phrase.get('pos', 'part of speech')}: {pos}."
+        }
         logging.info(f"message: {message}")
         self.messages.append(message)
         back_up_messages = self.messages.copy()
-        temp_responses = []
         logging.info(f"entering generate_definitions_for_word with message: {message}")
 
         while not success and retries < max_retries:
@@ -387,25 +321,21 @@ class DefinitionGenerator:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=self.messages,
-                    tools=self.tools,
-                    tool_choice=self.tools[0],
+                    response_format={"type": "json_object"},
                     temperature=0.0
                 )
 
-                response_message = response.choices[0].message
-                tool_calls = response_message.tool_calls
-                if tool_calls:
-                    extracted_data = extract_definitions(tool_calls[0].function.arguments)
-                    logging.info(f"extracted_data: {extracted_data}, len: {len(extracted_data)}")
-                    validate(instance=extracted_data, schema=self.get_validation_schema())
-                    temp_responses.extend(extracted_data)
-                    responses.append(extracted_data)
-                    if len(temp_responses) < min_definitions:
-                        error_message = f"Not enough definitions. {self.min_definitions} definitions are required. " \
-                                        f"Please generate {self.min_definitions - len(temp_responses)} more definitions. " \
-                                        f"Begin at enumeration {len(temp_responses) + 1}. And do not repeat the old definitions ."
-                        raise Exception(error_message)
-                    success = True
+                response_content = json.loads(response.choices[0].message.content)
+                logging.info(f"response_content: {response_content}")
+                validate(instance=response_content, schema=self.get_validation_schema())
+                entry = {
+                    "enumeration": self.get_enumeration(word),
+                    "base_lemma": word,
+                    "part_of_speech": pos,
+                    "definition": response_content['def']
+                }
+                entries.append(entry)
+                success = True
             except ValidationError as ve:
                 logging.error(f"Validation error: {ve}")
                 error_message = {"role": "user", "content": f"Error: {ve}"}
@@ -414,19 +344,21 @@ class DefinitionGenerator:
                 retries += 1
             except Exception as e:
                 logging.error(f"Error: {e}")
-                error_message = {"role": "user", "content": f"Error: {e}"}
-                self.messages.append(error_message)
                 retries += 1
                 if retries >= max_retries:
                     logging.error(f"Failed to generate definitions for word '{word}' after {max_retries} attempts.")
                     break
                 logging.info(f"Retrying... ({retries}/{max_retries})")
 
+    def get_definitions_from_online_dict(self, word):
+        #TODO: implement this
+        pass
+
     
-    def add_definition_to_db(self, responses):
-        for response in responses:
-            logging.info(json.dumps(response, indent=4))
-            for definition in response:
+    def add_definition_to_db(self, entries):
+        for entry in entries:
+            logging.info(json.dumps(entry, indent=4))
+            for definition in entry:
                 logging.info(json.dumps(definition, indent=4))
                 data = {
                     'enumerated_lemma': definition['Enumerated Lemma'],
@@ -453,12 +385,11 @@ class DefinitionGenerator:
                         response = enumerated_lemma_ops.create_enumerated_lemma(data=data)
                         logging.info(json.dumps(response.json(), indent=4))
 
-    def load_and_initialize(self):
+    def load_and_initialize(self, translate=False):
         # load the descriptions, example json, tools and instructions
         self.load_descriptions()
         self.initialize_example_json_small()
-        self.initialize_tools()
-        self.initialize_instructions()
+        self.initialize_instructions(translate=translate)
         self.load_translated_word_phrase()
     
     def run_single_word(self, word, phrase):
@@ -474,35 +405,35 @@ class DefinitionGenerator:
         logging.info(self.string_list)
 
         # load the descriptions, example json, tools and instructions
-        self.load_and_initialize()
+        self.load_and_initialize(translate=True)
 
         responses = self.create_definitions()
         self.add_definition_to_db(responses)
 
 
-#if __name__ == "__main__":
-#    current_dir = Path.cwd()
-#    data_dir = current_dir / "data"
-#    if not data_dir.exists():
-#        data_dir.mkdir(parents=True)
-#    print(f"data_dir: {data_dir}")
+if __name__ == "__main__":
+    current_dir = Path.cwd()
+    data_dir = current_dir / "data"
+    if not data_dir.exists():
+        data_dir.mkdir(parents=True)
+    print(f"data_dir: {data_dir}")
 #
-#    config = load_config(data_dir / "def_gen_config.yaml")
+    config = load_config(data_dir / "def_gen_config.yaml")
 #
-#    definition_generator = DefinitionGenerator(
-#        list_filepath=config['list_filepath'],
-#        language=config['language'],
-#        native_language=config['native_language'],
-#        model=config['model']
-#    )
-#    
-#    # Uncomment and configure the following lines as needed
-#    # definition_generator = DefinitionGenerator(list_filepath=data_dir / "phrase_list.txt")
-#    # definition_generator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
-#    # definition_generator.translate_dictionaries(definition_generator.example_json_small, data_dir / "translated_example_json_small.json")
-#    # definition_generator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
-#    # definition_generator.translate_instructions()
-#    # definition_generator.run(familiar=True)
+    definition_generator = DefinitionGenerator(
+        list_filepath=config['list_filepath'],
+        language=config['language'],
+        native_language=config['native_language'],
+        model=config['model']
+    )
+    
+    # Uncomment and configure the following lines as needed
+    definition_generator.translate_dictionaries(definition_generator.base_descriptions, data_dir / "translated_descriptions.json")
+    definition_generator.translate_dictionaries(definition_generator.example_json_small, data_dir / "translated_example_json_small.json")
+    #definition_generator.translate_dictionaries(definition_generator.translated_word_phrase, data_dir / "translated_word_phrase.json")
+    #definition_generator.translate_instructions()
+
+    definition_generator.run()
 #
 #    # response = enumerated_lemma_ops.get_all_enumerated_lemmas()
 #    # if response.status_code == 200:
