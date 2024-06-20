@@ -3,6 +3,7 @@ import json
 import re
 import yaml
 from pathlib import Path
+import logging
 
 def extract_definitions(text):
     data = json.loads(text)
@@ -38,10 +39,12 @@ def load_config(config_path):
         else:
             raise ValueError("Unsupported configuration file format")
 
-def pos_do_not_match(base_lemmas, pos, translated_pos):
+def pos_do_not_match(base_lemmas, pos):
     at_least_one_match = False  # Assume no lemmas match initially
+    logging.info(f"\n------- base_lemmas: {base_lemmas} -----\n")
     for lemma in base_lemmas:
-        if lemma.get(translated_pos) == pos:
+        logging.info(f"\n------- lemma: {lemma} -----\n")
+        if lemma['part_of_speech'] == pos:
             at_least_one_match = True
             break  # Exit the loop as soon as a mismatch is found
     return not at_least_one_match  # Return True if there is no match

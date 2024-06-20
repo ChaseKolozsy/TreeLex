@@ -204,15 +204,20 @@ class DefinitionGenerator:
                 for word in words:
                     logging.info(f"\n------- word: {word} -----\n")
                     try:
-                        base_lemmas = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
-                        pos_do_not_match = pos_do_not_match(base_lemmas, pos, self.translated_word_phrase['pos'])
-                        if base_lemmas.status_code == 404 or pos_do_not_match:
-                            logging.info(f"\n------- status code: {base_lemmas.status_code} Word not found -----\n")
-                            pos = self.get_pos(word, phrase)
-                            self.generate_definition_for_word(word, phrase, pos, entries)
-                            self.messages = self.base_messages
+                        response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
+                        enumerated_lemmas = response.json()['enumerated_lemmas']
+                        logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
+                        pos = self.get_pos(word, phrase)
+                        logging.info(f"\n------- pos: {pos} -----\n")
+                        pos_no_match = pos_do_not_match(enumerated_lemmas, pos) 
+                        logging.info(f"\n------- pos_no_match: {pos_no_match} -----\n")
+                        if response.status_code == 404 or pos_no_match:
+                            pass
+                            #self.generate_definition_for_word(word, phrase, pos, entries)
+                            #self.messages = self.base_messages
                     except Exception as e:
                         logging.error(f"Error processing word '{word}': {e}")
+                    break
             except Exception as e:
                 logging.error(f"Error processing phrase '{phrase}': {e}")
 
