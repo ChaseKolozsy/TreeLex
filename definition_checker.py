@@ -10,7 +10,7 @@ class DefinitionChecker:
         # Add more supported languages here
     }
 
-    def __init__(self, api_type="openai", model="gpt-3.5-turbo"):
+    def __init__(self, api_type="anthropic", model="claude-3-haiku-20240307"):
         self.client = self._create_client(api_type, model)
 
     def _create_client(self, api_type, model):

@@ -7,7 +7,7 @@ from jsonschema.exceptions import ValidationError
 from api_clients import OpenAIClient, AnthropicClient
 
 class MatchReviewer:
-    def __init__(self, language, native_language, api_type="openai", model="gpt-3.5-turbo-0125"):
+    def __init__(self, language, native_language, api_type="anthropic", model="claude-3-haiku-20240307"):
         self.language = language
         self.native_language = native_language
         self.model = model

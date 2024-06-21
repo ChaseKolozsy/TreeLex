@@ -4,3 +4,6 @@
 [submodule "client"]
 	path = client
 	url = https://github.com/ChaseKolozsy/LexiWebDB_Client.git
+[submodule "stanza/StanzaAPI"]
+	path = stanza/StanzaAPI
+	url = https://github.com/ChaseKolozsy/StanzaAPI.git

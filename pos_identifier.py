@@ -11,7 +11,7 @@ from api_clients import OpenAIClient, AnthropicClient
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class POSIdentifier:
-    def __init__(self, language, api_type="openai", model="gpt-3.5-turbo-0125", data_dir="data", translate=False):
+    def __init__(self, language, api_type="anthropic", model="claude-3-haiku-20240307", data_dir="data", translate=False):
         self.api_type = api_type.lower()
         self.client = self._create_client(model)
         self.data_dir = Path(data_dir)

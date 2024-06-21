@@ -19,6 +19,7 @@ from api_clients import OpenAIClient, AnthropicClient
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+advanced_model = "claude-3-5-sonnet-20240620"
 
 class DefinitionGenerator:
     def __init__(self, list_filepath, language='Hungarian', native_language='English', api_type="openai", model="gpt-3.5-turbo-0125"):
@@ -161,56 +162,9 @@ class DefinitionGenerator:
             print(f"Error generating validation schema: {e}")
             return None
 
-    def create_definitions(self):
-        """
-        Create definitions for each word in the string list.
-        """
-        entries = []
-        for phrase in self.string_list:
-            logging.info(f"\n------- phrase: {phrase} -----\n")
-            try:
-                words = preprocess_text(phrase).split()
-                logging.info(f"\n------- words: {words}-----\n")
-
-                for word in words:
-                    logging.info(f"\n------- word: {word} -----\n")
-                    try:
-                        response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
-                        pos = self.get_pos(word, phrase)
-                        if response.status_code == 200:
-                            enumerated_lemmas = response.json()['enumerated_lemmas']
-                            logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
-                            logging.info(f"\n------- pos: {pos} -----\n")
-                            pos_no_match = pos_do_not_match(enumerated_lemmas, pos) 
-                            logging.info(f"\n------- pos_no_match: {pos_no_match} -----\n")
-                            
-                            if not pos_no_match:
-                                match = self.matcher.match_lemmas({
-                                    "phrase": phrase,
-                                    "base_lemma": word.lower(),
-                                    "definitions": {
-                                        lemma['enumerated_lemma']: {
-                                            "def": lemma['definition'],
-                                            "pos": lemma['part_of_speech']
-                                        } for lemma in enumerated_lemmas
-                                    }
-                                })
-                                if match[0]:  # If a match is found, skip definition generation
-                                    continue
-                            
-                        # If no match found, or no definitions exist, or no matching POS, generate a new definition
-                        self.generate_definition_for_word(word.lower(), phrase, pos, entries)
-                        self.messages = self.base_messages
-                    except Exception as e:
-                        logging.error(f"Error processing word '{word.lower()}': {e}")
-            except Exception as e:
-                logging.error(f"Error processing phrase '{phrase}': {e}")
-
-        return entries
-
     def get_pos(self, word, phrase):
         if len(word) < 4:
-            model = "gpt-4o"
+            model = advanced_model
         else:
             model = self.model
 
@@ -231,8 +185,62 @@ class DefinitionGenerator:
         else:
             logging.info(f"No Base lemma found for word: {word}")
         
-
         return None
+
+    def create_definitions(self):
+        """
+        Create definitions for each word in the string list.
+        """
+        entries = []
+        for phrase in self.string_list:
+            logging.info(f"\n------- phrase: {phrase} -----\n")
+            try:
+                words = preprocess_text(phrase).split()
+                logging.info(f"\n------- words: {words}-----\n")
+
+                for word in words:
+                    logging.info(f"\n------- word: {word} -----\n")
+                    try:
+                        response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
+
+                        pos = self.get_pos(word, phrase)
+                        logging.info("\n\n-------------------------------------------------\n\n")
+                        logging.info(f"\n------- pos: {pos} -----\n")
+
+                        if response.status_code == 200:
+                            enumerated_lemmas = response.json()['enumerated_lemmas']
+                            logging.info("\n\n-------------------------------------------------\n\n")
+                            logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
+
+                            pos_no_match = pos_do_not_match(enumerated_lemmas, pos) 
+                            logging.info("\n\n-------------------------------------------------\n\n")
+                            logging.info(f"\n------- pos_no_match: {pos_no_match} -----\n")
+                            
+                            if not pos_no_match:
+                                match = self.matcher.match_lemmas({
+                                    "phrase": phrase,
+                                    "base_lemma": word.lower(),
+                                    "definitions": {
+                                        lemma['enumerated_lemma']: {
+                                            "def": lemma['definition'],
+                                            "pos": lemma['part_of_speech']
+                                        } for lemma in enumerated_lemmas
+                                    }
+                                })
+                                if match[0]:  # If a match is found, skip definition generation
+                                    continue
+                            
+                        # If no match found, or no definitions exist, or no matching POS, generate a new definition
+                        if not match[0] or response.status_code == 404:
+                            self.generate_definition_for_word(word.lower(), phrase, pos, entries)
+                        self.messages = self.base_messages
+                    except Exception as e:
+                        logging.error(f"Error processing word '{word.lower()}': {e}")
+            except Exception as e:
+                logging.error(f"Error processing phrase '{phrase}': {e}")
+
+        return entries
+
 
     def generate_definition_for_word(self, word, phrase, pos, entries):
         max_retries = self.max_retries

@@ -11,7 +11,7 @@ from api_clients import OpenAIClient, AnthropicClient
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Matcher:
-    def __init__(self, list_filepath, language, native_language, api_type="openai", model="gpt-3.5-turbo-0125"):
+    def __init__(self, list_filepath, language, native_language, api_type="anthropic", model="claude-3-haiku-20240307"):
         self.list_filepath = list_filepath
         self.language = language
         self.native_language = native_language
