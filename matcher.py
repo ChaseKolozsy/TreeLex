@@ -4,7 +4,7 @@ from pathlib import Path
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from lexiwebdb.client.src.operations import enumerated_lemma_ops
-from definition_generator import DefinitionGenerator
+from stanza.client.src.operations.app_ops import process_text, select_language, language_abreviations
 from match_reviewer import MatchReviewer
 from api_clients import OpenAIClient, AnthropicClient
 
@@ -25,6 +25,55 @@ class Matcher:
         self.example_input = {
             "phrase": "The boy played with his top.",
             "base_lemma": "top",
+            "phrase_info": [
+                                {
+                                    "text": "The boy played with his top.",
+                                    "tokens": [
+                                        {
+                                            "deprel": "det",
+                                            "lemma": "the",
+                                            "pos": "DET",
+                                            "text": "The"
+                                        },
+                                        {
+                                            "deprel": "nsubj",
+                                            "lemma": "boy",
+                                            "pos": "NOUN",
+                                            "text": "boy"
+                                        },
+                                        {
+                                            "deprel": "root",
+                                            "lemma": "play",
+                                            "pos": "VERB",
+                                            "text": "played"
+                                        },
+                                        {
+                                            "deprel": "case",
+                                            "lemma": "with",
+                                            "pos": "ADP",
+                                            "text": "with"
+                                        },
+                                        {
+                                            "deprel": "nmod:poss",
+                                            "lemma": "his",
+                                            "pos": "PRON",
+                                            "text": "his"
+                                        },
+                                        {
+                                            "deprel": "obl",
+                                            "lemma": "top",
+                                            "pos": "NOUN",
+                                            "text": "top"
+                                        },
+                                        {
+                                            "deprel": "punct",
+                                            "lemma": ".",
+                                            "pos": "PUNCT",
+                                            "text": "."
+                                        }
+                                    ]
+                                }
+                            ],
             "definitions": {
                 "top_1": {
                     "def": "the peak, the highest point",
@@ -45,11 +94,16 @@ class Matcher:
             "You will use the phrase for context to determine which enumeration is the correct one. You will " \
             "output json with a single key: `Matched Lemma` and the value will be the correct enumerated lemma: " \
             f"{json.dumps(self.get_validation_schema(), indent=4, ensure_ascii=False)}"
+        
+        self.system_message = self.base_instructions
         self.base_message = {
             "role": "system",
-            "content": f"{self.base_instructions}"
+            "content": self.system_message
         }
-        self.messages = [self.base_message]
+        if self.api_type == "openai":
+            self.messages = [self.base_message]
+        else:
+            self.messages = []
 
     def _create_client(self):
         if self.api_type.lower() == "openai":
@@ -87,7 +141,11 @@ class Matcher:
 
         while not success and retries < max_retries:
             try:
-                response_message = self.client.create_chat_completion(self.messages)
+                if self.api_type == "openai":
+                    response_message = json.loads(self.client.create_chat_completion(self.messages, system=None))
+                else:
+                    response_message = json.loads(self.client.create_chat_completion(self.messages, system=self.system_message))
+
                 validate(instance=response_message, schema=self.get_validation_schema())
 
                 matched_lemma = response_message['Matched Lemma']
@@ -96,6 +154,7 @@ class Matcher:
                 match_to_validate = {
                     'phrase': input_data['phrase'],
                     'base_lemma': input_data['base_lemma'],
+                    'phrase_info': input_data['phrase_info'],
                     'definition': definition_to_validate
                 }
 
@@ -143,26 +202,15 @@ class Matcher:
 
         Path(tmp_list_filepath).unlink()
 
-    def process_word(self, word, phrase):
+    def process_word(self, word, phrase, phrase_info):
         clean_word = word.lower().strip('.,!?:;')
         definitions = self.load_definitions(clean_word)
-
-        if not definitions:
-            logging.info(f"Base lemma '{clean_word}' not found in database. Generating definitions...")
-            definition_generator = DefinitionGenerator(
-                list_filepath=self.list_filepath,
-                language=self.language,
-                native_language=self.native_language,
-                api_type=self.api_type,
-                model=self.model
-            )
-            definition_generator.run_single_word(clean_word, phrase)
-            definitions = self.load_definitions(clean_word)
 
         if definitions:
             input_data = {
                 "phrase": phrase,
                 "base_lemma": clean_word,
+                "phrase_info": json.dumps(phrase_info, indent=4, ensure_ascii=False),
                 "definitions": {
                     d['enumerated_lemma']: {
                         "def": d['definition'],
@@ -180,8 +228,17 @@ class Matcher:
         else:
             logging.error(f"No definitions available for base lemma '{clean_word}'")
 
-    def run_word_by_word(self, phrase):
-        words = phrase.split()
-        for word in words:
-            self.process_word(word, phrase)
+    def run_by_word(self, word, phrase, phrase_info):
+        self.process_word(word, phrase, phrase_info)
         logging.info("Word-by-word processing complete.")
+
+if __name__ == "__main__":
+    data_dir = Path("data")
+    matcher = Matcher(list_filepath=data_dir / "list.txt", language="English", native_language="English")
+
+    word = "dog"
+    phrase = "The guy keeps dogging me no matter what I do."
+
+    select_language(language=language_abreviations["English"])
+    phrase_info = process_text(phrase).json()
+    matcher.run_by_word(word=word, phrase=phrase, phrase_info=phrase_info)
