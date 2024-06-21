@@ -1,9 +1,12 @@
-[submodule "api"]
-	path = api
+[submodule "lexiwebdb/api"]
+	path = lexiwebdb/api
 	url = https://github.com/ChaseKolozsy/LexiWebDB_API.git
-[submodule "client"]
-	path = client
+[submodule "lexiwebdb/client"]
+	path = lexiwebdb/client
 	url = https://github.com/ChaseKolozsy/LexiWebDB_Client.git
-[submodule "stanza/StanzaAPI"]
-	path = stanza/StanzaAPI
+[submodule "stanza/api"]
+	path = stanza/api
 	url = https://github.com/ChaseKolozsy/StanzaAPI.git
+[submodule "stanza/client"]
+	path = stanza/client
+	url = https://github.com/ChaseKolozsy/StanzaClient.git
