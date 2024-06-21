@@ -1,5 +1,6 @@
 import re
 import json
+import logging
 from nltk.stem import SnowballStemmer
 from api_clients import AnthropicClient, OpenAIClient
 
@@ -12,6 +13,7 @@ class DefinitionChecker:
 
     def __init__(self, api_type="anthropic", model="claude-3-haiku-20240307"):
         self.client = self._create_client(api_type, model)
+        self.api_type = api_type
 
     def _create_client(self, api_type, model):
         if api_type.lower() == "openai":
@@ -26,22 +28,28 @@ class DefinitionChecker:
         if language not in self.SUPPORTED_LANGUAGES:
             raise ValueError(f"Unsupported language: {language}")
 
-        if self.basic_check(word, definition, language):
-            return True
+        print(f"Checking definition for word: {word}")
+        result = self.basic_check(word, definition, language)
+        if result is None:
+            return self.llm_audit(word, definition, language, pos)
+        else:
+            return result
         
-        return self.llm_audit(word, definition, language, pos)
 
     def basic_check(self, word, definition, language):
         if word.lower() in definition.lower():
+            print(f"Word {word} found in definition: {definition}")
             return False
         
         stemmer = SnowballStemmer(self.SUPPORTED_LANGUAGES[language])
         word_stem = stemmer.stem(word)
+        print(f"Word stem: {word_stem}")
         def_words = re.findall(r'\w+', definition.lower())
+        print(f"Definition words: {def_words}")
         if any(stemmer.stem(w) == word_stem for w in def_words):
             return False
         
-        return True
+        return None
 
     def llm_audit(self, word, definition, language, pos=None):
         prompt = f"""
@@ -65,12 +73,17 @@ class DefinitionChecker:
         JSON response:
         """
 
-        messages = [
-            {"role": "system", "content": "You are an expert lexicographer tasked with auditing definitions for language learners."},
-            {"role": "user", "content": prompt}
-        ]
+        system = "You are an expert lexicographer tasked with auditing definitions for language learners. You only output json"
+        if self.api_type == "openai":
+            messages = [
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt}
+            ]
+            result = json.loads(self.client.create_chat_completion(messages, system=None))
+        else:
+            messages = [ {"role": "user", "content": prompt} ]
+            result = json.loads(self.client.create_chat_completion(messages, system=system))
 
-        result = self.client.create_chat_completion(messages)
         return result['valid']
 
 # Usage
@@ -78,6 +91,7 @@ if __name__ == "__main__":
     checker = DefinitionChecker(api_type="anthropic", model="claude-3-sonnet-20240229")
     word = "run"
     definition = "To move swiftly on foot, where the feet leave the ground for an instant between steps."
+    definition = "The infinitive of running"
     language = "english"
     pos = "verb"
 
