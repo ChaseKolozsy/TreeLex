@@ -1,4 +1,5 @@
 import json
+import csv
 import logging
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
@@ -31,6 +32,7 @@ class DefinitionGenerator:
         self.native_language = native_language
         self.max_retries = 3
         self.min_definitions = 1
+        self.api_type = api_type
 
         if api_type.lower() == "openai":
             self.client = OpenAIClient(model)
@@ -73,11 +75,60 @@ class DefinitionGenerator:
         
         self.use_stanza = True
         try:
-            self.set_stanza_language(language_abreviations[self.language])
+            logging.info(f"Setting stanza language to: {language_abreviations[self.language]}")
+            self.set_stanza_language()
         except Exception as e:
-            logging.error(f"Language {self.language} not supported by Stanza. or Service not available: {e}")
+            logging.error(f"{e}")
             self.use_stanza = False
 
+        self.pos_deprel_dict_file = self.data_dir / "pos_deprel_dict.json"
+        self.pos_deprel_dict = self.load_or_generate_pos_deprel_dict()
+
+    def load_or_generate_pos_deprel_dict(self):
+        if self.pos_deprel_dict_file.exists():
+            with open(self.pos_deprel_dict_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        else:
+            pos_deprel_dict = self.generate_pos_deprel_dict()
+            with open(self.pos_deprel_dict_file, 'w', encoding='utf-8') as f:
+                json.dump(pos_deprel_dict, f, ensure_ascii=False, indent=4)
+            return pos_deprel_dict
+
+    def generate_pos_deprel_dict(self):
+        stanza_terms = {"pos": [], "deprel": []}
+        translated_terms = {}
+
+        # Read terms from CSV file
+        with open(f'{self.data_dir}/stanza_terms.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                stanza_terms[row['category']].append(row['term'])
+
+        for category, terms in stanza_terms.items():
+            for term in terms:
+                translated_term = self.get_translated_term(term)
+                translated_terms[term] = translated_term
+
+        return translated_terms
+
+    def get_translated_term(self, term):
+        system = f"You are a helpful assistant that translates linguistic terms to {self.language}."
+        if self.api_type.lower() == "anthropic":
+            prompt = f"\n\nTranslate the following linguistic term to {self.language}, output json with key: {term} and value: <translated_term> . Use the full term, no abbreviations. The term is: {term}"
+            messages = [{"role": "user", "content": prompt}]
+            translation = self.client.create_chat_completion(messages=messages, system=system)
+        else:
+            prompt = f"\n\nTranslate the following linguistic term to {self.language}, output json with key: {term} and value: <translated_term> . Use the full term, no abbreviations. The term is: {term}"
+            messages = [{"role": "user", "content": prompt}]
+            translation = self.client.create_chat_completion(messages=messages, system=system)
+            
+        # Parse the JSON response and extract the translated term
+        try:
+            translated_json = json.loads(translation)
+            return translated_json[term]
+        except (json.JSONDecodeError, KeyError):
+            logging.error(f"Failed to parse response for term: {term}")
+            return None
 
     def initialize_instructions(self, translate=False):
         if translate:
@@ -209,7 +260,11 @@ class DefinitionGenerator:
         """
         entries = []
         for phrase in self.string_list:
-            logging.info(f"\n------- phrase: {phrase} -----\n")
+            if self.use_stanza:
+                phrase_info = self.phrase_analysis(phrase)
+                logging.info(f"\n------- phrase: {phrase} phrase_info: {json.dumps(phrase_info, indent=4, ensure_ascii=False)} -----\n")
+            else:
+                logging.info(f"\n------- phrase: {phrase} -----\n")
             try:
                 words = preprocess_text(phrase).split()
                 logging.info(f"\n------- words: {words}-----\n")
@@ -408,7 +463,7 @@ if __name__ == "__main__":
         api_type=config.get('api_type', 'openai'),  # Default to 'openai' if not specified
         model=config['model']
     )
-    definition_generator.run()
+    #definition_generator.run()
 
     #print(definition_generator.get_enumeration("dog"))
     #print(definition_generator.translated_instructions)
