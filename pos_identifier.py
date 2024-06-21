@@ -1,19 +1,19 @@
-import openai
 import json
 import logging
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from instruction_translator import InstructionTranslator
 from pydict_translator import PydictTranslator
-
 from pathlib import Path
+from api_clients import OpenAIClient, AnthropicClient
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class POSIdentifier:
-    def __init__(self, language, model="gpt-3.5-turbo-0125", data_dir="data", translate=False):
-        self.client = openai.OpenAI()
+    def __init__(self, language, api_type="openai", model="gpt-3.5-turbo-0125", data_dir="data", translate=False):
+        self.api_type = api_type.lower()
+        self.client = self._create_client(model)
         self.data_dir = Path(data_dir)
         self.language = language
         self.model = model
@@ -41,6 +41,14 @@ class POSIdentifier:
         }
         logging.info(f"Base message: {self.base_message}")
         self.messages = [self.base_message]
+
+    def _create_client(self, model):
+        if self.api_type == "openai":
+            return OpenAIClient(model)
+        elif self.api_type == "anthropic":
+            return AnthropicClient(model)
+        else:
+            raise ValueError(f"Unsupported API type: {self.api_type}")
 
     def load_translated_content(self):
         try:
@@ -88,13 +96,7 @@ class POSIdentifier:
         retries = 0
         while retries < self.max_retries:
             try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=messages,
-                    response_format={"type": "json_object"},
-                    temperature=0.0
-                )
-                response_message = json.loads(response.choices[0].message.content)
+                response_message = self.client.create_chat_completion(messages)
                 try:
                     validate(instance=response_message, schema=self.get_validation_schema())
                     logging.info(f"\n\nresponse_message: {json.dumps(response_message, indent=4)}")
@@ -109,8 +111,14 @@ class POSIdentifier:
         return None
 
 if __name__ == "__main__":
-    pos_identifier = POSIdentifier(language="Hungarian", data_dir="data", translate=False)
+    # Example usage with OpenAI
+    pos_identifier_openai = POSIdentifier(language="Hungarian", api_type="openai", model="gpt-3.5-turbo-0125", data_dir="data", translate=False)
     word = "kutya"
     phrase = "A kutya színe az én szemem."
-    pos = pos_identifier.identify_pos(word=word, phrase=phrase)
-    print(f"The part of speech for '{word}' in the phrase '{phrase}' is: {pos}")
+    pos_openai = pos_identifier_openai.identify_pos(word=word, phrase=phrase)
+    print(f"OpenAI - The part of speech for '{word}' in the phrase '{phrase}' is: {pos_openai}")
+
+    # Example usage with Anthropic
+    pos_identifier_anthropic = POSIdentifier(language="Hungarian", api_type="anthropic", model="claude-2.1", data_dir="data", translate=False)
+    pos_anthropic = pos_identifier_anthropic.identify_pos(word=word, phrase=phrase)
+    print(f"Anthropic - The part of speech for '{word}' in the phrase '{phrase}' is: {pos_anthropic}")
