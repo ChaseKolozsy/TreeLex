@@ -4,6 +4,7 @@ import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pathlib import Path
+from logging.handlers import RotatingFileHandler
 
 from utils.def_gen_util import preprocess_text, load_config, pos_do_not_match, matches_by_pos
 from pydict_translator import PydictTranslator
@@ -96,6 +97,12 @@ class DefinitionGenerator:
 
         self.list_filepath = list_filepath
         self.string_list = []
+    
+        log_file = 'definition_generator.log'
+        file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=5*1024*1024, backupCount=2)  # Log file size up to 5MB with 2 backups
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.getLogger().addHandler(file_handler)
+
 
     def initialize_instructions(self, translate=False):
         if translate:
@@ -205,22 +212,23 @@ class DefinitionGenerator:
                     logging.info(f"\n------- word: {word} -----\n")
                     try:
                         response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
-                        enumerated_lemmas = response.json()['enumerated_lemmas']
-                        logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
-                        pos = self.get_pos(word, phrase)
-                        logging.info(f"\n------- pos: {pos} -----\n")
-                        pos_no_match = pos_do_not_match(enumerated_lemmas, pos) 
-                        logging.info(f"\n------- pos_no_match: {pos_no_match} -----\n")
-                        if not pos_no_match:
-                            matches = matches_by_pos(enumerated_lemmas, pos)
-                            logging.info(f"\n------- matches: {matches} -----\n")
-                        if response.status_code == 404 or pos_no_match:
+                        if response.status_code == 200:
+                            pos = self.get_pos(word, phrase)
+                            enumerated_lemmas = response.json()['enumerated_lemmas']
+                            logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
+                            logging.info(f"\n------- pos: {pos} -----\n")
+                            pos_no_match = pos_do_not_match(enumerated_lemmas, pos) 
+                            logging.info(f"\n------- pos_no_match: {pos_no_match} -----\n")
+                            if not pos_no_match:
+                                match = True
+                                matches = matches_by_pos(enumerated_lemmas, pos)
+                                logging.info(f"\n------- matches: {matches} -----\n")
+                        if response.status_code == 404 or pos_no_match or not match:
                             pass
-                            #self.generate_definition_for_word(word, phrase, pos, entries)
+                            #self.generate_definition_for_word(word.lower(), phrase, pos, entries)
                             #self.messages = self.base_messages
                     except Exception as e:
-                        logging.error(f"Error processing word '{word}': {e}")
-                    break
+                        logging.error(f"Error processing word '{word.lower()}': {e}")
             except Exception as e:
                 logging.error(f"Error processing phrase '{phrase}': {e}")
 
@@ -310,7 +318,7 @@ class DefinitionGenerator:
         for entry in entries:
             logging.info(json.dumps(entry, indent=4, ensure_ascii=False))
             data = {
-                'enumerated_lemma': entry['enumeration'],
+                'enumerated_lemma': entry['enumeration'].lower(),
                 'base_lemma': entry['base_lemma'].lower(),
                 'part_of_speech': entry['part_of_speech'],
                 'definition': entry['definition'],
@@ -388,18 +396,15 @@ if __name__ == "__main__":
     if not data_dir.exists():
         data_dir.mkdir(parents=True)
     print(f"data_dir: {data_dir}")
-#
+
     config = load_config(Path(data_dir) / "def_gen_config.yaml")
-#
+
     definition_generator = DefinitionGenerator(
         list_filepath=config['list_filepath'],
         language=config['language'],
         native_language=config['native_language'],
         model=config['model']
     )
-    
-    # Uncomment and configure the following lines as needed
-
     definition_generator.run()
 
     #print(definition_generator.get_enumeration("dog"))
