@@ -352,6 +352,7 @@ if __name__ == "__main__":
         list_filepath=config['list_filepath'],
         language=config['language'],
         native_language=config['native_language'],
+        api_type=config.get('api_type', 'openai'),  # Default to 'openai' if not specified
         model=config['model']
     )
     definition_generator.run()
