@@ -15,6 +15,9 @@ from definition_checker import DefinitionChecker
 import lexiwebdb.client.src.operations.app_ops as app_ops
 import lexiwebdb.client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
 
+import stanza.client.src.operations.app_ops as stanza_ops
+from stanza.client.src.operations.app_ops import language_abreviations
+
 from api_clients import OpenAIClient, AnthropicClient
 
 # Configure logging
@@ -67,6 +70,13 @@ class DefinitionGenerator:
         file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=5*1024*1024, backupCount=2)
         file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         logging.getLogger().addHandler(file_handler)
+        
+        self.use_stanza = True
+        try:
+            self.set_stanza_language(language_abreviations[self.language])
+        except Exception as e:
+            logging.error(f"Language {self.language} not supported by Stanza. or Service not available: {e}")
+            self.use_stanza = False
 
 
     def initialize_instructions(self, translate=False):
@@ -162,6 +172,12 @@ class DefinitionGenerator:
             print(f"Error generating validation schema: {e}")
             return None
 
+    def set_stanza_language(self):
+        stanza_ops.select_language(language_abreviations[self.language])
+        
+    def phrase_analysis(self, phrase):
+        stanza_ops.process_text(phrase)
+    
     def get_pos(self, word, phrase):
         if len(word) < 4:
             model = advanced_model
