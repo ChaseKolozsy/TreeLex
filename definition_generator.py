@@ -10,6 +10,7 @@ from pydict_translator import PydictTranslator
 from instruction_translator import InstructionTranslator
 from pos_identifier import POSIdentifier
 from matcher import Matcher
+from definition_checker import DefinitionChecker
 
 import client.src.operations.app_ops as app_ops
 import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
@@ -33,6 +34,9 @@ class DefinitionGenerator:
             self.client = AnthropicClient(model)
         else:
             raise ValueError("Invalid api_type. Choose 'openai' or 'anthropic'.")
+
+        self.matcher = Matcher(list_filepath, language, native_language, api_type, model)
+        self.definition_checker = DefinitionChecker(api_type=api_type, model=model)
 
         self.base_word_phrase = {
             "word": "word",
@@ -172,21 +176,31 @@ class DefinitionGenerator:
                     logging.info(f"\n------- word: {word} -----\n")
                     try:
                         response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
+                        pos = self.get_pos(word, phrase)
                         if response.status_code == 200:
-                            pos = self.get_pos(word, phrase)
                             enumerated_lemmas = response.json()['enumerated_lemmas']
                             logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
                             logging.info(f"\n------- pos: {pos} -----\n")
                             pos_no_match = pos_do_not_match(enumerated_lemmas, pos) 
                             logging.info(f"\n------- pos_no_match: {pos_no_match} -----\n")
+                            
                             if not pos_no_match:
-                                match = True
-                                matches = matches_by_pos(enumerated_lemmas, pos)
-                                logging.info(f"\n------- matches: {matches} -----\n")
-                        if response.status_code == 404 or pos_no_match or not match:
-                            pass
-                            #self.generate_definition_for_word(word.lower(), phrase, pos, entries)
-                            #self.messages = self.base_messages
+                                match = self.matcher.match_lemmas({
+                                    "phrase": phrase,
+                                    "base_lemma": word.lower(),
+                                    "definitions": {
+                                        lemma['enumerated_lemma']: {
+                                            "def": lemma['definition'],
+                                            "pos": lemma['part_of_speech']
+                                        } for lemma in enumerated_lemmas
+                                    }
+                                })
+                                if match[0]:  # If a match is found, skip definition generation
+                                    continue
+                            
+                        # If no match found, or no definitions exist, or no matching POS, generate a new definition
+                        self.generate_definition_for_word(word.lower(), phrase, pos, entries)
+                        self.messages = self.base_messages
                     except Exception as e:
                         logging.error(f"Error processing word '{word.lower()}': {e}")
             except Exception as e:
@@ -201,10 +215,13 @@ class DefinitionGenerator:
             model = self.model
 
         pos_identifier = POSIdentifier(
-            language=self.language, 
-            model=model
+            language=self.language,
+            api_type=self.api_type,
+            model=model,
+            data_dir=str(self.data_dir)
         )
         return pos_identifier.identify_pos(word, phrase)
+    
     
     def get_enumeration(self, word):
         response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
@@ -236,6 +253,12 @@ class DefinitionGenerator:
                 response_content = self.client.create_chat_completion(self.messages)
                 logging.info(f"response_content: {response_content}")
                 validate(instance=response_content, schema=self.get_validation_schema())
+                
+                # Check if the definition is valid
+                is_valid = self.definition_checker.check_definition(word, response_content['def'], self.language)
+                if not is_valid:
+                    raise ValueError("Definition contains the word being defined or a closely related form.")
+                
                 entry = {
                     "enumeration": word + '_' + self.get_enumeration(word) if self.get_enumeration(word) else word + '_1',
                     "base_lemma": word,
@@ -247,6 +270,12 @@ class DefinitionGenerator:
             except ValidationError as ve:
                 logging.error(f"Validation error: {ve}")
                 error_message = {"role": "user", "content": f"Error: {ve}"}
+                back_up_messages.append(error_message)
+                self.messages = back_up_messages
+                retries += 1
+            except ValueError as ve:
+                logging.error(f"Definition check failed: {ve}")
+                error_message = {"role": "user", "content": f"Error: {ve}. Please provide a definition that does not use the word '{word}' or closely related forms."}
                 back_up_messages.append(error_message)
                 self.messages = back_up_messages
                 retries += 1

@@ -18,7 +18,7 @@ class Matcher:
         self.api_type = api_type
         self.model = model
         self.client = self._create_client()
-        self.match_reviewer = MatchReviewer(language, native_language, "gpt-4o")
+        self.match_reviewer = MatchReviewer(language, native_language, api_type, model)
         self.max_retries = 3
         self.string_list = []
         self.definitions = []
@@ -149,7 +149,13 @@ class Matcher:
 
         if not definitions:
             logging.info(f"Base lemma '{clean_word}' not found in database. Generating definitions...")
-            definition_generator = DefinitionGenerator(self.language, self.native_language, self.model)
+            definition_generator = DefinitionGenerator(
+                list_filepath=self.list_filepath,
+                language=self.language,
+                native_language=self.native_language,
+                api_type=self.api_type,
+                model=self.model
+            )
             definition_generator.run_single_word(clean_word, phrase)
             definitions = self.load_definitions(clean_word)
 
