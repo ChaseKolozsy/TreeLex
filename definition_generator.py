@@ -1,6 +1,5 @@
-import client.src.operations.app_ops as app_ops
-import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
-
+import json
+import logging
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pathlib import Path
@@ -12,69 +11,29 @@ from instruction_translator import InstructionTranslator
 from pos_identifier import POSIdentifier
 from matcher import Matcher
 
-import openai
-import json
-import logging
+import client.src.operations.app_ops as app_ops
+import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
+
+from api_clients import OpenAIClient, AnthropicClient
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DefinitionGenerator:
-    """
-    DefinitionGenerator class is responsible for generating structured JSON output with definitions for base lemmas. 
-    It provides functionality to define words in a specified language, ensuring clear, concise, and accurate definitions. 
-    The class leverages extensive knowledge of etymology and semantics to offer contextually appropriate explanations. 
-    It aims to provide at least one distinct meaning for each lemma, excluding any words from the native language. 
-
-    Attributes:
-        - model (str): The model used for generating definitions.
-        - client (openai.OpenAI): The OpenAI client for API interactions.
-        - language (str): The target language for defining words.
-        - native_language (str): The native language for exclusion in definitions.
-        - max_retries (int): The maximum number of retries for an operation.
-        - min_definitions (int): The minimum number of definitions to generate.
-        - base_word_phrase (dict): Dictionary containing base word and phrase keys.
-        - translated_word_phrase (dict): Dictionary containing translated word and phrase keys.
-        - base_descriptions (dict): Dictionary containing base descriptions for definitions.
-        - descriptions (dict): Dictionary containing descriptions for tools.
-        - tools (list): List of tools for function definitions.
-        - example_json_small (dict): Example JSON structure for translation.
-        - example_json_to_translate (dict): Example JSON for translation.
-        - pos_to_translate (dict): Dictionary containing parts of speech enumeration.
-        - list_filepath (str): The file path for the list of strings.
-        - string_list (list): List of strings loaded from file.
-        - base_instructions (dict): Instructions for the lexicographer.
-        - instructions (str): Instructions for generating definitions.
-        - translated_instructions (str): Translated instructions.
-        - base_message (dict): Base message for system interaction.
-        - base_messages (list): List of base messages.
-        - messages (list): List of messages for interactions.
-
-    Methods:
-        - __init__: Initializes the DefinitionGenerator with specified parameters.
-        - initialize_instructions: Initializes instructions for generating definitions.
-        - load_translated_word_phrase: Loads translated word phrases from file.
-        - load_descriptions: Loads descriptions for tools from file.
-        - initialize_example_json_small: Initializes example JSON structure.
-        - load_list: Loads the list of strings from the specified file.
-        - get_validation_schema: Retrieves the validation schema for definitions.
-        - create_definitions: Creates definitions for each word in the string list.
-        - get_pos: Retrieves the part of speech for a given word. (to be implemented)
-        - get_enumeration: Retrieves the enumeration for a given word.
-        - generate_definition_for_word: Generates definitions for a given word.
-        - get_definitions_from_online_dict: Retrieves definitions from an online dictionary (to be implemented).
-        - add_definition_to_db: Adds generated definitions to the database.
-        - load_and_initialize: Loads and initializes necessary data and instructions.
-        - run_single_word: Runs the definition generation process for a single word.
-        - run: Executes the process of generating definitions for the list of strings.
-    """
-    def __init__(self, list_filepath, language='Hungarian', native_language='English', model="gpt-3.5-turbo-0125"):
+    def __init__(self, list_filepath, language='Hungarian', native_language='English', api_type="openai", model="gpt-3.5-turbo-0125"):
         self.model = model
-        self.client = openai.OpenAI()
         self.language = language
         self.native_language = native_language
         self.max_retries = 3
         self.min_definitions = 1
+
+        if api_type.lower() == "openai":
+            self.client = OpenAIClient(model)
+        elif api_type.lower() == "anthropic":
+            self.client = AnthropicClient(model)
+        else:
+            raise ValueError("Invalid api_type. Choose 'openai' or 'anthropic'.")
+
         self.base_word_phrase = {
             "word": "word",
             "phrase": "phrase",
@@ -100,7 +59,7 @@ class DefinitionGenerator:
         self.string_list = []
     
         log_file = 'definition_generator.log'
-        file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=5*1024*1024, backupCount=2)  # Log file size up to 5MB with 2 backups
+        file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=5*1024*1024, backupCount=2)
         file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
         logging.getLogger().addHandler(file_handler)
 
@@ -259,10 +218,6 @@ class DefinitionGenerator:
         return None
 
     def generate_definition_for_word(self, word, phrase, pos, entries):
-        """
-        Helper function to generate definitions for a given word.
-        Retries the operation if it fails.
-        """
         max_retries = self.max_retries
         retries = 0
         success = False
@@ -278,14 +233,7 @@ class DefinitionGenerator:
 
         while not success and retries < max_retries:
             try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=self.messages,
-                    response_format={"type": "json_object"},
-                    temperature=0.0
-                )
-
-                response_content = json.loads(response.choices[0].message.content)
+                response_content = self.client.create_chat_completion(self.messages)
                 logging.info(f"response_content: {response_content}")
                 validate(instance=response_content, schema=self.get_validation_schema())
                 entry = {
