@@ -5,3 +5,6 @@ openai
 jsonschema==4.22.0
 requests
 PyYAML
+anthropic
+nltk
+pydantic
