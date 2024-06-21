@@ -1,20 +1,25 @@
-
 import openai
+import anthropic
 import json
 import logging
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from api_clients import OpenAIClient, AnthropicClient
 
 class MatchReviewer:
-    def __init__(self, language, native_language, model="gpt-3.5-turbo-0125"):
-        self.client = openai.OpenAI()
+    def __init__(self, language, native_language, api_type="openai", model="gpt-3.5-turbo-0125"):
         self.language = language
         self.native_language = native_language
         self.model = model
         self.max_retries = 3
+
+        if api_type.lower() == "openai":
+            self.client = OpenAIClient(model)
+        elif api_type.lower() == "anthropic":
+            self.client = AnthropicClient(model)
+        else:
+            raise ValueError("Invalid api_type. Choose 'openai' or 'anthropic'.")
+
         self.example_input = {
             "phrase": "The boy played with his top.",
             "base_lemma": "top",
@@ -46,7 +51,11 @@ class MatchReviewer:
     def get_validation_schema(self):
         try:
             schema = {
-                "Is_Correct": {"type": "boolean"}
+                "type": "object",
+                "properties": {
+                    "Is_Correct": {"type": "boolean"}
+                },
+                "required": ["Is_Correct"]
             }
             return schema
         except Exception as e:
@@ -65,18 +74,12 @@ class MatchReviewer:
 
         while retries < max_retries:
             try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=self.messages,
-                    response_format={"type": "json_object"},
-                    temperature=0.0
-                )
-                response_message = json.loads(response.choices[0].message.content)
+                response_message = self.client.create_chat_completion(self.messages)
                 try:
                     validate(instance=response_message, schema=self.get_validation_schema())
                     logging.info(f"\n\nresponse_message: {json.dumps(response_message, indent=4)}")
                     logging.info(f"\n\nresponse_message['Is_Correct']: {response_message['Is_Correct']}")
-                    is_correct = response_message['Is_Correct']['value'] if isinstance(response_message['Is_Correct'], dict) else response_message['Is_Correct']
+                    is_correct = response_message['Is_Correct']
                     logging.info(f"\n\nIs_Correct value: {is_correct}")
                     return is_correct
                 except ValidationError as e:
@@ -94,7 +97,7 @@ class MatchReviewer:
 
 
 if __name__ == "__main__":
-    match_reviewer = MatchReviewer(language="English", native_language="English")
+    match_reviewer = MatchReviewer(language="English", native_language="English", api_type="openai")
     is_correct_bad = match_reviewer.run(match_to_validate=match_reviewer.bad_input)
     is_correct_good = match_reviewer.run(match_to_validate=match_reviewer.example_input)
 
