@@ -1,6 +1,6 @@
-import openai
 import json
 import logging
+from abc import ABC, abstractmethod
 from pathlib import Path
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
@@ -8,15 +8,53 @@ from client.src.operations import enumerated_lemma_ops
 from definition_generator import DefinitionGenerator
 from match_reviewer import MatchReviewer
 
+import openai
+import anthropic
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+class APIClient(ABC):
+    @abstractmethod
+    def create_chat_completion(self, messages, temperature=0.0):
+        pass
+
+class OpenAIClient(APIClient):
+    def __init__(self, model):
+        self.client = openai.OpenAI()
+        self.model = model
+
+    def create_chat_completion(self, messages, temperature=0.0):
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,
+            response_format={"type": "json_object"},
+            temperature=temperature
+        )
+        return json.loads(response.choices[0].message.content)
+
+class AnthropicClient(APIClient):
+    def __init__(self, model):
+        self.client = anthropic.Anthropic()
+        self.model = model
+
+    def create_chat_completion(self, messages, temperature=0.0):
+        prompt = "\n\n".join([f"{m['role']}: {m['content']}" for m in messages])
+        response = self.client.completions.create(
+            model=self.model,
+            prompt=prompt,
+            max_tokens_to_sample=1000,
+            temperature=temperature
+        )
+        return json.loads(response.completion)
+
 class Matcher:
-    def __init__(self, list_filepath, language, native_language, model="gpt-3.5-turbo-0125"):
+    def __init__(self, list_filepath, language, native_language, api_type="openai", model="gpt-3.5-turbo-0125"):
         self.list_filepath = list_filepath
         self.language = language
         self.native_language = native_language
+        self.api_type = api_type
         self.model = model
-        self.client = openai.OpenAI()
+        self.client = self._create_client()
         self.match_reviewer = MatchReviewer(language, native_language, "gpt-4o")
         self.max_retries = 3
         self.string_list = []
@@ -50,6 +88,14 @@ class Matcher:
         }
         self.messages = [self.base_message]
 
+    def _create_client(self):
+        if self.api_type.lower() == "openai":
+            return OpenAIClient(self.model)
+        elif self.api_type.lower() == "anthropic":
+            return AnthropicClient(self.model)
+        else:
+            raise ValueError(f"Unsupported API type: {self.api_type}")
+
     def load_definitions(self, base_lemma):
         response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(base_lemma)
         logging.info(f"Response: {response.json()}")
@@ -78,13 +124,7 @@ class Matcher:
 
         while not success and retries < max_retries:
             try:
-                response = self.client.chat.completions.create(
-                    model=self.model,
-                    messages=self.messages,
-                    response_format={"type": "json_object"},
-                    temperature=0.0
-                )
-                response_message = json.loads(response.choices[0].message.content)
+                response_message = self.client.create_chat_completion(self.messages)
                 validate(instance=response_message, schema=self.get_validation_schema())
 
                 matched_lemma = response_message['Matched Lemma']
