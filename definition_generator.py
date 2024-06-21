@@ -10,6 +10,7 @@ from utils.def_gen_util import preprocess_text, load_config, pos_do_not_match, m
 from pydict_translator import PydictTranslator
 from instruction_translator import InstructionTranslator
 from pos_identifier import POSIdentifier
+from matcher import Matcher
 
 import openai
 import json
