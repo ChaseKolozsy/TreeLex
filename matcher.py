@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-from client.src.operations import enumerated_lemma_ops
+from lexiwebdb.client.src.operations import enumerated_lemma_ops
 from definition_generator import DefinitionGenerator
 from match_reviewer import MatchReviewer
 from api_clients import OpenAIClient, AnthropicClient

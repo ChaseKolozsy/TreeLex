@@ -12,8 +12,8 @@ from pos_identifier import POSIdentifier
 from matcher import Matcher
 from definition_checker import DefinitionChecker
 
-import client.src.operations.app_ops as app_ops
-import client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
+import lexiwebdb.client.src.operations.app_ops as app_ops
+import lexiwebdb.client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
 
 from api_clients import OpenAIClient, AnthropicClient
 
