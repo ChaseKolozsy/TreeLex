@@ -9,7 +9,6 @@ from logging.handlers import RotatingFileHandler
 from utils.definition_utils import load_config, find_pos_in_phrase_info, get_enumeration, add_definition_to_db
 from agents.pydict_translator import PydictTranslator
 from agents.instruction_translator import InstructionTranslator
-from agents.pos_identifier import POSIdentifier
 from agents.matcher import Matcher
 from agents.definition_checker import DefinitionChecker
 
@@ -130,12 +129,6 @@ class DefinitionGenerator:
         except json.JSONDecodeError:
             logging.error(f"Error: JSON decode error in {self.data_dir}/translated_example_json_small.json.")
 
-    def load_translated_pos(self):
-        try:
-            with open(f"{self.data_dir}/translated_pos.json", "r", encoding="utf-8") as f:
-                self.translated_pos = json.load(f)
-        except FileNotFoundError:
-            logging.error(f"Error: {self.data_dir}/translated_pos.json file not found.")
     
     def load_list(self):
         """
@@ -234,6 +227,20 @@ class DefinitionGenerator:
 
     def load_and_initialize(self, translate=False):
         # load the descriptions, example json, tools and instructions
+        if translate:
+            dict_translator = PydictTranslator(
+                language=self.language, 
+                model="gpt-4o"
+            )
+
+            dict_translator.translate_dictionaries(self.example_json_small, data_dir / "translated_example_json_small.json")
+            dict_translator.translate_dictionaries(self.descriptions, data_dir / "translated_descriptions.json")
+            dict_translator.translate_dictionaries(self.translated_word_phrase, data_dir / "translated_word_phrase.json")
+
+        # load the descriptions, example json, tools and instructions
+        self.load_and_initialize(translate=translate)
+
+
         self.load_descriptions()
         self.initialize_example_json_small()
         self.load_translated_word_phrase()

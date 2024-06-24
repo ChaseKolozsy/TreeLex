@@ -57,6 +57,16 @@ class PhraseProcessor:
                 json.dump(pos_deprel_dict, f, ensure_ascii=False, indent=4)
             return pos_deprel_dict
 
+    def load_or_generate_pos_deprel_dict(self):
+        if self.pos_deprel_dict_file.exists():
+            with open(self.pos_deprel_dict_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        else:
+            pos_deprel_dict = self.generate_pos_deprel_dict()
+            with open(self.pos_deprel_dict_file, 'w', encoding='utf-8') as f:
+                json.dump(pos_deprel_dict, f, ensure_ascii=False, indent=4)
+            return pos_deprel_dict
+
 
     def get_translated_term(self, term):
         system = f"You are a helpful assistant that translates linguistic terms to {self.language} as would be seen inside of a {self.language} dictionary, and you will strictly output json in accordance with the user's request.."
