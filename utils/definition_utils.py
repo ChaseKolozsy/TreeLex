@@ -25,12 +25,6 @@ def extract_definitions(text):
 
     return extracted_data
 
-def preprocess_text(text):
-    # Remove specified punctuation marks using regular expressions
-    text = re.sub(r'[,:;.\-?!\']', '', text)
-    return text
-
-
 def pos_do_not_match(base_lemmas, pos):
     at_least_one_match = False  # Assume no lemmas match initially
     logging.info(f"\n------- base_lemmas: {base_lemmas} -----\n")

@@ -1,5 +1,6 @@
 import json
 import yaml
+import re
 
 def load_config(config_path):
     with open(config_path, 'r') as file:
@@ -9,3 +10,8 @@ def load_config(config_path):
             return json.load(file)
         else:
             raise ValueError("Unsupported configuration file format")
+
+def preprocess_text(text):
+    # Remove specified punctuation marks using regular expressions
+    text = re.sub(r'[,:;.\-?!\']', '', text)
+    return text
