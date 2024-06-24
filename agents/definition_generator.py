@@ -6,7 +6,7 @@ from jsonschema.exceptions import ValidationError
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
 
-from utils.definition_utils import load_config, find_pos_in_phrase_info, get_enumeration, add_definition_to_db
+from utils.definition_utils import find_pos_in_phrase_info, get_enumeration, add_definition_to_db
 from agents.pydict_translator import PydictTranslator
 from agents.instruction_translator import InstructionTranslator
 from agents.matcher import Matcher
@@ -261,42 +261,3 @@ class DefinitionGenerator:
     def run_single_word(self, word, phrase, entries=[]):
         self.generate_definition_for_word(word, phrase, entries)
         add_definition_to_db(entries)
-
-    
-if __name__ == "__main__":
-    current_dir = Path.cwd()
-    data_dir = current_dir / "data"
-    if not data_dir.exists():
-        data_dir.mkdir(parents=True)
-    print(f"data_dir: {data_dir}")
-
-    config = load_config(Path(data_dir) / "def_gen_config.yaml")
-
-    #definition_generator = DefinitionGenerator(
-    #    list_filepath=config['list_filepath'],
-    #    language=config['language'],
-    #    native_language=config['native_language'],
-    #    api_type=config.get('api_type', 'openai'),  # Default to 'openai' if not specified
-    #    model=config['model']
-    #)
-    #definition_generator.run_single_word("dog", "The dog is a mammal that has four legs and a tail.")
-
-    #print(definition_generator.get_enumeration("dog"))
-    #print(definition_generator.translated_instructions)
-    #print(definition_generator.translated_pos)
-    #print(definition_generator.example_json_small)
-    #print(definition_generator.translated_word_phrase)
-    #for key, value in definition_generator.descriptions.items():
-    #    print(f"[{key}: {value}]")
-
-#
-#    # response = enumerated_lemma_ops.get_all_enumerated_lemmas()
-#    # if response.status_code == 200:
-#    #     lemmas = response.json()['enumerated_lemmas']
-#    #     for lemma in lemmas:
-#    #         for key, value in lemma.items():
-#    #             print(f"{key}: {value}")
-#    #         print("\n----------------\n")
-#    # else:
-#    #     print(response.status_code)
-#

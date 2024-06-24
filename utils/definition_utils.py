@@ -1,4 +1,3 @@
-
 import json
 import re
 import yaml
@@ -31,14 +30,6 @@ def preprocess_text(text):
     text = re.sub(r'[,:;.\-?!\']', '', text)
     return text
 
-def load_config(config_path):
-    with open(config_path, 'r') as file:
-        if config_path.suffix == '.yaml' or config_path.suffix == '.yml':
-            return yaml.safe_load(file)
-        elif config_path.suffix == '.json':
-            return json.load(file)
-        else:
-            raise ValueError("Unsupported configuration file format")
 
 def pos_do_not_match(base_lemmas, pos):
     at_least_one_match = False  # Assume no lemmas match initially
