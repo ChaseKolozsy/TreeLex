@@ -260,8 +260,8 @@ class DefinitionGenerator:
         }
         self.initialize_instructions(translate=translate)
     
-    def run_single_word(self, word, phrase, phrase_info, entries=[]):
-        self.generate_definition_for_word(word, phrase, phrase_info, entries)
+    def run_single_word(self, *, word: str, phrase: str, phrase_info: list, entries: list, pos: str):
+        self.generate_definition_for_word(word, phrase, phrase_info, entries, pos)
         add_definition_to_db(entries)
 
 
@@ -269,6 +269,8 @@ if __name__ == "__main__":
     definition_generator = DefinitionGenerator()
     word = "dog"
     phrase = "I love taking my dog for a walk."
+    entries = []
+    pos = "Noun"
     phrase_info = [
                     {
                         "text": "I love taking my dog for a walk.",
@@ -330,4 +332,4 @@ if __name__ == "__main__":
                         ]
                     }
                 ]
-    definition_generator.run_single_word(word, phrase, phrase_info)
+    definition_generator.run_single_word(word=word, phrase=phrase, phrase_info=phrase_info, entries=entries, pos=pos)
