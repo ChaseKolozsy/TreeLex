@@ -56,7 +56,7 @@ def find_pos_in_phrase_info(word, phrase_info):
                 return token.get("pos")
     return None
 
-def get_enumeration(self, word):
+def get_enumeration(word):
     response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
     if response.status_code == 200:
         enumerated_lemmas = response.json()['enumerated_lemmas']
@@ -67,7 +67,7 @@ def get_enumeration(self, word):
     return None
 
 
-def add_definition_to_db(self, entries):
+def add_definition_to_db(entries):
     for entry in entries:
         logging.info(json.dumps(entry, indent=4, ensure_ascii=False))
         data = {
