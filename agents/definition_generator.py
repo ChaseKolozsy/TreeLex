@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 advanced_model = "claude-3-5-sonnet-20240620"
 
 class DefinitionGenerator:
-    def __init__(self, list_filepath, language='Hungarian', native_language='English', api_type="openai", model="gpt-3.5-turbo-0125"):
+    def __init__(self, list_filepath, language='Hungarian', native_language='English', api_type="anthropic", model="claude-3-haiku-20240307"):
         self.model = model
         self.language = language
         self.native_language = native_language
@@ -261,3 +261,8 @@ class DefinitionGenerator:
     def run_single_word(self, word, phrase, entries=[]):
         self.generate_definition_for_word(word, phrase, entries)
         add_definition_to_db(entries)
+
+
+if __name__ == "__main__":
+    definition_generator = DefinitionGenerator()
+    definition_generator.run_single_word("dog", "The dog is a mammal that has four legs and a tail.")
