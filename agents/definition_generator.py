@@ -94,7 +94,6 @@ class DefinitionGenerator:
         if self.api_type.lower() == "openai":
             self.messages = [self.base_message]
         else:
-            self.system_message = None
             self.messages = []
     
     def load_translated_word_phrase(self):
@@ -185,14 +184,17 @@ class DefinitionGenerator:
 
         while not success and retries < max_retries:
             try:
-                response_content = json.loads(self.client.create_chat_completion(self.messages, self.system_message))
-                logging.info(f"response_content: {response_content}")
-                validate(instance=response_content, schema=self.get_validation_schema())
+                if self.api_type == "openai":
+                    response_message = json.loads(self.client.create_chat_completion(self.messages, system=None))
+                else:
+                    response_message = json.loads(self.client.create_chat_completion(self.messages, system=self.system_message))
+                logging.info(f"response_message: {response_message}")
+                validate(instance=response_message, schema=self.get_validation_schema())
 
                 stanza_pos = find_pos_in_phrase_info(word, phrase_info)
 
                 # Check if the definition is valid
-                is_valid = self.definition_checker.check_definition(word, response_content['def'], self.language)
+                is_valid = self.definition_checker.check_definition(word, response_message['def'], self.language)
                 if not is_valid and stanza_pos != 'DET':
                     raise ValueError("Definition contains the word being defined or a closely related form.")
                 
@@ -200,7 +202,7 @@ class DefinitionGenerator:
                     "enumeration": word + '_' + get_enumeration(word) if get_enumeration(word) else word + '_1',
                     "base_lemma": word,
                     "part_of_speech": pos,
-                    "definition": response_content['def']
+                    "definition": response_message['def']
                 }
                 entries.append(entry)
                 success = True
