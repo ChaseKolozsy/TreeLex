@@ -240,13 +240,9 @@ class DefinitionGenerator:
             dict_translator.translate_dictionaries(self.translated_word_phrase, data_dir / "translated_word_phrase.json")
 
         # load the descriptions, example json, tools and instructions
-        self.load_and_initialize(translate=translate)
-
-
         self.load_descriptions()
         self.initialize_example_json_small()
         self.load_translated_word_phrase()
-        self.load_translated_pos()
         self.base_instructions = {
             "instructions": "You are an expert lexicographer " \
                             f"You will be defining words in the {self.language} language, " \
@@ -332,4 +328,5 @@ if __name__ == "__main__":
                         ]
                     }
                 ]
+    definition_generator.load_and_initialize()
     definition_generator.run_single_word(word=word, phrase=phrase, phrase_info=phrase_info, entries=entries, pos=pos)
