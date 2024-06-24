@@ -37,15 +37,12 @@ class PhraseProcessor:
     def phrase_analysis(self, phrase):
         return stanza_ops.process_text(phrase)
 
-    def load_or_generate_pos_deprel_dict(self):
-        if self.pos_deprel_dict_file.exists():
-            with open(self.pos_deprel_dict_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        else:
-            pos_deprel_dict = self.generate_pos_deprel_dict()
-            with open(self.pos_deprel_dict_file, 'w', encoding='utf-8') as f:
-                json.dump(pos_deprel_dict, f, ensure_ascii=False, indent=4)
-            return pos_deprel_dict
+    def load_translated_pos(self):
+        try:
+            with open(f"{self.data_dir}/translated_pos.json", "r", encoding="utf-8") as f:
+                self.translated_pos = json.load(f)
+        except FileNotFoundError:
+            logging.error(f"Error: {self.data_dir}/translated_pos.json file not found.")
 
     def load_or_generate_pos_deprel_dict(self):
         if self.pos_deprel_dict_file.exists():
