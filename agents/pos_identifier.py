@@ -2,10 +2,10 @@ import json
 import logging
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-from instruction_translator import InstructionTranslator
-from pydict_translator import PydictTranslator
+from agents.instruction_translator import InstructionTranslator
+from agents.pydict_translator import PydictTranslator
 from pathlib import Path
-from api_clients import OpenAIClient, AnthropicClient
+from utils.api_clients import OpenAIClient, AnthropicClient
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

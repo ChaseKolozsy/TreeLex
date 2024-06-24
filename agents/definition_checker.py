@@ -2,7 +2,7 @@ import re
 import json
 import logging
 from nltk.stem import SnowballStemmer
-from api_clients import AnthropicClient, OpenAIClient
+from utils.api_clients import AnthropicClient, OpenAIClient
 
 class DefinitionChecker:
     SUPPORTED_LANGUAGES = {

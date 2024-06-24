@@ -1,5 +1,5 @@
-from matcher import Matcher
-from definition_generator import DefinitionGenerator
+from agents.matcher import Matcher
+from agents.definition_generator import DefinitionGenerator
 import sys
 import logging
 

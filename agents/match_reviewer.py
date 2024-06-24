@@ -2,7 +2,7 @@ import json
 import logging
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-from api_clients import OpenAIClient, AnthropicClient
+from utils.api_clients import OpenAIClient, AnthropicClient
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
