@@ -4,6 +4,7 @@ import yaml
 from pathlib import Path
 import logging
 from lexiwebdb.client.src.operations import enumerated_lemma_ops
+from bs4 import BeautifulSoup, NavigableString
 
 def extract_definitions(text):
     data = json.loads(text)
@@ -94,3 +95,40 @@ def add_definition_to_db(entries):
                 data['enumerated_lemma'] = data['base_lemma'] + '_' + str(int(data['enumerated_lemma'].split('_')[1]) + 10)
                 response = enumerated_lemma_ops.create_enumerated_lemma(data=data)
                 logging.info(json.dumps(response.json(), indent=4))
+
+
+def get_class_samples(soup):
+    """
+    Extract all class IDs from the BeautifulSoup object and return a list of samples with hierarchical information.
+
+    :param soup: BeautifulSoup object
+    :return: List of dictionaries containing class name, sample element, and hierarchical information
+    """
+    class_samples = {}
+
+    def process_tag(tag, depth=0, parent_classes=None):
+        if isinstance(tag, NavigableString):
+            return
+
+        classes = tag.get('class', [])
+        for class_name in classes:
+            if class_name not in class_samples:
+                class_samples[class_name] = {
+                    'class': class_name,
+                    'tag': tag.name,
+                    'text': tag.get_text(strip=True)[:50],  # First 50 characters of text
+                    'attributes': dict(tag.attrs),
+                    'depth': depth,
+                    'parent_classes': parent_classes or []
+                }
+
+        for child in tag.children:
+            if isinstance(child, NavigableString):
+                continue
+            process_tag(child, depth + 1, classes)
+
+    # Start processing from the body, or the soup itself if body doesn't exist
+    root = soup.body if soup.body else soup
+    process_tag(root)
+
+    return list(class_samples.values())
