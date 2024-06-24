@@ -226,6 +226,8 @@ class DefinitionGenerator:
 
 
     def load_and_initialize(self, translate=False):
+        current_dir = Path.cwd()
+        data_dir = current_dir / "data"
         # load the descriptions, example json, tools and instructions
         if translate:
             dict_translator = PydictTranslator(
@@ -265,4 +267,4 @@ class DefinitionGenerator:
 
 if __name__ == "__main__":
     definition_generator = DefinitionGenerator()
-    definition_generator.run_single_word("dog", "The dog is a mammal that has four legs and a tail.")
+    definition_generator.run_single_word("dog", "I love taking my dog for a walk.")
