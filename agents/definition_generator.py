@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 advanced_model = "claude-3-5-sonnet-20240620"
 
 class DefinitionGenerator:
-    def __init__(self, list_filepath, language='Hungarian', native_language='English', api_type="anthropic", model="claude-3-haiku-20240307"):
+    def __init__(self, list_filepath=None, language='Hungarian', native_language='English', api_type="anthropic", model="claude-3-haiku-20240307"):
         self.model = model
         self.language = language
         self.native_language = native_language
@@ -260,11 +260,74 @@ class DefinitionGenerator:
         }
         self.initialize_instructions(translate=translate)
     
-    def run_single_word(self, word, phrase, entries=[]):
-        self.generate_definition_for_word(word, phrase, entries)
+    def run_single_word(self, word, phrase, phrase_info, entries=[]):
+        self.generate_definition_for_word(word, phrase, phrase_info, entries)
         add_definition_to_db(entries)
 
 
 if __name__ == "__main__":
     definition_generator = DefinitionGenerator()
-    definition_generator.run_single_word("dog", "I love taking my dog for a walk.")
+    word = "dog"
+    phrase = "I love taking my dog for a walk."
+    phrase_info = [
+                    {
+                        "text": "I love taking my dog for a walk.",
+                        "tokens": [
+                            {
+                                "deprel": "nsubj",
+                                "lemma": "I",
+                                "pos": "PRON",
+                                "text": "I"
+                            },
+                            {
+                                "deprel": "root",
+                                "lemma": "love",
+                                "pos": "VERB",
+                                "text": "love"
+                            },
+                            {
+                                "deprel": "xcomp",
+                                "lemma": "take",
+                                "pos": "VERB",
+                                "text": "taking"
+                            },
+                            {
+                                "deprel": "nmod:poss",
+                                "lemma": "my",
+                                "pos": "PRON",
+                                "text": "my"
+                            },
+                            {
+                                "deprel": "obj",
+                                "lemma": "dog",
+                                "pos": "NOUN",
+                                "text": "dog"
+                            },
+                            {
+                                "deprel": "case",
+                                "lemma": "for",
+                                "pos": "ADP",
+                                "text": "for"
+                            },
+                            {
+                                "deprel": "det",
+                                "lemma": "a",
+                                "pos": "DET",
+                                "text": "a"
+                            },
+                            {
+                                "deprel": "obl",
+                                "lemma": "walk",
+                                "pos": "NOUN",
+                                "text": "walk"
+                            },
+                            {
+                                "deprel": "punct",
+                                "lemma": ".",
+                                "pos": "PUNCT",
+                                "text": "."
+                            }
+                        ]
+                    }
+                ]
+    definition_generator.run_single_word(word, phrase, phrase_info)
