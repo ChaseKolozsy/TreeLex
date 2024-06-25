@@ -22,7 +22,7 @@ To generate definitions for words, manage the creation of branches, and handle r
 - **GrammarPoint Example Generator**: Module to generate grammar examples for a given grammar point.
 - **Controller**: Flask application or script to orchestrate the definition generation and branching process.
 
-## Directory Structure
+## Directory Structure (Out of Date, Will update later)
 
 ```
 BranchingTool/
@@ -55,6 +55,106 @@ BranchingTool/
 │   ├── requirements.txt
 │   └── .env
 └── .env
+```
+
+## Example Structure of Output from schema_extractor.py
+```
+{
+  "root": {
+    "class": "result",
+    "children": [
+      {
+        "class": "entry",
+        "children": [
+          {
+            "class": "entryname",
+            "content": "dictionaryType"
+          },
+          {
+            "class": "headword",
+            "content": "word"
+          },
+          {
+            "class": "sense",
+            "content": "definitionNumber"
+          },
+          {
+            "class": "freq",
+            "content": "frequency"
+          },
+          {
+            "class": "pos",
+            "content": "partOfSpeech"
+          },
+          {
+            "class": "sinonym",
+            "content": "synonyms"
+          },
+          {
+            "class": "etim",
+            "content": "etymology"
+          }
+        ]
+      },
+      {
+        "class": "etimologia",
+        "children": [
+          {
+            "class": "year",
+            "content": "etymologyYear"
+          },
+          {
+            "class": "explanation",
+            "content": "etymologyExplanation"
+          }
+        ]
+      },
+      {
+        "class": "szinonima",
+        "children": [
+          {
+            "class": "reverse",
+            "content": "antonyms"
+          }
+        ]
+      },
+      {
+        "class": "ellentet",
+        "content": "antonyms"
+      },
+      {
+        "class": "regiszavak",
+        "content": "archaicWords"
+      },
+      {
+        "class": "tajszotar",
+        "children": [
+          {
+            "class": "sztarrov",
+            "content": "dialectRegion"
+          }
+        ]
+      },
+      {
+        "class": "szotenger",
+        "content": "relatedWords"
+      },
+      {
+        "class": "szolas",
+        "children": [
+          {
+            "class": "type",
+            "content": "idiomType"
+          },
+          {
+            "class": "style",
+            "content": "idiomStyle"
+          }
+        ]
+      }
+    ]
+  }
+}
 ```
 
 
