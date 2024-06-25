@@ -104,3 +104,30 @@ def get_or_create_session(config_path: str) -> Optional[requests.Session]:
         print(f"Error creating session: {e}")
         print("Proceeding without a session.")
         return None
+
+if __name__ == "__main__":
+    current_dir = Path(__file__).parent
+    data_dir = current_dir / "data"
+    config_path = data_dir / "online_dict_credentials.yaml"
+
+    # Example URLs for different scenarios
+    session_required_url = "https://szotudastar.hu/?primarydict&uid=307&q=szép"
+    public_url = "https://dictionary.goo.ne.jp/word/調べる"
+
+    schema_path = data_dir / "schema_extractor" / "dictionary_schema.json"
+
+    # Try to get or create a session
+    session = get_or_create_session(config_path)
+
+    # Example with session (if available)
+    if session:
+        print("Extracting data from a page that requires login:")
+        extracted_data = extract_dictionary_data(session_required_url, schema_path, session)
+        llm_input = prepare_data_for_llm(extracted_data)
+        print(llm_input)
+
+    # Example without session
+    print("\nExtracting data from a public page:")
+    extracted_data = extract_dictionary_data(public_url, schema_path)
+    llm_input = prepare_data_for_llm(extracted_data)
+    print(llm_input)
