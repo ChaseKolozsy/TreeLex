@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 from pathlib import Path
 import requests
 from utils.general_utils import load_config
-from wp_dict_scraper import get_session, wp_login
+from utils.wp_dict_scraper import get_session, wp_login
 from utils.dictionary_extractor import DictionaryExtractor
 
 def get_class_samples(soup):
