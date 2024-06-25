@@ -84,6 +84,6 @@ class RootExtractor:
 
 if __name__ == "__main__":
     # Example usage
-    extractor = SchemaExtractor()
-    with open("data/schema_extractor/dictionary_fields.json", "r") as f:
+    extractor = RootExtractor()
+    with open("data/roots/dictionary_fields.json", "r") as f:
         sample_input = json.load(f)
