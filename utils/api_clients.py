@@ -28,7 +28,7 @@ class AnthropicClient(APIClient):
         self.client = anthropic.Anthropic()
         self.model = model
 
-    def create_chat_completion(self, messages, system, temperature=0.0, max_tokens=1000):
+    def create_chat_completion(self, messages, system, temperature=0.0, max_tokens=4000):
         response = self.client.messages.create(
             model=self.model,
             system=system,
