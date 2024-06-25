@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 advanced_model = "claude-3-5-sonnet-20240620"
 affordable_model = "claude-3-haiku-20240307"
 
-class SchemaExtractor:
+class RootExtractor:
     def __init__(self, language="English", api_type="anthropic", model=advanced_model):
         self.language = language
         self.api_type = api_type
@@ -32,17 +32,14 @@ class SchemaExtractor:
         self.system_message = (
             "You are an AI assistant specialized in extracting structured schema information from HTML class data. "
             "Your task is to analyze the input, which contains information about HTML classes, their hierarchy, and content, "
-            "and produce a structured schema that represents the relationships between these classes. "
+            "and output the root class that contains the majority of the dictionary information."
             f"Here's an example of the input you'll receive: {self.example_input}\n\n"
             f"And here's an example of the output you should produce: {self.example_output}\n\n"
             "Please follow these guidelines:\n"
             "1. Identify the root class.\n"
-            "2. Create a hierarchical structure based on the 'depth' and 'parent_classes' information.\n"
-            "3. Use the 'class' names as keys in the schema.\n"
-            "4. For leaf nodes, use a 'content' key with a descriptive value of what that class represents.\n"
-            "5. Organize classes with the same parent under a 'children' key.\n"
-            "6. Ignore classes that are not relevant to dictionary entries (e.g. ads, footer, header, navigation, etc.).\n"
-            "7. Use your best judgment to create a clean, logical structure.\n"
+            "2. Identify the hierarchical structure based on the 'depth' and 'parent_classes' information.\n"
+            "3. Ignore classes that are not relevant to dictionary entries (e.g. ads, footer, header, navigation, etc.).\n"
+            "4. Find the deepest class that contains the majority of the dictionary information.\n"
             "Output the result as a JSON object. Do not include any commentary. Strictly output JSON."
         )
 
@@ -54,7 +51,7 @@ class SchemaExtractor:
         else:
             raise ValueError(f"Unsupported API type: {self.api_type}")
 
-    def extract_schema(self, class_samples):
+    def extract_root(self, class_samples):
         retries = 0
         while retries < self.max_retries:
             try:

@@ -2,7 +2,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 from pathlib import Path
-from utils.web_scraping_utils import get_class_samples
+from utils.web_scraping_utils import get_class_and_id_samples
 from collections import OrderedDict
 import time
 
@@ -26,7 +26,7 @@ def scrape_dictionary_for_fields(urls):
             soup = BeautifulSoup(response.text, 'html.parser')
 
             body = soup.find('body')
-            class_samples = get_class_samples(body)
+            class_samples = get_class_and_id_samples(body)
             # Convert each sample to a hashable representation and add to the set
             all_samples.update(hash_dict(sample) for sample in class_samples)
         except requests.RequestException as e:
@@ -44,9 +44,9 @@ def save_to_file(data, filename='data/schema_extractor/dictionary_fields.json'):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
-    from agents.schema_extractor import SchemaExtractor
-    current_dir = Path(__file__).parent
-    data_dir = current_dir / "data/schema_extractor"
+    from agents.root_extractor import RootExtractor
+    current_dir = Path(__file__).parent.parent
+    data_dir = current_dir / "data/roots"
     if not data_dir.exists():
         data_dir.mkdir(parents=True)
 
@@ -61,9 +61,9 @@ if __name__ == "__main__":
     samples = scrape_dictionary_for_fields(urls)
     save_to_file(samples)
 
-    schema_extractor = SchemaExtractor()
-    schema = schema_extractor.extract_schema(samples)
+    root_extractor = RootExtractor()
+    root = root_extractor.extract_root(samples)
     
     # Save the extracted schema
-    with open(data_dir / "general_dictionary_schema.json", "w") as f:
-        json.dump(schema, f, indent=2, ensure_ascii=False)
+    with open(data_dir / "general_dictionary_root.json", "w") as f:
+        json.dump(root, f, indent=2, ensure_ascii=False)

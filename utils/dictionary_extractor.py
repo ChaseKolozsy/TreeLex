@@ -3,21 +3,22 @@ from typing import List, Union, Optional
 import json
 
 class DictionaryExtractor:
-    def __init__(self, html_content: str, schema_path: str, exclusions: Optional[List[str]] = None):
+    def __init__(self, html_content: str, schema_path: str, target_root=None, exclusions: Optional[List[str]] = None):
         self.soup = BeautifulSoup(html_content, 'html.parser')
-        self.schema = self._load_schema(schema_path)
         self.exclusions = exclusions or []
+        self.target_root = target_root
 
     def _load_schema(self, schema_path: str):
         with open(schema_path, 'r', encoding='utf-8') as f:
             return json.load(f)
 
     def extract(self):
-        root_class = self.schema['root']['class']
-        root_element = self.soup.find(class_=root_class)
+        root = self.target_root
+        root_element = self.soup.find(class_=root) or self.soup.find(id=root)
         if root_element:
             return html_to_tree(root_element.prettify(), self.exclusions)
-        return None
+        else:
+            return html_to_tree(self.soup.find('body').prettify(), self.exclusions)
 
     def get_extracted_data(self):
         return self.extract()
