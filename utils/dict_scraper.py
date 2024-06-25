@@ -39,7 +39,7 @@ def scrape_dictionary_for_fields(urls):
     print(f"Number of unique samples: {len(unique_samples)}")
     return unique_samples
 
-def save_to_file(data, filename='data/schema_extractor/dictionary_fields.json'):
+def save_to_file(data, filename='data/roots/dictionary_fields.json'):
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 

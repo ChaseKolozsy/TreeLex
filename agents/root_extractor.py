@@ -15,7 +15,7 @@ class RootExtractor:
         self.model = model
         self.client = self._create_client()
         self.max_retries = 3
-        self.data_dir = Path("data/schema_extractor/")
+        self.data_dir = Path("data/roots/")
         if not Path.exists(self.data_dir):
             Path.mkdir(self.data_dir, parents=True)
 

@@ -3,7 +3,7 @@ from typing import List, Union, Optional
 import json
 
 class DictionaryExtractor:
-    def __init__(self, html_content: str, schema_path: str, target_root=None, exclusions: Optional[List[str]] = None):
+    def __init__(self, html_content: str, target_root=None, exclusions: Optional[List[str]] = None):
         self.soup = BeautifulSoup(html_content, 'html.parser')
         self.exclusions = exclusions or []
         self.target_root = target_root

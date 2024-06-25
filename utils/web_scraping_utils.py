@@ -94,12 +94,11 @@ def fetch_dictionary_page(url: str, session: Optional[requests.Session] = None) 
 
 def extract_dictionary_data(
         url: str, 
-        schema_path: str, 
         exclusions: List[str], 
         target_root: Optional[str] = None, 
         session: Optional[requests.Session] = None) -> Dict[str, List[str]]:
     html_content = fetch_dictionary_page(url, session)
-    extractor = DictionaryExtractor(html_content, schema_path, target_root, exclusions)
+    extractor = DictionaryExtractor(html_content, target_root, exclusions)
     return extractor.get_extracted_data()
 
 def get_or_create_session(config_path: str) -> Optional[requests.Session]:
@@ -131,27 +130,29 @@ if __name__ == "__main__":
     session_required_url = "https://szotudastar.hu/?primarydict&uid=307&q=szép"
     public_url = "https://dictionary.goo.ne.jp/word/調べる"
 
-    schema_path = data_dir / "roots" / "dictionary_schema.json"
-    root_path = data_dir / "roots" / "general_dictionary_root.json"
+    private_root_path = data_dir / "roots" / "dictionary_root.json"
+    public_root_path = data_dir / "roots" / "general_dictionary_root.json"
 
     # Try to get or create a session
     session = get_or_create_session(config_path)
     exclusions = ['szolas', 'osszetett']
 
+    with open(private_root_path, "r") as f:
+        target_root = json.load(f)["root"]["class"]
+
     # Example with session (if available)
-    #if session:
-    #    print("Extracting data from a page that requires login:")
-    #    extracted_data = extract_dictionary_data(session_required_url, schema_path, exclusions, session)
-    #    with open(output_dir / "session_required_data.html", "w") as f:
-    #        f.write(extracted_data)
+    if session:
+        print("Extracting data from a page that requires login:")
+        extracted_data = extract_dictionary_data(session_required_url, exclusions, target_root, session)
+        with open(output_dir / "session_required_data.txt", "w") as f:
+            f.write(extracted_data)
 
     exclusions = []
-    with open(root_path, "r") as f:
+    with open(public_root_path, "r") as f:
         target_root = json.load(f)["root"]["class"]
-    target_root = "contents-wrap-b"
 
     # Example without session
     print("\nExtracting data from a public page:")
-    extracted_data = extract_dictionary_data(public_url, schema_path, exclusions, target_root)
-    with open(output_dir / "public_data.html", "w") as f:
+    extracted_data = extract_dictionary_data(public_url, exclusions, target_root)
+    with open(output_dir / "public_data.txt", "w") as f:
         f.write(extracted_data)
