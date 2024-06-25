@@ -131,8 +131,8 @@ if __name__ == "__main__":
     session_required_url = "https://szotudastar.hu/?primarydict&uid=307&q=szép"
     public_url = "https://dictionary.goo.ne.jp/word/調べる"
 
-    schema_path = data_dir / "schema_extractor" / "dictionary_schema.json"
-    root_path = data_dir / "schema_extractor" / "general_dictionary_root.json"
+    schema_path = data_dir / "roots" / "dictionary_schema.json"
+    root_path = data_dir / "roots" / "general_dictionary_root.json"
 
     # Try to get or create a session
     session = get_or_create_session(config_path)
