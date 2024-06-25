@@ -92,5 +92,5 @@ if __name__ == "__main__":
         sample_input = json.load(f)
     
     result = extractor.run(sample_input)
-    with open("data/schema_extractor/dictionary_schema.json", "w") as f:
+    with open("data/schema_extractor/general_dictionary_schema.json", "w") as f:
         json.dump(result, f, indent=2, ensure_ascii=False)
