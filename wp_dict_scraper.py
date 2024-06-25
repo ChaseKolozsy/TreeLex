@@ -11,6 +11,16 @@ from utils.general_utils import load_config
 import time
 from pathlib import Path
 from utils.definition_utils import get_class_samples 
+from collections import OrderedDict
+
+def hash_dict(obj):
+    """Create a hashable representation of an object, excluding 'text' field."""
+    if isinstance(obj, dict):
+        return tuple(sorted((k, hash_dict(v)) for k, v in obj.items() if k != 'text'))
+    elif isinstance(obj, list):
+        return tuple(hash_dict(e) for e in obj)
+    else:
+        return obj
 
 def save_session(session, filename='session.pkl'):
     with open(filename, 'wb') as f:
@@ -84,7 +94,7 @@ def wp_login(login_url, username, password, session_file='session.pkl'):
     return session
 
 def scrape_dictionary(urls, session):
-    all_fields = defaultdict(set)
+    all_samples = set()
     
     for url in urls:
         try:
@@ -93,21 +103,26 @@ def scrape_dictionary(urls, session):
             dictionary_page.raise_for_status()
             soup = BeautifulSoup(dictionary_page.text, 'html.parser')
 
-            # Rest of the scraping logic remains the same
             body = soup.find('body')
             class_samples = get_class_samples(body)
-            print(len(class_samples))
-            for cls in class_samples:
-                print(json.dumps(cls, indent=2, ensure_ascii=False))
+            # Convert each sample to a hashable representation and add to the set
+            all_samples.update(hash_dict(sample) for sample in class_samples)
         except requests.RequestException as e:
             print(f"Error fetching {url}: {e}")
         time.sleep(1)
+
+    # Convert the set of hashable representations back to a list of dictionaries
+    unique_samples = [OrderedDict(sample) for sample in all_samples]
+
+    # Convert the list to a JSON string with proper formatting
+    print(f"len: {len(unique_samples)}")
+    return unique_samples
 
     ## Convert sets to lists for JSON serialization
     #return {k: list(v) for k, v in all_fields.items()}
     
 
-def save_to_file(data, filename='dictionary_fields.json'):
+def save_to_file(data, filename='data/schema_extractor/dictionary_fields.json'):
     with open(filename, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
@@ -127,11 +142,15 @@ if __name__ == "__main__":
     # Example usage
     urls = [
         'https://szotudastar.hu/?primarydict&uid=307&q=egy',
+        'https://szotudastar.hu/?primarydict&uid=307&q=egyetlen',
+        'https://szotudastar.hu/?primarydict&uid=307&q=beszél',
+        'https://szotudastar.hu/?primarydict&uid=307&q=kutya',
+        'https://szotudastar.hu/?primarydict&uid=307&q=szép',
     ]
 
     session = get_session(session_file, login_url)
     if not session:
         session = wp_login(login_url, username, password, session_file)
-    fields = scrape_dictionary(urls, session)
-    #save_to_file(fields)
+    samples = scrape_dictionary(urls, session)
+    save_to_file(samples)
     #print("Fields have been saved to dictionary_fields.json")
