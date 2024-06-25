@@ -10,7 +10,7 @@ from collections import defaultdict
 from utils.general_utils import load_config
 import time
 from pathlib import Path
-from utils.definition_utils import get_class_samples 
+from utils.web_scraping_utils import get_class_samples 
 from collections import OrderedDict
 
 def hash_dict(obj):
