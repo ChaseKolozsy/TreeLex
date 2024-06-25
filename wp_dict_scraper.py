@@ -93,7 +93,7 @@ def wp_login(login_url, username, password, session_file='session.pkl'):
 
     return session
 
-def scrape_dictionary(urls, session):
+def scrape_dictionary_for_fields(urls, session):
     all_samples = set()
     
     for url in urls:
@@ -127,6 +127,7 @@ def save_to_file(data, filename='data/schema_extractor/dictionary_fields.json'):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 if __name__ == "__main__":
+    from agents.schema_extractor import SchemaExtractor
     current_dir = Path(__file__).parent
     data_dir = current_dir / "data"
     if not data_dir.exists():
@@ -151,6 +152,12 @@ if __name__ == "__main__":
     session = get_session(session_file, login_url)
     if not session:
         session = wp_login(login_url, username, password, session_file)
-    samples = scrape_dictionary(urls, session)
+    samples = scrape_dictionary_for_fields(urls, session)
     save_to_file(samples)
-    #print("Fields have been saved to dictionary_fields.json")
+
+
+    schema_extractor = SchemaExtractor()
+    schema = schema_extractor.extract_schema(samples)
+
+    with open("data/schema_extractor/wp_dictionary_schema.json", "w") as f:
+        json.dump(schema, f, indent=2, ensure_ascii=False)
