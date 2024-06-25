@@ -5,7 +5,6 @@ from typing import Dict, List, Optional
 from pathlib import Path
 import requests
 from utils.general_utils import load_config
-from utils.wp_dict_scraper import get_session, wp_login
 from utils.dictionary_extractor import DictionaryExtractor
 
 def get_class_samples(soup):
@@ -80,13 +79,10 @@ def fetch_dictionary_page(url: str, session: Optional[requests.Session] = None) 
     response.raise_for_status()
     return response.text
 
-def extract_dictionary_data(url: str, schema_path: str, session: Optional[requests.Session] = None) -> Dict[str, List[str]]:
+def extract_dictionary_data(url: str, schema_path: str, exclusions: List[str], session: Optional[requests.Session] = None) -> Dict[str, List[str]]:
     html_content = fetch_dictionary_page(url, session)
-    extractor = DictionaryExtractor(html_content, schema_path)
+    extractor = DictionaryExtractor(html_content, schema_path, exclusions)
     return extractor.get_extracted_data()
-
-def prepare_data_for_llm(extracted_data: Dict[str, List[str]]) -> str:
-    return json.dumps(extracted_data, ensure_ascii=False, indent=2)
 
 def get_or_create_session(config_path: str) -> Optional[requests.Session]:
     try:
@@ -106,9 +102,12 @@ def get_or_create_session(config_path: str) -> Optional[requests.Session]:
         return None
 
 if __name__ == "__main__":
-    current_dir = Path(__file__).parent
+    from utils.wp_dict_scraper import get_session, wp_login
+    current_dir = Path(__file__).parent.parent
     data_dir = current_dir / "data"
     config_path = data_dir / "online_dict_credentials.yaml"
+    output_dir = data_dir / "web_scraping_utils"
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Example URLs for different scenarios
     session_required_url = "https://szotudastar.hu/?primarydict&uid=307&q=szép"
@@ -118,16 +117,17 @@ if __name__ == "__main__":
 
     # Try to get or create a session
     session = get_or_create_session(config_path)
+    exclusions = ['szolas', 'osszetett']
 
     # Example with session (if available)
     if session:
         print("Extracting data from a page that requires login:")
-        extracted_data = extract_dictionary_data(session_required_url, schema_path, session)
-        llm_input = prepare_data_for_llm(extracted_data)
-        print(llm_input)
+        extracted_data = extract_dictionary_data(session_required_url, schema_path, exclusions, session)
+        with open(output_dir / "session_required_data.html", "w") as f:
+            f.write(extracted_data)
 
     # Example without session
-    print("\nExtracting data from a public page:")
-    extracted_data = extract_dictionary_data(public_url, schema_path)
-    llm_input = prepare_data_for_llm(extracted_data)
-    print(llm_input)
+    #print("\nExtracting data from a public page:")
+    #extracted_data = extract_dictionary_data(public_url, schema_path)
+    #with open(output_dir / "public_data.html", "w") as f:
+    #    f.write(extracted_data)
