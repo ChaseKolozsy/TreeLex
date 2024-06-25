@@ -96,39 +96,66 @@ def add_definition_to_db(entries):
                 response = enumerated_lemma_ops.create_enumerated_lemma(data=data)
                 logging.info(json.dumps(response.json(), indent=4))
 
-
 def get_class_samples(soup):
     """
-    Extract all class IDs from the BeautifulSoup object and return a list of samples with hierarchical information.
+    Extract relevant class IDs from the BeautifulSoup object and return a list of samples with hierarchical information.
 
     :param soup: BeautifulSoup object
     :return: List of dictionaries containing class name, sample element, and hierarchical information
     """
     class_samples = {}
+    
+    # Patterns for exact matches or hyphenated classes
+    exact_or_hyphenated = [
+        r'(?:^|\b|-)(ad|ads|x|btn)(?:$|\b|-)',
+    ]
+    
+    # Patterns for substring matches
+    substring_patterns = [
+        r'advertisement', r'banner', r'menu', r'nav', r'navigation', r'footer', r'header',
+        r'sidebar', r'social', r'share', r'button', r'popup', r'modal', r'cookie', r'search',
+        r'logo', r'branding', r'copyright', r'related', r'recommended', r'sponsored', r'widget',
+        r'twitter', r'facebook', r'instagram', r'linkedin', r'pinterest', r'youtube', r'tiktok', 
+        r'vimeo', r'close', r'search-icon', r'search-input', r'search-button'
+    ]
+    
+    irrelevant_regex = re.compile('|'.join(exact_or_hyphenated + substring_patterns), re.IGNORECASE)
+
+    def is_relevant(class_name, tag):
+        if irrelevant_regex.search(class_name):
+            return False
+        if tag.name in ['script', 'style', 'noscript', 'iframe']:
+            return False
+        return True
 
     def process_tag(tag, depth=0, parent_classes=None):
         if isinstance(tag, NavigableString):
             return
 
         classes = tag.get('class', [])
-        for class_name in classes:
+        relevant_classes = [cls for cls in classes if is_relevant(cls, tag)]
+
+        for class_name in relevant_classes:
             if class_name not in class_samples:
-                class_samples[class_name] = {
-                    'class': class_name,
-                    'tag': tag.name,
-                    'text': tag.get_text(strip=True)[:50],  # First 50 characters of text
-                    'attributes': dict(tag.attrs),
-                    'depth': depth,
-                    'parent_classes': parent_classes or []
-                }
+                text = tag.get_text(strip=True)
+                if text:  # Only add if there's actual text content
+                    class_samples[class_name] = {
+                        'class': class_name,
+                        'tag': tag.name,
+                        'text': text[:50],  # First 50 characters of text
+                        'attributes': {k: v for k, v in tag.attrs.items() if k != 'class'},
+                        'depth': depth,
+                        'parent_classes': [cls for cls in (parent_classes or []) if is_relevant(cls, tag)]
+                    }
 
         for child in tag.children:
             if isinstance(child, NavigableString):
                 continue
-            process_tag(child, depth + 1, classes)
+            process_tag(child, depth + 1, relevant_classes)
 
-    # Start processing from the body, or the soup itself if body doesn't exist
-    root = soup.body if soup.body else soup
+    # Start processing from the main content area if it exists, otherwise use the body
+    main_content = soup.find(['main', 'article', 'div#content', 'div.content'])
+    root = main_content if main_content else (soup.body if soup.body else soup)
     process_tag(root)
 
     return list(class_samples.values())
