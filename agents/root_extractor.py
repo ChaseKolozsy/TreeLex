@@ -9,7 +9,7 @@ advanced_model = "claude-3-5-sonnet-20240620"
 affordable_model = "claude-3-haiku-20240307"
 
 class RootExtractor:
-    def __init__(self, language="English", api_type="anthropic", model=advanced_model):
+    def __init__(self, language="English", api_type="anthropic", model=affordable_model):
         self.language = language
         self.api_type = api_type
         self.model = model
