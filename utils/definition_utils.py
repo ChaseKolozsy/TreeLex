@@ -91,3 +91,34 @@ def add_definition_to_db(entries):
                 data['enumerated_lemma'] = data['base_lemma'] + '_' + str(int(data['enumerated_lemma'].split('_')[1]) + 10)
                 response = enumerated_lemma_ops.create_enumerated_lemma(data=data)
                 logging.info(json.dumps(response.json(), indent=4))
+
+def split_dictionary_content(content, target_lines=100, tolerance=25):
+    lines = content.split('\n')
+    parts = []
+    current_part = []
+    line_count = 0
+    base_level = min(len(line) - len(line.lstrip('\t')) for line in lines if line.strip())
+
+    for line in lines:
+        current_part.append(line)
+        line_count += 1
+
+        # Check if we're at a potential split point
+        if line.strip() and len(line) - len(line.lstrip('\t')) == base_level + 1:
+            if line_count >= target_lines - tolerance:
+                parts.append('\n'.join(current_part))
+                current_part = []
+                line_count = 0
+        
+        # If we've exceeded the upper limit, force a split at the next opportunity
+        elif line_count >= target_lines + tolerance:
+            if line.strip() and len(line) - len(line.lstrip('\t')) <= base_level + 1:
+                parts.append('\n'.join(current_part))
+                current_part = []
+                line_count = 0
+
+    # Add any remaining content to the last part
+    if current_part:
+        parts.append('\n'.join(current_part))
+
+    return parts
