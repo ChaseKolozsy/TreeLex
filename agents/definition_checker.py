@@ -4,6 +4,11 @@ import logging
 from nltk.stem import SnowballStemmer
 from utils.api_clients import AnthropicClient, OpenAIClient
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+advanced_model = "claude-3-5-sonnet-20240620"
+affordable_model = "claude-3-haiku-20240307"
+
 class DefinitionChecker:
     SUPPORTED_LANGUAGES = {
         'english': 'english',
@@ -83,15 +88,14 @@ class DefinitionChecker:
         else:
             messages = [ {"role": "user", "content": prompt} ]
             result = json.loads(self.client.create_chat_completion(messages, system=system))
-
         return result['valid']
 
 # Usage
 if __name__ == "__main__":
-    checker = DefinitionChecker(api_type="anthropic", model="claude-3-sonnet-20240229")
+    checker = DefinitionChecker(api_type="anthropic", model=affordable_model)
     word = "run"
     definition = "To move swiftly on foot, where the feet leave the ground for an instant between steps."
-    definition = "The infinitive of running"
+    #definition = "The infinitive of running"
     language = "english"
     pos = "verb"
 
