@@ -19,7 +19,7 @@ class Matcher:
         self.model = model
         self.client = self._create_client()
         self.match_reviewer = MatchReviewer(language, native_language, api_type, model)
-        self.max_retries = 3
+        self.max_retries = 1
         self.string_list = []
         self.definitions = []
         self.example_input = {
