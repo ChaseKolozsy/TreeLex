@@ -35,7 +35,7 @@ class DictEntryAnalyzer:
             1. Count the total number of primary definitions.
             2. Count the number of all other possible definitions (synonyms, archaic definitions, etc.) 
             3. Err on the side of adding more definitions. Be extremely liberal. If you see an enumeration, count it as a definition.
-            4. An entry should be split if it contains more than 25 possible definitions. 
+            4. An entry should be split if it contains more than 20 possible definitions. 
 
             Input will be in this format:
             {json.dumps(self.example_input_no_split, indent=2, ensure_ascii=False)}
