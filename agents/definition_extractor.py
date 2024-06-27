@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from utils.api_clients import OpenAIClient, AnthropicClient
 from utils.definition_utils import get_enumeration, add_definition_to_db, split_dictionary_content
+from agents.dict_entry_analyzer import DictEntryAnalyzer
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -116,7 +117,12 @@ class DefinitionExtractor:
             add_definition_to_db(entry)
 
     def run(self, word, dictionary_entry):
-        dictionary_entry = split_dictionary_content(dictionary_entry)
+        split = DictEntryAnalyzer(self.language, self.language).run(word, dictionary_entry)
+        if split:
+            dictionary_entry = split_dictionary_content(dictionary_entry)
+        else:
+            dictionary_entry = [dictionary_entry]
+
         try:
             for part in dictionary_entry:
                 self.extract_definitions(word, part)
