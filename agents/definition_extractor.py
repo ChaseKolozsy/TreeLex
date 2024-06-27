@@ -118,7 +118,7 @@ class DefinitionExtractor:
 
     def run(self, word, dictionary_entry):
         split = DictEntryAnalyzer(self.language, self.language).run(word, dictionary_entry)
-        if split:
+        if split['split'] and split['liberal_def_estimate'] > 25:
             dictionary_entry = split_dictionary_content(dictionary_entry)
         else:
             dictionary_entry = [dictionary_entry]
@@ -135,7 +135,7 @@ class DefinitionExtractor:
 if __name__ == "__main__":
     # Example usage
     extractor = DefinitionExtractor()
-    with open("data/definitions/japanese_example.txt", "r") as f:
+    with open("data/definitions/hungarian_example.txt", "r") as f:
         word = f.readline().strip()
         sample_entry = f.read()
 
