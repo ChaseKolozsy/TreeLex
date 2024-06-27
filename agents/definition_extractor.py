@@ -34,6 +34,7 @@ class DefinitionExtractor:
             "You are an AI assistant specialized in extracting definitions from dictionary entries. "
             "Your task is to analyze the input, which contains a dictionary entry, and output a structured JSON object "
             "containing all definitions, their parts of speech, and example phrases if available. "
+            "If it is enumerated, it is probably a definition and it should be treated as its own entry and not consolidated with other definitions. "
             "If an example phrase is not provided, make `phrase` an empty string, and generate an example phrase "
             "inside of `ai_phrase`. If pos is not provided, make `pos` an empty string, and infer the pos from the "
             "definition and the phrase inside of `inf_pos`. \n"
@@ -118,14 +119,15 @@ class DefinitionExtractor:
 
     def run(self, word, dictionary_entry):
         split = DictEntryAnalyzer(self.language, self.language).run(word, dictionary_entry)
-        if split['split'] and split['liberal_def_estimate'] > 25:
+        if split['split'] and split['extremely_liberal_def_estimate'] > 25:
             dictionary_entry = split_dictionary_content(dictionary_entry)
         else:
             dictionary_entry = [dictionary_entry]
 
         try:
             for part in dictionary_entry:
-                self.extract_definitions(word, part)
+                self.process_definitions(word, self.extract_definitions(word, part))
+                
                 logging.info("Definitions extracted successfully")
                 logging.info("Definitions processed and added to the database")
         except Exception as e:

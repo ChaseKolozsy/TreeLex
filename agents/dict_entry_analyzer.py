@@ -25,7 +25,8 @@ class DictEntryAnalyzer:
         
         self.example_output_no_split = {
             "primary_definitions": 6,
-            "liberal_def_estimate": 6,
+            "estimated_total_definitions": 6,
+            "extremely_liberal_def_estimate": 6,
             "split": False
         }
 
@@ -33,8 +34,8 @@ class DictEntryAnalyzer:
             You are an assistant that analyzes dictionary entries. Given a word and its dictionary entry, you will:
             1. Count the total number of primary definitions.
             2. Count the number of all other possible definitions (synonyms, archaic definitions, etc.) 
-            3. Err on the side of adding more definitions. Be very liberal.
-            4. An entry should be split if it contains more than 30 possible definitions and should be split every 30 definitions.
+            3. Err on the side of adding more definitions. Be extremely liberal. If you see an enumeration, count it as a definition.
+            4. An entry should be split if it contains more than 25 possible definitions. 
 
             Input will be in this format:
             {json.dumps(self.example_input_no_split, indent=2, ensure_ascii=False)}
