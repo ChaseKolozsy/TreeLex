@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 
 from utils.definition_utils import pos_do_not_match, find_pos_in_phrase_info
-from utils.general_utils import preprocess_text
+from utils.general_utils import preprocess_text, load_config
 from agents.pos_agent import POSAgent
 from agents.matcher import Matcher
 from utils.api_clients import OpenAIClient, AnthropicClient
@@ -11,6 +11,8 @@ import lexiwebdb.client.src.operations.enumerated_lemma_ops as enumerated_lemma_
 import stanza.client.src.operations.app_ops as stanza_ops
 from stanza.client.src.operations.app_ops import language_abreviations
 from agents.definition_generator import DefinitionGenerator
+#from utils.dict_scraper import 
+#from utils.wp_dict_scraper import 
 
 advanced_model = "claude-3-5-sonnet-20240620"
 affordable_model = "claude-3-haiku-20240307"
@@ -138,6 +140,7 @@ class PhraseProcessor:
                 if response.status_code == 200:
                     enumerated_lemmas = response.json()['enumerated_lemmas']
                 else:
+                    #TODO: search online dictionary for definition and add it to enumerated_lemmas table.
                     enumerated_lemmas = []
 
                 #logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
@@ -163,18 +166,18 @@ class PhraseProcessor:
                     if match:  # If a match is found, skip definition generation
                         logging.info(f"\n\nmatch: {match}\n\n")
                         skip_def = True
-               # 
-               # # If no match found, or no definitions exist, or no matching POS, generate a new definition
-               # if not match[0] or response.status_code == 404:
-               #     definition = definition_generator.generate_definition(word.lower(), phrase, pos, phrase_info)
-               #     if definition:
-               #         entry = {
-               #             "enumeration": word + '_' + self.get_enumeration(word) if self.get_enumeration(word) else word + '_1',
-               #             "base_lemma": word,
-               #             "part_of_speech": pos,
-               #             "definition": definition
-               #         }
-               #         entries.append(entry)
+                
+                # If no match found, or no definitions exist, or no matching POS, generate a new definition
+                if not skip_def:
+                    definition = definition_generator.generate_definition(word.lower(), phrase, pos, phrase_info)
+                    if definition:
+                        entry = {
+                            "enumeration": word + '_' + self.get_enumeration(word) if self.get_enumeration(word) else word + '_1',
+                            "base_lemma": word,
+                            "part_of_speech": pos,
+                            "definition": definition
+                       }
+                        entries.append(entry)
 
             except Exception as e:
                 logging.error(f"Error processing word '{word.lower()}': {e}")
