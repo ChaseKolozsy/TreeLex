@@ -92,7 +92,6 @@ class DefinitionExtractor:
     def process_definitions(self, word, extracted_data):
         definitions = extracted_data["definitions"]
         logging.info(f"len(definitions): {len(definitions)}")
-        entries = []
 
         for definition in definitions:
             logging.info(f"\n------ definition: {definition} --------- \n")
@@ -108,29 +107,21 @@ class DefinitionExtractor:
                 logging.info("initializing first entry.")
                 enumeration = word + "_1"
                 entry["enumeration"] = enumeration
-                entries.append(entry)
                 logging.info(f"\n-------------- entry: {entry} --------- \n")
-                add_definition_to_db(entries)
-                entries = []
+                add_definition_to_db(entry)
                 continue
 
             entry["enumeration"] = enumeration
             logging.info(f"\n-------------- entry: {entry} --------- \n")
-            entries.append(entry)
-            add_definition_to_db(entries)
-            entries = []
-        return entries
+            add_definition_to_db(entry)
 
     def run(self, word, dictionary_entry):
         dictionary_entry = split_dictionary_content(dictionary_entry)
-        processed_entries = []
         try:
             for part in dictionary_entry:
-                extracted_data = self.extract_definitions(word, part)
+                self.extract_definitions(word, part)
                 logging.info("Definitions extracted successfully")
-                processed_entries.extend(self.process_definitions(word, extracted_data))
                 logging.info("Definitions processed and added to the database")
-            return processed_entries
         except Exception as e:
             logging.error(f"Failed to extract or process definitions: {e}")
             return None
@@ -143,5 +134,3 @@ if __name__ == "__main__":
         sample_entry = f.read()
 
     results = extractor.run(word, sample_entry)
-    for result in results:
-        print(json.dumps(result, indent=2, ensure_ascii=False))
