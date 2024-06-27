@@ -64,33 +64,32 @@ def get_enumeration(word):
     return None
 
 
-def add_definition_to_db(entries):
-    for entry in entries:
-        logging.info(json.dumps(entry, indent=4, ensure_ascii=False))
-        data = {
-            'enumerated_lemma': entry['enumeration'].lower(),
-            'base_lemma': entry['base_lemma'].lower(),
-            'part_of_speech': entry['part_of_speech'],
-            'definition': entry['definition'],
-            'english_translation': '',
-            'frequency': 0,  # Assuming initial frequency is 0
-            'phrases': entry.get('phrases', []),  
-            'story_link': '',  # Assuming no story link is provided
-            'media_references': [],  # Assuming no media references are provided
-            'object_exploration_link': '',  # Assuming no object exploration link is provided
-            'familiar': False,  # Assuming not familiar initially
-            'active': False,  # Assuming not active by default
-            'anki_card_ids': [] # Assuming no anki card ids are provided
-        }
-        try:
+def add_definition_to_db(entry):
+    logging.info(json.dumps(entry, indent=4, ensure_ascii=False))
+    data = {
+        'enumerated_lemma': entry['enumeration'].lower(),
+        'base_lemma': entry['base_lemma'].lower(),
+        'part_of_speech': entry['part_of_speech'],
+        'definition': entry['definition'],
+        'english_translation': '',
+        'frequency': 0,  # Assuming initial frequency is 0
+        'phrases': entry.get('phrases', []),  
+        'story_link': '',  # Assuming no story link is provided
+        'media_references': [],  # Assuming no media references are provided
+        'object_exploration_link': '',  # Assuming no object exploration link is provided
+        'familiar': False,  # Assuming not familiar initially
+        'active': False,  # Assuming not active by default
+        'anki_card_ids': [] # Assuming no anki card ids are provided
+    }
+    try:
+        response = enumerated_lemma_ops.create_enumerated_lemma(data=data)
+        logging.info(json.dumps(response.json(), indent=4))
+    except Exception as e:
+        logging.error(f"Error creating enumerated lemma: {e}")
+        if "Enumerated Lemma already exists" in str(e):
+            data['enumerated_lemma'] = data['base_lemma'] + '_' + str(int(data['enumerated_lemma'].split('_')[1]) + 10)
             response = enumerated_lemma_ops.create_enumerated_lemma(data=data)
             logging.info(json.dumps(response.json(), indent=4))
-        except Exception as e:
-            logging.error(f"Error creating enumerated lemma: {e}")
-            if "Enumerated Lemma already exists" in str(e):
-                data['enumerated_lemma'] = data['base_lemma'] + '_' + str(int(data['enumerated_lemma'].split('_')[1]) + 10)
-                response = enumerated_lemma_ops.create_enumerated_lemma(data=data)
-                logging.info(json.dumps(response.json(), indent=4))
 
 def split_dictionary_content(content, target_lines=100, tolerance=25):
     lines = content.split('\n')

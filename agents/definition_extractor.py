@@ -91,27 +91,34 @@ class DefinitionExtractor:
 
     def process_definitions(self, word, extracted_data):
         definitions = extracted_data["definitions"]
+        logging.info(f"len(definitions): {len(definitions)}")
         entries = []
 
         for definition in definitions:
+            logging.info(f"\n------ definition: {definition} --------- \n")
             entry = {
                 "base_lemma": word,
-                "part_of_speech": definition.get("pos", definition.get("inf_pos", "")),
+                "part_of_speech": definition.get("pos") or definition.get("inf_pos", ""),
                 "definition": definition["def"],
-                "phrases": definition.get("phrases", [definition.get("ai_phrase", "")]) 
+                "phrases": definition.get("phrases") or [definition.get("ai_phrase", "")]
             }
             try:
                 enumeration = word + '_' + get_enumeration(word)
             except Exception as e:
-                logging.error(f"{e}: initializing first entry.")
+                logging.info("initializing first entry.")
                 enumeration = word + "_1"
                 entry["enumeration"] = enumeration
                 entries.append(entry)
+                logging.info(f"\n-------------- entry: {entry} --------- \n")
                 add_definition_to_db(entries)
+                entries = []
+                continue
 
             entry["enumeration"] = enumeration
+            logging.info(f"\n-------------- entry: {entry} --------- \n")
             entries.append(entry)
-        add_definition_to_db(entries)
+            add_definition_to_db(entries)
+            entries = []
         return entries
 
     def run(self, word, dictionary_entry):
