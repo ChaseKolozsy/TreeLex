@@ -109,15 +109,17 @@ class POSAgent:
 
         retries = 0
         while retries < self.max_retries:
+            response_message = ""
             try:
                 if self.api_type == "openai":
-                    response_message = json.loads(self.client.create_chat_completion(messages, system=None))
+                    response_message = self.client.create_chat_completion(messages, system=None)
                 else:
-                    response_message = json.loads(self.client.create_chat_completion(messages, system=self.system_message))
+                    response_message = self.client.create_chat_completion(messages, system=self.system_message)
                 try:
-                    logging.info(f"\n\nresponse_message: {json.dumps(response_message, indent=4)}")
-                    validate(instance=response_message, schema=self.get_validation_schema())
-                    return response_message[f"{self.translated_content_keys['part_4']}"]
+                    logging.info(f"\n\nresponse_message: {response_message}")
+                    #validate(instance=response_message, schema=self.get_validation_schema())
+                    #return response_message[f"{self.translated_content_keys['part_4']}"]
+                    return response_message.split(': ')[1].replace('}', '').replace("'", "")
                 except ValidationError as e:
                     logging.error(f"Validation error: {e}")
                     raise e
@@ -128,7 +130,7 @@ class POSAgent:
         return None
 
     def get_pos_matches(self, base_lemma, pos, enumerated_lemmas):
-        stored_pos_list = [{lemma["enumerated_lemma"]: lemma["part_of_speech"]} for lemma in enumerated_lemmas]
+        stored_pos_list = [{lemma["enumerated_lemma"]: str(lemma["part_of_speech"])} for lemma in enumerated_lemmas]
         matched_lemmas = []
         count = 1
 
