@@ -140,7 +140,7 @@ class PhraseProcessor:
                 if response.status_code == 200:
                     enumerated_lemmas = response.json()['enumerated_lemmas']
                 else:
-                    #TODO: search online dictionary for definition and add it to enumerated_lemmas table.
+                    #TODO: search online dictionary for definition and add it to enumerated_lemmas table if enabled.
                     enumerated_lemmas = []
 
                 #logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
