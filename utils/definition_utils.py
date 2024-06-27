@@ -74,7 +74,7 @@ def add_definition_to_db(entries):
             'definition': entry['definition'],
             'english_translation': '',
             'frequency': 0,  # Assuming initial frequency is 0
-            'phrase': '',  # Assuming no phrase is provided
+            'phrases': entry.get('phrases', []),  
             'story_link': '',  # Assuming no story link is provided
             'media_references': [],  # Assuming no media references are provided
             'object_exploration_link': '',  # Assuming no object exploration link is provided
