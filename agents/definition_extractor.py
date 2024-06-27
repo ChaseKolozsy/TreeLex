@@ -32,7 +32,8 @@ class DefinitionExtractor:
         self.system_message = (
             "You are an AI assistant specialized in extracting definitions from dictionary entries. "
             "Your task is to analyze the input, which contains a dictionary entry, and output a structured JSON object "
-            "containing all definitions, their parts of speech, and example phrases if available."
+            "containing all definitions, their parts of speech, and example phrases if available. If pos is not provided, "
+            "make `pos` empty string, and infer the pos from the definition and the phrase inside of `inf_pos`. "
             f"Here's an example of the input you'll receive: {self.example_input}\n\n"
             f"And here's an example of the output you should produce: {self.example_output}\n\n"
             "Please follow these guidelines:\n"
@@ -46,6 +47,7 @@ class DefinitionExtractor:
             "       {\n"
             "         \"def\": \"First definition\",\n"
             "         \"pos\": \"part of speech\",\n"
+            "         \"inf_pos\": \"inferred part of speech\",\n"
             "         \"phrase\": \"Example phrase (if available)\"\n"
             "       },\n"
             "       ...\n"
@@ -93,7 +95,7 @@ class DefinitionExtractor:
                 "base_lemma": word,
                 "part_of_speech": definition["pos"],
                 "definition": definition["def"],
-                "phrase": definition.get("phrase", "")
+                "phrase": definition.get("phrase", definition.get("inf_pos", "")) 
             }
             try:
                 enumeration = word + '_' + get_enumeration(word)
@@ -126,7 +128,7 @@ class DefinitionExtractor:
 if __name__ == "__main__":
     # Example usage
     extractor = DefinitionExtractor()
-    with open("data/definitions/hungarian_example.txt", "r") as f:
+    with open("data/definitions/japanese_example.txt", "r") as f:
         word = f.readline().strip()
         sample_entry = f.read()
 
