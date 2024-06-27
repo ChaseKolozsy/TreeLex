@@ -36,5 +36,4 @@ class AnthropicClient(APIClient):
             max_tokens=max_tokens,
             temperature=temperature
         )
-        print(response.content[0].text)
         return response.content[0].text
