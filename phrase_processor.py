@@ -137,6 +137,19 @@ class PhraseProcessor:
                 pos = self.get_pos(word, phrase)
                 logging.info(f"\n------- pos: {pos} -----\n")
 
+                if not pos:
+                    upos = ""
+                    stop = False
+                    for _, value in phrase_info:
+                        for token in value:
+                            if token['text'] == word or token['lemma'] == word:
+                                upos = token['pos']
+                                stop = True
+                                break
+                        if stop:
+                            break
+                pos = self.pos_deprel_dict[upos]
+
                 if response.status_code == 200:
                     enumerated_lemmas = response.json()['enumerated_lemmas']
                 else:

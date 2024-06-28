@@ -131,7 +131,7 @@ class POSAgent:
                 logging.error(f"Error identifying part of speech: {e}")
         return None
 
-    def get_pos_matches(self, base_lemma, pos, enumerated_lemmas):
+    def get_pos_matches(self, base_lemma, pos, enumerated_lemmas, cache=False):
         stored_pos_list = [{lemma["enumerated_lemma"]: str(lemma["part_of_speech"])} for lemma in enumerated_lemmas]
         matched_lemmas = []
         count = 1
@@ -152,7 +152,7 @@ class POSAgent:
                 continue
 
             # Synonymous match using chat completions
-            if len(lemma[enumerated_lemma]) <= 4:
+            if len(lemma[enumerated_lemma]) <= 4 or cache:
                 synonymous = self.check_synonymous_pos(pos, lemma[enumerated_lemma])
                 if synonymous:
                     matched_lemmas.append(enumerated_lemma)
