@@ -148,7 +148,7 @@ class PhraseProcessor:
                                 break
                         if stop:
                             break
-                pos = self.pos_deprel_dict[upos]
+                    pos = self.pos_deprel_dict[upos]
 
                 if response.status_code == 200:
                     enumerated_lemmas = response.json()['enumerated_lemmas']
