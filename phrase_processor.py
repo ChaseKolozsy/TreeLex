@@ -142,7 +142,7 @@ class PhraseProcessor:
                     stop = False
                     for _, value in phrase_info:
                         for token in value:
-                            if token['text'] == word or token['lemma'] == word:
+                            if token['text'] == word:
                                 upos = token['pos']
                                 stop = True
                                 break
