@@ -229,18 +229,15 @@ class DefinitionGenerator:
 
 
     def load_and_initialize(self, translate=False):
-        current_dir = Path.cwd()
-        data_dir = current_dir / "data"
-        # load the descriptions, example json, tools and instructions
         if translate:
             dict_translator = PydictTranslator(
                 language=self.language, 
                 model="gpt-4o"
             )
 
-            dict_translator.translate_dictionaries(self.example_json_small, data_dir / "translated_example_json_small.json")
-            dict_translator.translate_dictionaries(self.descriptions, data_dir / "translated_descriptions.json")
-            dict_translator.translate_dictionaries(self.translated_word_phrase, data_dir / "translated_word_phrase.json")
+            dict_translator.translate_dictionaries(self.example_json_small, self.language_dir / f"{self.language}_example_json_small.json")
+            dict_translator.translate_dictionaries(self.descriptions, self.language_dir / f"{self.language}_descriptions.json")
+            dict_translator.translate_dictionaries(self.translated_word_phrase, self.language_dir / f"{self.language}_word_phrase.json")
 
         # load the descriptions, example json, tools and instructions
         self.load_descriptions()
