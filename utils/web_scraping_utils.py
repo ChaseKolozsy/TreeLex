@@ -7,7 +7,7 @@ import requests
 from utils.general_utils import load_config
 from utils.dictionary_extractor import DictionaryExtractor
 from utils.definition_utils import hash_dict
-from protocols.szotudastar_protocol import get_wp_session, wp_login
+from protocols.szotudastar_protocol import SzotudastarProtocol
 from collections import OrderedDict
 import time
 
@@ -132,16 +132,13 @@ def extract_dictionary_data(
     return extractor.get_extracted_data()
 
 def get_or_create_session(config_path: str) -> Optional[requests.Session]:
+    protocol = SzotudastarProtocol()
     try:
         config = load_config(config_path)
-        login_url = config['login_url']
         username = config['username']
         password = config['password']
-        session_file = Path(config_path).parent / "session.pkl"
 
-        session = get_wp_session(session_file, login_url)
-        if not session:
-            session = wp_login(login_url, username, password, session_file)
+        session = protocol.login(username, password)
         return session
     except Exception as e:
         print(f"Error creating session: {e}")
@@ -151,16 +148,16 @@ def get_or_create_session(config_path: str) -> Optional[requests.Session]:
 if __name__ == "__main__":
     current_dir = Path(__file__).parent.parent
     data_dir = current_dir / "data"
-    config_path = data_dir / "online_dict_credentials.yaml"
     output_dir = data_dir / "web_scraping_utils"
     output_dir.mkdir(parents=True, exist_ok=True)
+    config_path = data_dir / "szotudastar" / "online_dict_credentials.yaml"
 
     # Example URLs for different scenarios
     session_required_url = "https://szotudastar.hu/?primarydict&uid=307&q=szép"
     public_url = "https://dictionary.goo.ne.jp/word/調べる"
 
-    private_root_path = data_dir / "roots" / "dictionary_root.json"
-    public_root_path = data_dir / "roots" / "general_dictionary_root.json"
+    private_root_path = data_dir / "roots" / "szotudastar_root.json"
+    public_root_path = data_dir / "roots" / "goo_root.json"
 
     # Try to get or create a session
     session = get_or_create_session(config_path)
