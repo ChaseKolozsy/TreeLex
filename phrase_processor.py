@@ -51,6 +51,8 @@ class PhraseProcessor:
             self.dictionary = self.dictionary_loader.setup_dictionary(dict_config)
             self.definition_extractor = DefinitionExtractor()
 
+        self.definition_generator = DefinitionGenerator(self.language, self.native_language)
+
     def set_stanza_language(self):
         stanza_ops.select_language(stanza_ops.language_abreviations[self.language])
 
@@ -124,7 +126,7 @@ class PhraseProcessor:
         logging.info(f"No Base lemma found for word: {word}")
         return None
 
-    def process_phrase(self, phrase, definition_generator):
+    def process_phrase(self, phrase):
         phrase_info = self._get_phrase_info(phrase)
         words = preprocess_text(phrase).split()
         entries = []
@@ -135,7 +137,7 @@ class PhraseProcessor:
                 pos = self._get_part_of_speech(word, phrase, phrase_info)
                 enumerated_lemmas = self._get_enumerated_lemmas(word)
                 
-                definitions = self._get_definitions(word, phrase, pos, phrase_info, enumerated_lemmas, definition_generator)
+                definitions = self._get_definitions(word, phrase, pos, phrase_info, enumerated_lemmas, self.definition_generator)
                 
                 match = self._match_definitions(word, phrase, pos, phrase_info, definitions)
                 
@@ -272,6 +274,6 @@ class PhraseProcessor:
 
 
 if __name__ == "__main__":
-    phrase_processor = PhraseProcessor("hungarian", "english")
-    definition_generator = DefinitionGenerator("hungarian", "english")
-    phrase_processor.process_phrase("A kutya szép.", definition_generator)
+    dict_config = None
+    phrase_processor = PhraseProcessor("hungarian", "english", dict_config=dict_config)
+    phrase_processor.process_phrase("A kutya szép.")
