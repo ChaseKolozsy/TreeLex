@@ -5,19 +5,22 @@ from pathlib import Path
 class DictionaryLoader:
     def __init__(self, data_dir="data"):
         self.data_dir = Path(data_dir)
+        self.dict_config_dir = self.data_dir / "dict_configs"
 
     def load_dictionary(self, language):
-        config_file = self.dict_config_dir / f"{language}_config.json"
+        config_file = self.dict_config_dir / f"{language}_dict_config.json"
         if not config_file.exists():
             raise FileNotFoundError(f"Configuration file for {language} not found")
 
         with open(config_file, 'r', encoding='utf-8') as f:
             config = json.load(f)
 
-        protocol_class = self.load_protocol_class(config['protocol'])
-        return protocol_class(config)
+        protocol_class = self.load_protocol_class(config['protocol'], config)
+        return protocol_class(config, self.data_dir)
 
-    def load_protocol_class(self, protocol_name):
+    def load_protocol_class(self, protocol_name, config):
+        if 'login_url' not in config or 'credentials_file' not in config:
+            protocol_name = "general"
         module = importlib.import_module(f"protocols.{protocol_name}_protocol")
         return getattr(module, f"{protocol_name.capitalize()}Protocol")
 
@@ -37,3 +40,14 @@ class DictionaryLoader:
         # This method should determine which protocol to use based on the dictionary name
         # For now, we'll just return a default protocol
         return "general"
+
+if __name__ == "__main__":
+    hungarian_loader = DictionaryLoader()
+    protocol = hungarian_loader.load_dictionary("Hungarian")
+    protocol.setup()
+    print(protocol.get_url("kép"))
+
+    japanese_loader = DictionaryLoader()
+    protocol = japanese_loader.load_dictionary("Japanese")
+    protocol.setup()
+    print(protocol.get_url("気持"))
