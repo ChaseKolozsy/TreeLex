@@ -1,0 +1,668 @@
+{
+    "class": "headercontent",
+    "tag": "div",
+    "text": "MENÜKeresés a SzóTudásTárbanNyelvészeti tudástárA ",
+    "attributes": {
+      "class": [
+        "headercontent"
+      ]
+    },
+    "depth": 2,
+    "parent_classes": []
+  }
+  {
+    "class": "menu",
+    "tag": "div",
+    "text": "MENÜKeresés a SzóTudásTárbanNyelvészeti tudástárA ",
+    "attributes": {
+      "class": [
+        "menu"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "headercontent"
+    ]
+  }
+  {
+    "class": "menubutton",
+    "tag": "img",
+    "text": "",
+    "attributes": {
+      "class": [
+        "menubutton"
+      ],
+      "src": "//szotudastar.hu/wp-content/themes/SzTT/images/menubutton.png"
+    },
+    "depth": 4,
+    "parent_classes": [
+      "menu"
+    ]
+  }
+  {
+    "class": "menutext",
+    "tag": "div",
+    "text": "MENÜ",
+    "attributes": {
+      "class": [
+        "menutext"
+      ]
+    },
+    "depth": 4,
+    "parent_classes": [
+      "menu"
+    ]
+  }
+  {
+    "class": "menuitems",
+    "tag": "ul",
+    "text": "Keresés a SzóTudásTárbanNyelvészeti tudástárA proj",
+    "attributes": {
+      "class": [
+        "menuitems"
+      ]
+    },
+    "depth": 4,
+    "parent_classes": [
+      "menu"
+    ]
+  }
+  {
+    "class": "menu_user",
+    "tag": "div",
+    "text": "AdataimKilépés",
+    "attributes": {
+      "class": [
+        "menu_user"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "headercontent"
+    ]
+  }
+  {
+    "class": "menubutton_user",
+    "tag": "img",
+    "text": "",
+    "attributes": {
+      "class": [
+        "menubutton_user"
+      ],
+      "src": "//szotudastar.hu/wp-content/themes/SzTT/images/setting.png"
+    },
+    "depth": 4,
+    "parent_classes": [
+      "menu_user"
+    ]
+  }
+  {
+    "class": "menuitems_user",
+    "tag": "ul",
+    "text": "AdataimKilépés",
+    "attributes": {
+      "class": [
+        "menuitems_user"
+      ]
+    },
+    "depth": 4,
+    "parent_classes": [
+      "menu_user"
+    ]
+  }
+  {
+    "class": "logo",
+    "tag": "img",
+    "text": "",
+    "attributes": {
+      "class": [
+        "logo"
+      ],
+      "src": "//szotudastar.hu/wp-content/themes/SzTT/images/logo.png"
+    },
+    "depth": 4,
+    "parent_classes": []
+  }
+  {
+    "class": "intortext1",
+    "tag": "div",
+    "text": "Több mint 280 000 magyar szó vár Önre",
+    "attributes": {
+      "class": [
+        "intortext1"
+      ]
+    },
+    "depth": 2,
+    "parent_classes": []
+  }
+  {
+    "class": "intortext2",
+    "tag": "div",
+    "text": "Keressen és találjon könnyedén",
+    "attributes": {
+      "class": [
+        "intortext2"
+      ]
+    },
+    "depth": 2,
+    "parent_classes": []
+  }
+  {
+    "class": "intortext3",
+    "tag": "div",
+    "text": "az ország legnagyobb szótudástárában.",
+    "attributes": {
+      "class": [
+        "intortext3"
+      ]
+    },
+    "depth": 2,
+    "parent_classes": []
+  }
+  {
+    "class": "searchcontent",
+    "tag": "div",
+    "text": "értelmezőetimológiaidegenszinonimaellentétrégi sza",
+    "attributes": {
+      "class": [
+        "searchcontent"
+      ]
+    },
+    "depth": 2,
+    "parent_classes": []
+  }
+  {
+    "class": "form",
+    "tag": "div",
+    "text": "értelmezőetimológiaidegenszinonimaellentétrégi sza",
+    "attributes": {
+      "class": [
+        "form"
+      ]
+    },
+    "depth": 4,
+    "parent_classes": []
+  }
+  {
+    "class": "q",
+    "tag": "input",
+    "text": "",
+    "attributes": {
+      "type": "text",
+      "value": "egy",
+      "class": [
+        "q"
+      ],
+      "id": "q",
+      "name": "q"
+    },
+    "depth": 5,
+    "parent_classes": [
+      "form"
+    ]
+  }
+  {
+    "class": "search_menu",
+    "tag": "div",
+    "text": "értelmezőetimológiaidegenszinonimaellentétrégi sza",
+    "attributes": {
+      "class": [
+        "search_menu"
+      ]
+    },
+    "depth": 5,
+    "parent_classes": [
+      "form"
+    ]
+  }
+  {
+    "class": "search_dict",
+    "tag": "img",
+    "text": "értelmezőetimológiaidegenszinonimaellentétrégi sza",
+    "attributes": {
+      "title": "Elsődleges szótár kiválasztása",
+      "class": [
+        "search_dict"
+      ],
+      "src": "//szotudastar.hu/wp-content/themes/SzTT/images/search_dict.png"
+    },
+    "depth": 6,
+    "parent_classes": [
+      "search_menu"
+    ]
+  }
+  {
+    "class": "dicts",
+    "tag": "ul",
+    "text": "értelmezőetimológiaidegenszinonimaellentétrégi sza",
+    "attributes": {
+      "class": [
+        "dicts"
+      ]
+    },
+    "depth": 7,
+    "parent_classes": [
+      "search_dict"
+    ]
+  }
+  {
+    "class": "inentry",
+    "tag": "input",
+    "text": "",
+    "attributes": {
+      "title": "keresés a szócikkek szövegében is",
+      "type": "checkbox",
+      "name": "inentry",
+      "class": [
+        "inentry"
+      ],
+      "value": "yes"
+    },
+    "depth": 5,
+    "parent_classes": [
+      "form"
+    ]
+  }
+  {
+    "class": "search_button",
+    "tag": "img",
+    "text": "",
+    "attributes": {
+      "class": [
+        "search_button"
+      ],
+      "src": "//szotudastar.hu/wp-content/themes/SzTT/images/search_button.png",
+      "onclick": "$('#search').submit(); return false;"
+    },
+    "depth": 5,
+    "parent_classes": [
+      "form"
+    ]
+  }
+  {
+    "class": "result",
+    "tag": "div",
+    "text": "értelmezőegy25határozóragos névelő1. (Meghatározat",
+    "attributes": {
+      "class": [
+        "result"
+      ]
+    },
+    "depth": 2,
+    "parent_classes": []
+  }
+  {
+    "class": "entry",
+    "tag": "div",
+    "text": "értelmezőegy25határozóragos névelő1. (Meghatározat",
+    "attributes": {
+      "class": [
+        "entry",
+        "ertelmezo"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "result"
+    ]
+  }
+  {
+    "class": "ertelmezo",
+    "tag": "div",
+    "text": "értelmezőegy25határozóragos névelő1. (Meghatározat",
+    "attributes": {
+      "class": [
+        "entry",
+        "ertelmezo"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "result"
+    ]
+  }
+  {
+    "class": "entryname",
+    "tag": "div",
+    "text": "értelmező",
+    "attributes": {
+      "class": [
+        "entryname"
+      ]
+    },
+    "depth": 4,
+    "parent_classes": [
+      "entry",
+      "ertelmezo"
+    ]
+  }
+  {
+    "class": "headword",
+    "tag": "span",
+    "text": "egy",
+    "attributes": {
+      "class": [
+        "headword"
+      ]
+    },
+    "depth": 5,
+    "parent_classes": [
+      "ertelmezo"
+    ]
+  }
+  {
+    "class": "sense",
+    "tag": "span",
+    "text": "2",
+    "attributes": {
+      "class": [
+        "sense"
+      ]
+    },
+    "depth": 5,
+    "parent_classes": [
+      "ertelmezo"
+    ]
+  }
+  {
+    "class": "freq",
+    "tag": "span",
+    "text": "5",
+    "attributes": {
+      "class": [
+        "freq"
+      ]
+    },
+    "depth": 5,
+    "parent_classes": [
+      "ertelmezo"
+    ]
+  }
+  {
+    "class": "pos",
+    "tag": "span",
+    "text": "határozóragos névelő",
+    "attributes": {
+      "class": [
+        "pos"
+      ]
+    },
+    "depth": 5,
+    "parent_classes": [
+      "ertelmezo"
+    ]
+  }
+  {
+    "class": "sinonym",
+    "tag": "li",
+    "text": "1.valamely, valamelyik2.bármely, bármelyik",
+    "attributes": {
+      "class": [
+        "sinonym"
+      ]
+    },
+    "depth": 6,
+    "parent_classes": []
+  }
+  {
+    "class": "etim",
+    "tag": "li",
+    "text": "Vagy az ›emutató névmás megszilárdult ragos alakul",
+    "attributes": {
+      "class": [
+        "etim"
+      ]
+    },
+    "depth": 6,
+    "parent_classes": []
+  }
+  {
+    "class": "etimologia",
+    "tag": "div",
+    "text": "etimológiaegy12. század végeBelső fejlemény, kelet",
+    "attributes": {
+      "class": [
+        "entry",
+        "etimologia"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "result"
+    ]
+  }
+  {
+    "class": "year",
+    "tag": "span",
+    "text": "12. század vége",
+    "attributes": {
+      "class": [
+        "year"
+      ]
+    },
+    "depth": 5,
+    "parent_classes": [
+      "etimologia"
+    ]
+  }
+  {
+    "class": "explanation",
+    "tag": "span",
+    "text": "egy; az",
+    "attributes": {
+      "class": [
+        "explanation"
+      ]
+    },
+    "depth": 7,
+    "parent_classes": []
+  }
+  {
+    "class": "szinonima",
+    "tag": "div",
+    "text": "szinonimaegyI.számnévegyetlen, egyetlenegytöbb, so",
+    "attributes": {
+      "class": [
+        "entry",
+        "szinonima"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "result"
+    ]
+  }
+  {
+    "class": "reverse",
+    "tag": "span",
+    "text": "több, sok, számos",
+    "attributes": {
+      "class": [
+        "reverse"
+      ]
+    },
+    "depth": 7,
+    "parent_classes": []
+  }
+  {
+    "class": "ellentet",
+    "tag": "div",
+    "text": "ellentétegyszámnévtöbb, sok, számos",
+    "attributes": {
+      "class": [
+        "entry",
+        "ellentet"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "result"
+    ]
+  }
+  {
+    "class": "regiszavak",
+    "tag": "div",
+    "text": "régi szavakegy1melléknévszent; tiszteletre méltó; ",
+    "attributes": {
+      "class": [
+        "entry",
+        "regiszavak"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "result"
+    ]
+  }
+  {
+    "class": "tajszotar",
+    "tag": "div",
+    "text": "tájszótáregyhszmintegy[Erd]",
+    "attributes": {
+      "class": [
+        "entry",
+        "tajszotar"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "result"
+    ]
+  }
+  {
+    "class": "sztarrov",
+    "tag": "span",
+    "text": "[Erd]",
+    "attributes": {
+      "class": [
+        "sztarrov"
+      ],
+      "title": "[Erdélyi tájszótár]"
+    },
+    "depth": 7,
+    "parent_classes": []
+  }
+  {
+    "class": "szotenger",
+    "tag": "div",
+    "text": "szótengeregynmvalaki",
+    "attributes": {
+      "class": [
+        "entry",
+        "szotenger"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "result"
+    ]
+  }
+  {
+    "class": "szolas",
+    "tag": "div",
+    "text": "szólásEgy, csak egy legény van talpon a vidéken.he",
+    "attributes": {
+      "class": [
+        "entry",
+        "szolas"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "result"
+    ]
+  }
+  {
+    "class": "type",
+    "tag": "span",
+    "text": "helyzetmondat",
+    "attributes": {
+      "class": [
+        "type"
+      ]
+    },
+    "depth": 5,
+    "parent_classes": [
+      "szolas"
+    ]
+  }
+  {
+    "class": "style",
+    "tag": "span",
+    "text": "választékos",
+    "attributes": {
+      "class": [
+        "style"
+      ]
+    },
+    "depth": 5,
+    "parent_classes": [
+      "szolas"
+    ]
+  }
+  {
+    "class": "footercontent",
+    "tag": "div",
+    "text": "SZERZŐDÉSI FELTÉTELEKIMPRESSZUMKAPCSOLAT0.019s",
+    "attributes": {
+      "class": [
+        "footercontent"
+      ]
+    },
+    "depth": 2,
+    "parent_classes": []
+  }
+  {
+    "class": "footerlogo",
+    "tag": "img",
+    "text": "",
+    "attributes": {
+      "class": [
+        "footerlogo"
+      ],
+      "src": "//szotudastar.hu/wp-content/themes/SzTT/images/footerlogo.png"
+    },
+    "depth": 4,
+    "parent_classes": []
+  }
+  {
+    "class": "menubottom",
+    "tag": "ul",
+    "text": "SZERZŐDÉSI FELTÉTELEKIMPRESSZUMKAPCSOLAT0.019s",
+    "attributes": {
+      "class": [
+        "menubottom"
+      ]
+    },
+    "depth": 3,
+    "parent_classes": [
+      "footercontent"
+    ]
+  }
+  {
+    "class": "runtime",
+    "tag": "li",
+    "text": "0.019s",
+    "attributes": {
+      "class": [
+        "runtime"
+      ]
+    },
+    "depth": 4,
+    "parent_classes": [
+      "menubottom"
+    ]
+  }
+  {
+    "class": "bgopacity",
+    "tag": "div",
+    "text": "",
+    "attributes": {
+      "class": [
+        "bgopacity"
+      ]
+    },
+    "depth": 2,
+    "parent_classes": []
+  }
+  

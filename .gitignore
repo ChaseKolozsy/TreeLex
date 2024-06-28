@@ -24,4 +24,7 @@ ENV/
 .DS_Store
 
 
-data/
+**/dict_credentials*
+**/szotudastar*
+
+data/definitions

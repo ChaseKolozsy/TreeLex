@@ -1,0 +1,6 @@
+{
+    "function_name": "gener\u00e1l_lemmadefin\u00edci\u00f3k",
+    "function_description": "Egy struktur\u00e1lt JSON kimenetet gener\u00e1l egy meghat\u00e1roz\u00e1snak egy sz\u00f3ra. \u00cdgy kell kin\u00e9znie:",
+    "base_lemma_description": "Az alap sz\u00f3 vagy lemma, amelyhez egy meghat\u00e1roz\u00e1st kell l\u00e9trehozni",
+    "definition_description": "1 meghat\u00e1roz\u00e1s a sz\u00f3hoz. A meghat\u00e1roz\u00e1snak magyar nyelven kell lennie, angol szavak n\u00e9lk\u00fcl."
+}

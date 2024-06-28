@@ -9,13 +9,12 @@ advanced_model = "claude-3-5-sonnet-20240620"
 affordable_model = "claude-3-haiku-20240307"
 
 class RootExtractor:
-    def __init__(self, language="English", api_type="anthropic", model=affordable_model):
-        self.language = language
+    def __init__(self, api_type="anthropic", model=affordable_model):
         self.api_type = api_type
         self.model = model
         self.client = self._create_client()
         self.max_retries = 3
-        self.data_dir = Path("data/roots/")
+        self.data_dir = Path("data/root_extractor")
         if not Path.exists(self.data_dir):
             Path.mkdir(self.data_dir, parents=True)
 

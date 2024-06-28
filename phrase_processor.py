@@ -274,6 +274,23 @@ class PhraseProcessor:
 
 
 if __name__ == "__main__":
-    dict_config = None
+    dict_config = {
+        "name": "szotudastar",
+        "protocol": "szotudastar",
+        "login_url": "https://szotudastar.hu/",
+        "session_file": "data/szotudastar/session.pkl",
+        "credentials_file": "data/szotudastar/dict_credentials.yaml",
+        "urls": [
+            "https://szotudastar.hu/?primarydict&uid=307&q=egy",
+            "https://szotudastar.hu/?primarydict&uid=307&q=egyetlen",
+            "https://szotudastar.hu/?primarydict&uid=307&q=beszél",
+            "https://szotudastar.hu/?primarydict&uid=307&q=kutya",
+            "https://szotudastar.hu/?primarydict&uid=307&q=szép"
+        ],
+        "data_files": {
+            "fields": "data/szotudastar/szotudastar_dictionary_fields.json",
+            "root": "data/szotudastar/szotudastar_dictionary_root.json"
+        }
+    }
     phrase_processor = PhraseProcessor("hungarian", "english", dict_config=dict_config)
     phrase_processor.process_phrase("A kutya szép.")

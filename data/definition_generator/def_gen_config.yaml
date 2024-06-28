@@ -1,0 +1,5 @@
+model: "claude-3-haiku-20240307"
+api_type: "anthropic"
+language: "Hungarian"
+native_language: "English"
+list_filepath: "data/phrase_list.txt"
