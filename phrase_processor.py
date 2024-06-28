@@ -125,89 +125,101 @@ class PhraseProcessor:
         return None
 
     def process_phrase(self, phrase, definition_generator):
-        skip_def = False
+        phrase_info = self._get_phrase_info(phrase)
+        words = preprocess_text(phrase).split()
+        entries = []
+
+        for word in words:
+            logging.info(f"\n------- word: {word} -----\n")
+            try:
+                pos = self._get_part_of_speech(word, phrase, phrase_info)
+                enumerated_lemmas = self._get_enumerated_lemmas(word)
+                
+                if enumerated_lemmas:
+                    entry = self._process_existing_lemmas(word, phrase, pos, phrase_info, enumerated_lemmas)
+                else:
+                    entry = self._generate_new_definition(word, phrase, pos, phrase_info, definition_generator)
+                
+                if entry:
+                    entries.append(entry)
+
+            except Exception as e:
+                logging.error(f"Error processing word '{word.lower()}': {e}")
+
+        return entries
+
+    def _get_phrase_info(self, phrase):
         if self.use_stanza:
             phrase_info = self.phrase_analysis(phrase)
             logging.info(f"\n------- phrase: {phrase} phrase_info: {json.dumps(phrase_info, indent=4, ensure_ascii=False)} -----\n")
         else:
             logging.info(f"\n------- phrase: {phrase} -----\n")
             phrase_info = None
+        return phrase_info
 
-        words = preprocess_text(phrase).split()
-        logging.info(f"\n------- words: {words}-----\n")
+    def _get_part_of_speech(self, word, phrase, phrase_info):
+        pos = self.get_pos(word, phrase)
+        if not pos and phrase_info:
+            pos = self._get_pos_from_phrase_info(word, phrase_info)
+        logging.info(f"\n------- pos: {pos} -----\n")
+        return pos
 
-        entries = []
-        for word in words:
-            logging.info(f"\n------- word: {word} -----\n")
-            try:
-                response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
-                pos = self.get_pos(word, phrase)
-                logging.info(f"\n------- pos: {pos} -----\n")
+    def _get_pos_from_phrase_info(self, word, phrase_info):
+        for _, value in phrase_info:
+            for token in value:
+                if token['text'] == word:
+                    return self.pos_deprel_dict[token['pos']]
+        return None
 
-                if not pos:
-                    upos = ""
-                    stop = False
-                    for _, value in phrase_info:
-                        for token in value:
-                            if token['text'] == word:
-                                upos = token['pos']
-                                stop = True
-                                break
-                        if stop:
-                            break
-                    pos = self.pos_deprel_dict[upos]
+    def _get_enumerated_lemmas(self, word):
+        response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
+        if response.status_code == 200:
+            return response.json()['enumerated_lemmas']
+        elif self.online_dictionary:
+            self._fetch_online_dictionary_data(word)
+            response = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word.lower())
+            return response.json()['enumerated_lemmas'] if response.status_code == 200 else None
+        return None
 
-                if response.status_code == 200:
-                    enumerated_lemmas = response.json()['enumerated_lemmas']
-                else:
-                    if self.online_dictionary:
-                        url = self.dictionary.get_url(word.lower())
-                        session = self.dictionary.login()
-                        exclusions = self.dictionary.get_exclusions()
-                        target_root = self.dictionary.get_target_root()
-                        extracted_data = extract_dictionary_data(url, session, exclusions, target_root)
-                        self.definition_extractor.run(word, extracted_data)
+    def _fetch_online_dictionary_data(self, word):
+        url = self.dictionary.get_url(word.lower())
+        session = self.dictionary.login()
+        exclusions = self.dictionary.get_exclusions()
+        target_root = self.dictionary.get_target_root()
+        extracted_data = extract_dictionary_data(url, session, exclusions, target_root)
+        self.definition_extractor.run(word, extracted_data)
 
-                #logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
-                matched_by_pos = self.pos_agent.get_pos_matches(word, pos, enumerated_lemmas)
-                logging.info(f"\n\n------- matched_by_pos: {matched_by_pos} -----\n\n")
+    def _process_existing_lemmas(self, word, phrase, pos, phrase_info, enumerated_lemmas):
+        matched_by_pos = self.pos_agent.get_pos_matches(word, pos, enumerated_lemmas)
+        logging.info(f"\n\n------- matched_by_pos: {matched_by_pos} -----\n\n")
 
-                pos_no_match = matched_by_pos == []
+        if matched_by_pos:
+            match, success = self.matcher.match_lemmas({
+                "phrase": phrase,
+                "base_lemma": word.lower(),
+                "phrase_info": phrase_info if self.use_stanza else None,
+                "definitions": {
+                    lemma['enumerated_lemma']: {
+                        "def": lemma['definition'],
+                        "pos": lemma['part_of_speech']
+                    } for lemma in enumerated_lemmas if lemma['enumerated_lemma'] in matched_by_pos
+                }
+            })
+            if match:
+                logging.info(f"\n\nmatch: {match}\n\n")
+                return None  # Existing match found, no new entry needed
+        return None  # No match found, will generate new definition
 
-                logging.info(f"\n------- pos_no_match: {pos_no_match} -----\n")
-                    
-                if not pos_no_match:
-                    match, success = self.matcher.match_lemmas({
-                        "phrase": phrase,
-                        "base_lemma": word.lower(),
-                        "phrase_info": phrase_info if self.use_stanza else None,
-                        "definitions": {
-                            lemma['enumerated_lemma']: {
-                                "def": lemma['definition'],
-                                "pos": lemma['part_of_speech']
-                            } for lemma in enumerated_lemmas if lemma['enumerated_lemma'] in matched_by_pos
-                        }
-                    })
-                    if match:  # If a match is found, skip definition generation
-                        logging.info(f"\n\nmatch: {match}\n\n")
-                        skip_def = True
-                
-                # If no match found, or no definitions exist, or no matching POS, generate a new definition
-                if not skip_def:
-                    definition = definition_generator.generate_definition(word.lower(), phrase, pos, phrase_info)
-                    if definition:
-                        entry = {
-                            "enumeration": word + '_' + self.get_enumeration(word) if self.get_enumeration(word) else word + '_1',
-                            "base_lemma": word,
-                            "part_of_speech": pos,
-                            "definition": definition
-                       }
-                        entries.append(entry)
-
-            except Exception as e:
-                logging.error(f"Error processing word '{word.lower()}': {e}")
-
-        return entries
+    def _generate_new_definition(self, word, phrase, pos, phrase_info, definition_generator):
+        definition = definition_generator.generate_definition(word.lower(), phrase, pos, phrase_info)
+        if definition:
+            return {
+                "enumeration": word + '_' + self.get_enumeration(word) if self.get_enumeration(word) else word + '_1',
+                "base_lemma": word,
+                "part_of_speech": pos,
+                "definition": definition
+            }
+        return None
 
 
 if __name__ == "__main__":
