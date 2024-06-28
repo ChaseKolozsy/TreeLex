@@ -116,5 +116,17 @@ class SzotudastarProtocol:
         return self._target_root
 
 if __name__ == "__main__":
-    protocol = SzotudastarProtocol()
+    config = load_json_from_file("data/dict_configs/Hungarian_dict_config.json")
+    protocol = SzotudastarProtocol(config, "data")
     protocol.setup()
+
+    print(protocol.get_target_root())
+    print(protocol.get_html_exclusions())
+    print(protocol.get_url("kép"))
+
+    ## Iterate over the attributes of the protocol object
+    #for attr_name in dir(protocol):
+    #    # Get the value of the attribute using getattr
+    #    attr_value = getattr(protocol, attr_name)
+    #    # Print the attribute name and its value
+    #    print(f"Attribute: {attr_name}, Value: {attr_value}")
