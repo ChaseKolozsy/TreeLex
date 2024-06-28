@@ -113,12 +113,6 @@ def get_class_and_id_samples(soup):
 
     return list(samples.values())
 
-    # Start processing from the main content area if it exists, otherwise use the body
-    main_content = soup.find(['main', 'article', 'div#content', 'div.content'])
-    root = main_content if main_content else (soup.body if soup.body else soup)
-    process_tag(root)
-
-    return list(class_samples.values())
 
 def fetch_dictionary_page(url: str, session: Optional[requests.Session] = None) -> str:
     if session:
