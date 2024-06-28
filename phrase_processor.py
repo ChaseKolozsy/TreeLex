@@ -135,18 +135,67 @@ class PhraseProcessor:
                 pos = self._get_part_of_speech(word, phrase, phrase_info)
                 enumerated_lemmas = self._get_enumerated_lemmas(word)
                 
-                if enumerated_lemmas:
-                    entry = self._process_existing_lemmas(word, phrase, pos, phrase_info, enumerated_lemmas)
-                else:
-                    entry = self._generate_new_definition(word, phrase, pos, phrase_info, definition_generator)
+                definitions = self._get_definitions(word, phrase, pos, phrase_info, enumerated_lemmas, definition_generator)
                 
-                if entry:
-                    entries.append(entry)
+                match = self._match_definitions(word, phrase, pos, phrase_info, definitions)
+                
+                if not match:
+                    new_entry = self._create_new_entry(word, pos, definitions[-1] if definitions else None)
+                    if new_entry:
+                        entries.append(new_entry)
 
             except Exception as e:
                 logging.error(f"Error processing word '{word.lower()}': {e}")
 
         return entries
+
+    def _get_definitions(self, word, phrase, pos, phrase_info, enumerated_lemmas, definition_generator):
+        definitions = []
+        if enumerated_lemmas:
+            definitions = [lemma for lemma in enumerated_lemmas if lemma['part_of_speech'] == pos]
+        
+        if not definitions:
+            new_definition = definition_generator.generate_definition(word.lower(), phrase, pos, phrase_info)
+            if new_definition:
+                definitions.append({
+                    "enumerated_lemma": word + '_' + self.get_enumeration(word),
+                    "definition": new_definition,
+                    "part_of_speech": pos
+                })
+        
+        return definitions
+
+    def _match_definitions(self, word, phrase, pos, phrase_info, definitions):
+        if not definitions:
+            return None
+
+        match, success = self.matcher.match_lemmas({
+            "phrase": phrase,
+            "base_lemma": word.lower(),
+            "phrase_info": phrase_info if self.use_stanza else None,
+            "definitions": {
+                lemma['enumerated_lemma']: {
+                    "def": lemma['definition'],
+                    "pos": lemma['part_of_speech']
+                } for lemma in definitions
+            }
+        })
+        
+        if match:
+            logging.info(f"\n\nmatch: {match}\n\n")
+            return match
+        return None
+
+    def _create_new_entry(self, word, pos, definition):
+        if definition:
+            return {
+                "enumeration": definition['enumerated_lemma'],
+                "base_lemma": word,
+                "part_of_speech": pos,
+                "definition": definition['definition']
+            }
+        return None
+
 
     def _get_phrase_info(self, phrase):
         if self.use_stanza:
