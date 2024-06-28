@@ -7,7 +7,6 @@ import requests
 from utils.general_utils import load_config
 from utils.dictionary_extractor import DictionaryExtractor
 from utils.definition_utils import hash_dict
-from protocols.szotudastar_protocol import SzotudastarProtocol
 from collections import OrderedDict
 import time
 
@@ -132,6 +131,7 @@ def extract_dictionary_data(
     return extractor.get_extracted_data()
 
 def get_or_create_session(config_path: str) -> Optional[requests.Session]:
+    from protocols.szotudastar_protocol import SzotudastarProtocol
     protocol = SzotudastarProtocol()
     try:
         config = load_config(config_path)

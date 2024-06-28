@@ -1,0 +1,17 @@
+{
+    "name": "goo_dictionary",
+    "protocol": "goo",
+    "base_url": "https://dictionary.goo.ne.jp/word/{}",
+    "urls": [
+        "https://dictionary.goo.ne.jp/word/気持",
+        "https://dictionary.goo.ne.jp/word/調べる"
+    ],
+    "data_files": {
+        "fields": "data/goo_dictionary/goo_dictionary_fields.json",
+        "root": "data/goo_dictionary/goo_dictionary_root.json"
+    },
+    "html_exclusions": [
+      "szolas",
+      "osszetett"
+    ]
+  }

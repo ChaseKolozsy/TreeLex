@@ -12,15 +12,18 @@ from utils.general_utils import load_json_from_file
 
 
 class SzotudastarProtocol:
-    def __init__(self, config):
+    def __init__(self, config, data_dir):
         self.config = config
+        self.data_dir = Path(data_dir)
         self.login_url = config['login_url']
         self.session_file = config['session_file']
         self.credentials_file = config['credentials_file']
         self.urls = config['urls']
         self.base_url = config['base_url']
-        self.target_root_path = Path(config['root'])
-        self.exclusions = config['exclusions']
+        self.fields_path = Path(config['data_files']['fields'])
+        self.html_exclusions = config['html_exclusions']
+
+        self.target_root_path = Path(config['data_files']['root'])
         if self.target_root_path.exists():
             self._target_root = load_json_from_file(self.target_root_path)
         else:
@@ -28,17 +31,18 @@ class SzotudastarProtocol:
 
     def setup(self):
         if not self._target_root:
-            current_dir = Path(__file__).parent.parent
-            data_dir = current_dir / "data"
+            data_dir = self.data_dir
             roots_dir = data_dir / "roots"
-            szotudastar_dir = data_dir / "szotudastar"
+            dict_dir = data_dir / self.config['name']
+
             if not data_dir.exists():
                 data_dir.mkdir(parents=True)
             if not roots_dir.exists():
                 roots_dir.mkdir(parents=True)
-            if not szotudastar_dir.exists():
-                szotudastar_dir.mkdir(parents=True)
-            config = load_config(szotudastar_dir / self.credentials_file)
+            if not dict_dir.exists():
+                dict_dir.mkdir(parents=True)
+
+            config = load_config(dict_dir / self.credentials_file)
             username = config['username']
             password = config['password']
 
@@ -46,12 +50,12 @@ class SzotudastarProtocol:
             if not session:
                 session = self.login(username, password)
             samples = scrape_dictionary_for_fields(self.urls, session)
-            save_to_file(samples, szotudastar_dir / self.config['data_files']['fields'])
+            save_to_file(samples, dict_dir / self.fields_path)
 
             root_extractor = RootExtractor()
             self._target_root = root_extractor.extract_root(samples)
 
-            with open(roots_dir / self.config['data_files']['root'], "w") as f:
+            with open(roots_dir / self.target_root_path, "w") as f:
                 json.dump(self._target_root, f, indent=2, ensure_ascii=False)
 
     def login(self, username, password):
@@ -105,8 +109,8 @@ class SzotudastarProtocol:
     def get_url(self, word):
         return self.base_url.format(word)
 
-    def get_exclusions(self):
-        return self.exclusions
+    def get_html_exclusions(self):
+        return self.html_exclusions
 
     def get_target_root(self):
         return self._target_root

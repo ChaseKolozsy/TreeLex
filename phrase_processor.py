@@ -18,7 +18,7 @@ advanced_model = "claude-3-5-sonnet-20240620"
 affordable_model = "claude-3-haiku-20240307"
 
 class PhraseProcessor:
-    def __init__(self, language, native_language, api_type="anthropic", model="claude-3-haiku-20240307", dict_config=None, data_dir="data"):
+    def __init__(self, language, native_language, api_type="anthropic", model="claude-3-haiku-20240307", data_dir="data"):
         self.language = language
         self.native_language = native_language
         self.api_type = api_type
@@ -43,12 +43,25 @@ class PhraseProcessor:
             model=model,
             data_dir=str(self.data_dir)
         )
-        self.dict_config = dict_config
+
+        self.dict_config_dir = self.data_dir / "dict_config"
+        if not self.dict_config_dir.exists():
+            self.dict_config_dir.mkdir(parents=True)
+
+        if (self.dict_config_dir / f"{self.language}_dict_config.yaml").exists():
+            self.dict_config = self.dict_config_dir / f"{self.language}_dict_config.yaml"
+        else:
+            self.dict_config = None
+
         self.online_dictionary = False
         if self.dict_config:
             self.online_dictionary = True
             self.dictionary_loader = DictionaryLoader(self.data_dir)
-            self.dictionary = self.dictionary_loader.setup_dictionary(dict_config)
+            if (self.data_dir / self.config['data_files']['root']).exists():
+                self.dictionary = self.dictionary_loader.load_dictionary(self.dict_config_dir, self.language)
+            else:
+                self.dictionary = self.dictionary_loader.setup_dictionary(dict_config, self.data_dir)
+
             self.definition_extractor = DefinitionExtractor()
 
         self.definition_generator = DefinitionGenerator(self.language, self.native_language)
@@ -136,7 +149,7 @@ class PhraseProcessor:
             try:
                 pos = self._get_part_of_speech(word, phrase, phrase_info)
                 enumerated_lemmas = self._get_enumerated_lemmas(word)
-                
+             
                 definitions = self._get_definitions(word, phrase, pos, phrase_info, enumerated_lemmas, self.definition_generator)
                 
                 match = self._match_definitions(word, phrase, pos, phrase_info, definitions)
@@ -235,9 +248,9 @@ class PhraseProcessor:
     def _fetch_online_dictionary_data(self, word):
         url = self.dictionary.get_url(word.lower())
         session = self.dictionary.login()
-        exclusions = self.dictionary.get_exclusions()
+        html_exclusions = self.dictionary.get_html_exclusions()
         target_root = self.dictionary.get_target_root()
-        extracted_data = extract_dictionary_data(url, session, exclusions, target_root)
+        extracted_data = extract_dictionary_data(url, session, html_exclusions, target_root)
         self.definition_extractor.run(word, extracted_data)
 
     def _process_existing_lemmas(self, word, phrase, pos, phrase_info, enumerated_lemmas):

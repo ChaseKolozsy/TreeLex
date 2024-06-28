@@ -1,0 +1,1320 @@
+[
+  {
+    "attributes": [],
+    "depth": 4,
+    "identifier": "class:nr-onegoo-user",
+    "parent_identifiers": [],
+    "tag": "li"
+  },
+  {
+    "attributes": [],
+    "depth": 6,
+    "identifier": "class:nr-onegoo-pc",
+    "parent_identifiers": [
+      "class:nr-onegoo-reg"
+    ],
+    "tag": "span"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "id:right_side_ranking_data_idx_1",
+    "parent_identifiers": [
+      "id:right_side_ranking_data"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:right",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:small",
+    "parent_identifiers": [],
+    "tag": "span"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:bt_e",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "/word/%E5%AE%89%E5%85%A8%E3%82%AD%E3%83%A3%E3%83%93%E3%83%8D%E3%83%83%E3%83%88/#jn-309552"
+      ]
+    ],
+    "depth": 12,
+    "identifier": "class:parts_new_word_link",
+    "parent_identifiers": [],
+    "tag": "a"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "/word/%E3%80%8E%E8%AA%BF%E3%81%B9%E3%81%9F%E3%80%8F%E8%8A%B8%E8%A1%93/#jn-294667"
+      ]
+    ],
+    "depth": 12,
+    "identifier": "class:parts_surround_word_link",
+    "parent_identifiers": [],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:content_list",
+    "parent_identifiers": [
+      "class:section"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 7,
+    "identifier": "class:section",
+    "parent_identifiers": [],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 7,
+    "identifier": "class:rcont",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:meaning",
+    "parent_identifiers": [],
+    "tag": "span"
+  },
+  {
+    "attributes": [],
+    "depth": 4,
+    "identifier": "id:NR-wrapper-in",
+    "parent_identifiers": [
+      "id:NR-wrapper"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 13,
+    "identifier": "class:kanou",
+    "parent_identifiers": [
+      "class:text"
+    ],
+    "tag": "span"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "/word/%E3%83%AA%E3%83%AB%E3%82%B7%E3%83%A5%E3%83%AB%E3%83%A9%E3%82%BD%E3%83%AB%E3%82%B0/#jn-233051"
+      ]
+    ],
+    "depth": 12,
+    "identifier": "class:parts_surround_word_link",
+    "parent_identifiers": [],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:left",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:cont3",
+    "parent_identifiers": [
+      "class:mlr5"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 5,
+    "identifier": "id:NR-backToTop",
+    "parent_identifiers": [
+      "class:add_index_promotion"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "id:right_side_past_ranking_data_idx_2",
+    "parent_identifiers": [
+      "id:right_side_past_ranking_data"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:meaning_area",
+    "parent_identifiers": [
+      "class:contents-wrap-b-in"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "/word/%E6%8D%9C%E3%81%97%E7%89%A9/#jn-86363"
+      ]
+    ],
+    "depth": 12,
+    "identifier": "class:parts_surround_word_link",
+    "parent_identifiers": [],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 5,
+    "identifier": "class:nr-onegoo-text-sp",
+    "parent_identifiers": [
+      "class:nr-onegoo-service-list-wrap"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "/word/%E8%A8%88%E3%82%8B/"
+      ]
+    ],
+    "depth": 13,
+    "identifier": "class:omit_nowidth",
+    "parent_identifiers": [],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 13,
+    "identifier": "class:omit",
+    "parent_identifiers": [],
+    "tag": "p"
+  },
+  {
+    "attributes": [],
+    "depth": 13,
+    "identifier": "class:hinshi",
+    "parent_identifiers": [
+      "class:text"
+    ],
+    "tag": "span"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:example_sentence",
+    "parent_identifiers": [
+      "class:section"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:nr-onegoo-service-name",
+    "parent_identifiers": [],
+    "tag": "span"
+  },
+  {
+    "attributes": [],
+    "depth": 14,
+    "identifier": "class:link",
+    "parent_identifiers": [],
+    "tag": "p"
+  },
+  {
+    "attributes": [],
+    "depth": 1,
+    "identifier": "id:NR-page",
+    "parent_identifiers": [
+      "class:NR-col2a",
+      "class:biglobe"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:parlance",
+    "parent_identifiers": [
+      "class:section"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 6,
+    "identifier": "class:nolink",
+    "parent_identifiers": [
+      "id:NR-main"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:NR-now",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "li"
+  },
+  {
+    "attributes": [],
+    "depth": 7,
+    "identifier": "class:tpath",
+    "parent_identifiers": [],
+    "tag": "div"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "#"
+      ],
+      [
+        "itemprop",
+        "item"
+      ]
+    ],
+    "depth": 8,
+    "identifier": "class:nolink",
+    "parent_identifiers": [],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:parts_surround_word_no_link",
+    "parent_identifiers": [
+      "class:text_list",
+      "class:colum1",
+      "class:last_child_border_bottom_none"
+    ],
+    "tag": "li"
+  },
+  {
+    "attributes": [],
+    "depth": 12,
+    "identifier": "class:text",
+    "parent_identifiers": [
+      "class:contents"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 5,
+    "identifier": "id:NR-main",
+    "parent_identifiers": [
+      "id:NR-wrapper-in",
+      "class:cx",
+      "class:word-merge"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 7,
+    "identifier": "class:basic_tab_top",
+    "parent_identifiers": [
+      "class:tab-wrap",
+      "class:mb10"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 4,
+    "identifier": "class:nr-onegoo-nologin",
+    "parent_identifiers": [],
+    "tag": "li"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:detail_cont_title",
+    "parent_identifiers": [
+      "class:basic_title"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:person",
+    "parent_identifiers": [
+      "class:section",
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:news_headline_sub",
+    "parent_identifiers": [
+      "class:basic_title"
+    ],
+    "tag": "span"
+  },
+  {
+    "attributes": [],
+    "depth": 3,
+    "identifier": "id:NR-wrapper",
+    "parent_identifiers": [],
+    "tag": "div"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "https://login.mail.goo.ne.jp/id/authn/LoginStart?Site=dictionary.goo.ne.jp&Success=https%3A%2F%2Fdictionary.goo.ne.jp%2Fword%2F%25E8%25AA%25BF%25E3%2581%25B9%25E3%2582%258B%2F"
+      ]
+    ],
+    "depth": 5,
+    "identifier": "class:nr-onegoo-user-name",
+    "parent_identifiers": [
+      "class:nr-onegoo-user"
+    ],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:content_list",
+    "parent_identifiers": [
+      "class:example_sentence"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "id:right_side_past_ranking",
+    "parent_identifiers": [
+      "class:mlr5"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 7,
+    "identifier": "class:lcont",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 6,
+    "identifier": "class:basic_title",
+    "parent_identifiers": [
+      "id:NR-main"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 6,
+    "identifier": "class:l-pgTitle",
+    "parent_identifiers": [
+      "id:NR-main"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:text_list",
+    "parent_identifiers": [
+      "class:section"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 5,
+    "identifier": "id:NR-sub",
+    "parent_identifiers": [
+      "id:NR-wrapper-in",
+      "class:cx",
+      "class:word-merge"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 6,
+    "identifier": "class:nr-onegoo-sp",
+    "parent_identifiers": [
+      "class:nr-onegoo-service-more"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 13,
+    "identifier": "class:linelink",
+    "parent_identifiers": [],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 0,
+    "identifier": "class:biglobe",
+    "parent_identifiers": [],
+    "tag": "body"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:contents_area",
+    "parent_identifiers": [
+      "class:contents-wrap-b-in"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:bb_e",
+    "parent_identifiers": [
+      "class:section"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:right_side",
+    "parent_identifiers": [
+      "class:contents_area",
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:colum1",
+    "parent_identifiers": [
+      "class:section"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 13,
+    "identifier": "class:snippet",
+    "parent_identifiers": [],
+    "tag": "p"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "https://login.mail.goo.ne.jp/id/portal/RegUserStart"
+      ]
+    ],
+    "depth": 5,
+    "identifier": "class:nr-onegoo-reg",
+    "parent_identifiers": [
+      "class:nr-onegoo-nologin"
+    ],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 4,
+    "identifier": "class:add_index_promotion",
+    "parent_identifiers": [],
+    "tag": "div"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "javascript:void(0);"
+      ]
+    ],
+    "depth": 7,
+    "identifier": "class:c-rollover",
+    "parent_identifiers": [
+      "class:basic_title",
+      "class:nolink",
+      "class:l-pgTitle"
+    ],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 4,
+    "identifier": "class:nr-onegoo-service-list-wrap",
+    "parent_identifiers": [
+      "id:NR-onegoo-service"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 4,
+    "identifier": "class:word-merge",
+    "parent_identifiers": [
+      "id:NR-wrapper"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:meanging",
+    "parent_identifiers": [
+      "class:section",
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "id:right_side_past_ranking_data",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 9,
+    "identifier": "class:side_info_list",
+    "parent_identifiers": [
+      "class:side_info"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:children",
+    "parent_identifiers": [],
+    "tag": "li"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:mlr5",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 9,
+    "identifier": "class:contents-wrap-b-in",
+    "parent_identifiers": [
+      "class:contents-wrap-b",
+      "class:meanging",
+      "class:person",
+      "class:first"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 3,
+    "identifier": "class:nr-onegoo-text",
+    "parent_identifiers": [
+      "id:NR-onegoo-inner"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 4,
+    "identifier": "class:nr-onegoo-text-info",
+    "parent_identifiers": [
+      "class:nr-onegoo-text"
+    ],
+    "tag": "p"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:p10",
+    "parent_identifiers": [
+      "class:contents-wrap-b-in"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "id:right_side_ranking_data_idx_0",
+    "parent_identifiers": [
+      "id:right_side_ranking_data"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:rank_headline",
+    "parent_identifiers": [
+      "class:basic_title",
+      "class:mb5"
+    ],
+    "tag": "h3"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "id:right_side_past_ranking_data_idx_1",
+    "parent_identifiers": [
+      "id:right_side_past_ranking_data"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:yomi",
+    "parent_identifiers": [],
+    "tag": "span"
+  },
+  {
+    "attributes": [],
+    "depth": 9,
+    "identifier": "class:source",
+    "parent_identifiers": [
+      "class:source_area"
+    ],
+    "tag": "p"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "id:right_side_past_ranking_data_idx_0",
+    "parent_identifiers": [
+      "id:right_side_past_ranking_data"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:paddding",
+    "parent_identifiers": [
+      "class:basic_title"
+    ],
+    "tag": "h2"
+  },
+  {
+    "attributes": [
+      [
+        "action",
+        "/freewordsearcher.html"
+      ],
+      [
+        "method",
+        "get"
+      ],
+      [
+        "name",
+        "dict"
+      ],
+      [
+        "role",
+        "search"
+      ]
+    ],
+    "depth": 8,
+    "identifier": "id:freeword1",
+    "parent_identifiers": [],
+    "tag": "form"
+  },
+  {
+    "attributes": [],
+    "depth": 7,
+    "identifier": "class:list-simple-g",
+    "parent_identifiers": [
+      "class:index-promotion"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:last_child_border_bottom_none",
+    "parent_identifiers": [
+      "class:section"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 2,
+    "identifier": "class:sphead",
+    "parent_identifiers": [
+      "id:NR-page"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 9,
+    "identifier": "class:mb5",
+    "parent_identifiers": [
+      "class:section"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 5,
+    "identifier": "class:nr-onegoo-service-more",
+    "parent_identifiers": [
+      "class:nr-onegoo-service-list-wrap"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [
+      [
+        "action",
+        "/freewordsearcher.html"
+      ],
+      [
+        "method",
+        "get"
+      ],
+      [
+        "name",
+        "dict"
+      ],
+      [
+        "role",
+        "search"
+      ]
+    ],
+    "depth": 8,
+    "identifier": "class:cx",
+    "parent_identifiers": [],
+    "tag": "form"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:source_area",
+    "parent_identifiers": [
+      "class:section",
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 6,
+    "identifier": "class:sp-hidden",
+    "parent_identifiers": [],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:contents-wrap-b",
+    "parent_identifiers": [
+      "class:section",
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 12,
+    "identifier": "class:span",
+    "parent_identifiers": [
+      "class:nolink",
+      "class:title",
+      "class:paddding"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 14,
+    "identifier": "class:fs12",
+    "parent_identifiers": [
+      "class:text"
+    ],
+    "tag": "span"
+  },
+  {
+    "attributes": [],
+    "depth": 4,
+    "identifier": "class:nr-onegoo-text-inbox",
+    "parent_identifiers": [
+      "class:nr-onegoo-text"
+    ],
+    "tag": "p"
+  },
+  {
+    "attributes": [],
+    "depth": 13,
+    "identifier": "class:link",
+    "parent_identifiers": [],
+    "tag": "p"
+  },
+  {
+    "attributes": [],
+    "depth": 12,
+    "identifier": "class:line",
+    "parent_identifiers": [],
+    "tag": "li"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "id:right_side_ranking_data",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "https://login.mail.goo.ne.jp/id/authn/LoginStart?Site=dictionary.goo.ne.jp&Success=https%3A%2F%2Fdictionary.goo.ne.jp%2Fword%2F%25E5%25B1%25A5%25E6%25AD%25B4%2F"
+      ]
+    ],
+    "depth": 5,
+    "identifier": "class:nr-onegoo-user-name",
+    "parent_identifiers": [
+      "class:nr-onegoo-user"
+    ],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:contents",
+    "parent_identifiers": [
+      "class:content-box",
+      "class:contents_area",
+      "class:meaning_area",
+      "class:p10"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:news",
+    "parent_identifiers": [
+      "class:section"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:right_side_sns",
+    "parent_identifiers": [],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 9,
+    "identifier": "class:tpath-in",
+    "parent_identifiers": [
+      "class:NR-tpath"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:rank_headline_sub",
+    "parent_identifiers": [
+      "class:basic_title",
+      "class:mb5"
+    ],
+    "tag": "span"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:select",
+    "parent_identifiers": [
+      "class:basic_tab_top",
+      "class:cont4",
+      "class:cx"
+    ],
+    "tag": "li"
+  },
+  {
+    "attributes": [],
+    "depth": 1,
+    "identifier": "id:NR-onegoo",
+    "parent_identifiers": [
+      "class:NR-col2a",
+      "class:biglobe"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 5,
+    "identifier": "class:nr-onegoo-service-list",
+    "parent_identifiers": [
+      "class:nr-onegoo-service-list-wrap"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "javascript:void(0);"
+      ]
+    ],
+    "depth": 7,
+    "identifier": "class:l-pgTitle-bkmkSaveBtn",
+    "parent_identifiers": [
+      "class:basic_title",
+      "class:nolink",
+      "class:l-pgTitle"
+    ],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 0,
+    "identifier": "class:NR-col2a",
+    "parent_identifiers": [],
+    "tag": "body"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "id:right_side_ranking_data_idx_2",
+    "parent_identifiers": [
+      "id:right_side_ranking_data"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [
+      [
+        "itemprop",
+        "itemListElement"
+      ],
+      [
+        "itemscope",
+        ""
+      ],
+      [
+        "itemtype",
+        "http://schema.org/ListItem"
+      ]
+    ],
+    "depth": 7,
+    "identifier": "class:NR-first",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "li"
+  },
+  {
+    "attributes": [],
+    "depth": 6,
+    "identifier": "class:tab-wrap",
+    "parent_identifiers": [
+      "id:NR-main"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 6,
+    "identifier": "class:index-promotion",
+    "parent_identifiers": [
+      "id:NR-main"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:basic_tab",
+    "parent_identifiers": [
+      "class:mlr5"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 3,
+    "identifier": "id:NR-onegoo-service",
+    "parent_identifiers": [
+      "id:NR-onegoo-inner"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:open",
+    "parent_identifiers": [
+      "id:right_side_ranking_data"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:title",
+    "parent_identifiers": [
+      "class:basic_title"
+    ],
+    "tag": "h2"
+  },
+  {
+    "attributes": [],
+    "depth": 13,
+    "identifier": "class:hosetsu",
+    "parent_identifiers": [
+      "class:text"
+    ],
+    "tag": "span"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:nolink_select",
+    "parent_identifiers": [
+      "class:text_list",
+      "class:colum1",
+      "class:last_child_border_bottom_none"
+    ],
+    "tag": "li"
+  },
+  {
+    "attributes": [],
+    "depth": 9,
+    "identifier": "class:proverb",
+    "parent_identifiers": [
+      "class:aside"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 14,
+    "identifier": "class:text",
+    "parent_identifiers": [],
+    "tag": "p"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "https://login.mail.goo.ne.jp/id/authn/LoginStart?Site=dictionary.goo.ne.jp&Success=https%3A%2F%2Fdictionary.goo.ne.jp%2Fword%2F%25E6%258D%259C%25E3%2581%2599%2F"
+      ]
+    ],
+    "depth": 5,
+    "identifier": "class:nr-onegoo-user-name",
+    "parent_identifiers": [
+      "class:nr-onegoo-user"
+    ],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 7,
+    "identifier": "class:anchor-hover-underline",
+    "parent_identifiers": [
+      "id:NR-sub-in"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "id:right_side_ranking",
+    "parent_identifiers": [
+      "class:mlr5"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [],
+    "depth": 11,
+    "identifier": "class:news_headline",
+    "parent_identifiers": [
+      "class:basic_title"
+    ],
+    "tag": "h2"
+  },
+  {
+    "attributes": [],
+    "depth": 5,
+    "identifier": "class:NR-tpath",
+    "parent_identifiers": [],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:side_info",
+    "parent_identifiers": [
+      "class:mb10"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:first",
+    "parent_identifiers": [
+      "class:section",
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:content-box",
+    "parent_identifiers": [
+      "class:contents-wrap-b-in"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 2,
+    "identifier": "id:NR-onegoo-inner",
+    "parent_identifiers": [
+      "id:NR-onegoo"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 6,
+    "identifier": "id:NR-sub-in",
+    "parent_identifiers": [
+      "id:NR-sub"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 6,
+    "identifier": "class:nr-onegoo-service-item",
+    "parent_identifiers": [
+      "class:nr-onegoo-service-list"
+    ],
+    "tag": "li"
+  },
+  {
+    "attributes": [],
+    "depth": 7,
+    "identifier": "class:cont4",
+    "parent_identifiers": [
+      "class:tab-wrap",
+      "class:mb10"
+    ],
+    "tag": "ul"
+  },
+  {
+    "attributes": [
+      [
+        "href",
+        "/word/%E3%83%87%E3%83%9E/"
+      ]
+    ],
+    "depth": 13,
+    "identifier": "class:omit_nowidth",
+    "parent_identifiers": [],
+    "tag": "a"
+  },
+  {
+    "attributes": [],
+    "depth": 10,
+    "identifier": "class:cont1",
+    "parent_identifiers": [
+      "class:cx"
+    ],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:f-16",
+    "parent_identifiers": [
+      "class:basic_title"
+    ],
+    "tag": "h2"
+  },
+  {
+    "attributes": [],
+    "depth": 8,
+    "identifier": "class:aside",
+    "parent_identifiers": [],
+    "tag": "div"
+  },
+  {
+    "attributes": [],
+    "depth": 5,
+    "identifier": "class:mb10",
+    "parent_identifiers": [],
+    "tag": "div"
+  },
+  {
+    "attributes": [
+      [
+        "name",
+        "mode"
+      ]
+    ],
+    "depth": 10,
+    "identifier": "class:NR-select",
+    "parent_identifiers": [],
+    "tag": "select"
+  }
+]

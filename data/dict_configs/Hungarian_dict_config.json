@@ -1,0 +1,23 @@
+{
+  "name": "szotudastar",
+  "protocol": "szotudastar",
+  "login_url": "https://szotudastar.hu/",
+  "session_file": "data/szotudastar/session.pkl",
+  "credentials_file": "data/szotudastar/szotudastar_dict_credentials.yaml",
+  "base_url": "https://szotudastar.hu/?primarydict&uid=307&q={}",
+  "urls": [
+      "https://szotudastar.hu/?primarydict&uid=307&q=egy",
+      "https://szotudastar.hu/?primarydict&uid=307&q=egyetlen",
+      "https://szotudastar.hu/?primarydict&uid=307&q=beszél",
+      "https://szotudastar.hu/?primarydict&uid=307&q=kutya",
+      "https://szotudastar.hu/?primarydict&uid=307&q=szép"
+  ],
+  "data_files": {
+      "fields": "data/szotudastar/szotudastar_dictionary_fields.json",
+      "root": "data/szotudastar/szotudastar_root.json"
+  },
+  "html_exclusions": [
+    "szolas",
+    "osszetett"
+  ]
+}
