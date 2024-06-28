@@ -260,7 +260,8 @@ class DefinitionGenerator:
     
     def run_single_word(self, *, word: str, phrase: str, phrase_info: list, entries: list, pos: str):
         self.generate_definition_for_word(word=word, phrase=phrase, phrase_info=phrase_info, entries=entries, pos=pos)
-        add_definition_to_db(entries)
+        for entry in entries:
+            add_definition_to_db(entry)
 
 
 if __name__ == "__main__":
