@@ -6,6 +6,7 @@ from agents.instruction_translator import InstructionTranslator
 from agents.pydict_translator import PydictTranslator
 from pathlib import Path
 from utils.api_clients import OpenAIClient, AnthropicClient
+import time
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -34,7 +35,8 @@ class POSAgent:
             self.pydict_translator.translate_dictionaries(self.base_content_keys, outfile=(self.data_dir / "translated_content_keys.json"))
         self.load_translated_content()
         self.load_translated_content_keys()
-        self.pos_deprel_terms = self.load_pos_deprel_dict().keys()
+        self.pos_deprel_dict = self.load_pos_deprel_dict()
+        self.pos_deprel_terms = self.pos_deprel_dict.keys()
 
         if api_type == "openai":
             self.base_message = {
@@ -150,19 +152,23 @@ class POSAgent:
                 continue
 
             # Synonymous match using chat completions
-            if pos in self.pos_deprel_terms:
+            if len(lemma[enumerated_lemma]) <= 4:
                 synonymous = self.check_synonymous_pos(pos, lemma[enumerated_lemma])
                 if synonymous:
                     matched_lemmas.append(enumerated_lemma)
+            time.sleep(0.10)
 
         return matched_lemmas
 
     def check_synonymous_pos(self, pos1, pos2):
-        prompt = f"Are the parts of speech '{pos1}' and '{pos2}' synonymous or closely related in {self.language}? " \
-                "Answer with a number between 0 and 1, where 0 means not related at all, and 1 means completely synonymous. " \
-                "Expected JSON format: {'synonymous': '<SCORE>'} where score is a float"
-        system_message = f"You are a linguistic expert in {self.language}. Your task is to determine how closely related two parts of speech are. One POS will be" \
-            f"a Universal POS tag the other will be a {self.language} specific POS term. Strictly output JSON. No commentary"
+        prompt = f"""Compare the parts of speech '{pos1}' and '{pos2}' in {self.language}:
+                    1. Score their similarity from 0 to 1:
+                    - 0: Completely unrelated
+                    - 1: Exactly synonymous
+                    2. Respond only with a JSON object: {{"score": <FLOAT_VALUE>}}
+                    Example: {{"score": 0.8}}"""
+        system_message = f"You are a linguistic expert in {self.language}. Your task is to determine how closely related two parts of speech are. " \
+            f"Strictly output JSON. No commentary"
         
         if self.api_type == "openai":
             messages = [
@@ -203,7 +209,8 @@ if __name__ == "__main__":
 
     import lexiwebdb.client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
     word = "szép"
-    pos = 'főnév'
+    upos = 'ADJ'
+    pos = pos_identifier_anthropic.pos_deprel_dict[upos]
     enumerated_lemmas = enumerated_lemma_ops.get_enumerated_lemma_by_base_lemma(word).json()['enumerated_lemmas']
     matches = pos_identifier_anthropic.get_pos_matches(word, pos, enumerated_lemmas)
     print(f"len(matches): {len(matches)}, matches: {matches}")
