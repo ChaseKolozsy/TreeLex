@@ -47,7 +47,7 @@ class DefinitionGenerator:
         }
         self.translated_word_phrase = {}
         self.data_dir = Path("data/definition_generator")
-        self.language_dir = self.data_dir / f"{self.language}"
+        self.language_dir = self.data_dir / "languages" / f"{self.language}"
         if not self.language_dir.exists():
             self.language_dir.mkdir(parents=True)
 

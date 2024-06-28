@@ -15,8 +15,12 @@ class POSAgent:
     def __init__(self, language, api_type="anthropic", model="claude-3-haiku-20240307", data_dir="data", translate=False):
         self.api_type = api_type.lower()
         self.client = self._create_client(model)
-        self.data_dir = Path(data_dir)
         self.language = language
+        self.data_dir = Path(data_dir) / "pos_agent"
+        self.language_dir = self.data_dir / "languages" / self.language
+        if not self.language_dir.exists():
+            self.language_dir.mkdir(parents=True)
+
         self.model = model
         self.max_retries = 1
         self.base_instructions = {
@@ -30,9 +34,9 @@ class POSAgent:
         } 
         if translate:
             self.instruction_translator = InstructionTranslator(language=self.language, model="gpt-4o")
-            self.instruction_translator.translate_instructions(self.base_instructions, outfile=(self.data_dir / "translated_content.json"))
+            self.instruction_translator.translate_instructions(self.base_instructions, outfile=(self.language_dir / f"{self.language}__content.json"))
             self.pydict_translator = PydictTranslator(language=self.language, model="gpt-4o")
-            self.pydict_translator.translate_dictionaries(self.base_content_keys, outfile=(self.data_dir / "translated_content_keys.json"))
+            self.pydict_translator.translate_dictionaries(self.base_content_keys, outfile=(self.language_dir / f"{self.language}_content_keys.json"))
         self.load_translated_content()
         self.load_translated_content_keys()
         self.pos_deprel_dict = self.load_pos_deprel_dict()
@@ -67,7 +71,7 @@ class POSAgent:
 
     def load_translated_content(self):
         try:
-            with open(self.data_dir / "translated_content.json", "r", encoding="utf-8") as f:
+            with open(self.language_dir / f"{self.language}_content.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
                 self.translated_content = tmp
         except FileNotFoundError:
@@ -76,7 +80,7 @@ class POSAgent:
 
     def load_translated_content_keys(self):
         try:
-            with open(self.data_dir / "translated_content_keys.json", "r", encoding="utf-8") as f:
+            with open(self.language_dir / f"{self.language}_content_keys.json", "r", encoding="utf-8") as f:
                 tmp = json.load(f)
                 self.translated_content_keys = tmp
                 logging.info(f"Translated content keys: {self.translated_content_keys}")
