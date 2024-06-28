@@ -121,3 +121,13 @@ def split_dictionary_content(content, target_lines=100, tolerance=25):
         parts.append('\n'.join(current_part))
 
     return parts
+
+
+def hash_dict(obj):
+    """Create a hashable representation of an object, excluding 'text' field."""
+    if isinstance(obj, dict):
+        return tuple(sorted((k, hash_dict(v)) for k, v in obj.items() if k != 'text'))
+    elif isinstance(obj, list):
+        return tuple(hash_dict(e) for e in obj)
+    else:
+        return obj

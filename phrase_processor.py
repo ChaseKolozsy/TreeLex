@@ -2,23 +2,23 @@ import json
 import logging
 from pathlib import Path
 
-from utils.definition_utils import pos_do_not_match, find_pos_in_phrase_info
-from utils.general_utils import preprocess_text, load_config
+from utils.general_utils import preprocess_text
 from agents.pos_agent import POSAgent
 from agents.matcher import Matcher
+from agents.definition_extractor import DefinitionExtractor
 from utils.api_clients import OpenAIClient, AnthropicClient
 import lexiwebdb.client.src.operations.enumerated_lemma_ops as enumerated_lemma_ops
 import stanza.client.src.operations.app_ops as stanza_ops
 from stanza.client.src.operations.app_ops import language_abreviations
 from agents.definition_generator import DefinitionGenerator
-#from utils.dict_scraper import 
-#from utils.wp_dict_scraper import 
+from utils.dictionary_loader import DictionaryLoader
+from utils.web_scraping_utils import extract_dictionary_data
 
 advanced_model = "claude-3-5-sonnet-20240620"
 affordable_model = "claude-3-haiku-20240307"
 
 class PhraseProcessor:
-    def __init__(self, language, native_language, api_type="anthropic", model="claude-3-haiku-20240307", data_dir="data"):
+    def __init__(self, language, native_language, api_type="anthropic", model="claude-3-haiku-20240307", dict_config=None, data_dir="data"):
         self.language = language
         self.native_language = native_language
         self.api_type = api_type
@@ -43,6 +43,13 @@ class PhraseProcessor:
             model=model,
             data_dir=str(self.data_dir)
         )
+        self.dict_config = dict_config
+        self.online_dictionary = False
+        if self.dict_config:
+            self.online_dictionary = True
+            self.dictionary_loader = DictionaryLoader(self.data_dir)
+            self.dictionary = self.dictionary_loader.setup_dictionary(dict_config)
+            self.definition_extractor = DefinitionExtractor()
 
     def set_stanza_language(self):
         stanza_ops.select_language(stanza_ops.language_abreviations[self.language])
@@ -153,8 +160,13 @@ class PhraseProcessor:
                 if response.status_code == 200:
                     enumerated_lemmas = response.json()['enumerated_lemmas']
                 else:
-                    #TODO: search online dictionary for definition and add it to enumerated_lemmas table if enabled.
-                    enumerated_lemmas = []
+                    if self.online_dictionary:
+                        url = self.dictionary.get_url(word.lower())
+                        session = self.dictionary.login()
+                        exclusions = self.dictionary.get_exclusions()
+                        target_root = self.dictionary.get_target_root()
+                        extracted_data = extract_dictionary_data(url, session, exclusions, target_root)
+                        self.definition_extractor.run(word, extracted_data)
 
                 #logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
                 matched_by_pos = self.pos_agent.get_pos_matches(word, pos, enumerated_lemmas)

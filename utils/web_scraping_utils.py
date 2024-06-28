@@ -1,11 +1,47 @@
 import re
 import json
-from bs4 import NavigableString
+from bs4 import NavigableString, BeautifulSoup
 from typing import Dict, List, Optional
 from pathlib import Path
 import requests
 from utils.general_utils import load_config
 from utils.dictionary_extractor import DictionaryExtractor
+from utils.definition_utils import hash_dict
+from protocols.szotudastar_protocol import get_wp_session, wp_login
+from collections import OrderedDict
+import time
+
+class ScraperWrapper:
+    def __init__(self, session=None):
+        self.session = session or requests.Session()
+
+    def get_page(self, url):
+        if self.session:
+            response = self.session.get(url)
+        else:
+            response = requests.get(url)
+        response.raise_for_status()
+        return response
+
+def scrape_dictionary_for_fields(urls, session=None):
+    all_samples = set()
+    scraper = ScraperWrapper(session)
+
+    for url in urls:
+        try:
+            response = scraper.get_page(url)
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            body = soup.find('body')
+            class_samples = get_class_and_id_samples(body)
+            all_samples.update(hash_dict(sample) for sample in class_samples)
+        except requests.RequestException as e:
+            print(f"Error fetching {url}: {e}")
+        time.sleep(1)
+
+    unique_samples = [OrderedDict(sample) for sample in all_samples]
+    print(f"Number of unique samples: {len(unique_samples)}")
+    return unique_samples
 
 def get_class_and_id_samples(soup):
     """
@@ -109,7 +145,7 @@ def get_or_create_session(config_path: str) -> Optional[requests.Session]:
         password = config['password']
         session_file = Path(config_path).parent / "session.pkl"
 
-        session = get_session(session_file, login_url)
+        session = get_wp_session(session_file, login_url)
         if not session:
             session = wp_login(login_url, username, password, session_file)
         return session
@@ -119,7 +155,6 @@ def get_or_create_session(config_path: str) -> Optional[requests.Session]:
         return None
 
 if __name__ == "__main__":
-    from utils.wp_dict_scraper import get_session, wp_login
     current_dir = Path(__file__).parent.parent
     data_dir = current_dir / "data"
     config_path = data_dir / "online_dict_credentials.yaml"
