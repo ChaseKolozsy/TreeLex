@@ -16,8 +16,9 @@ class POSAgent:
         self.api_type = api_type.lower()
         self.client = self._create_client(model)
         self.language = language
-        self.data_dir = Path(data_dir) / "pos_agent"
-        self.language_dir = self.data_dir / "languages" / self.language
+        self.data_dir = Path(data_dir)
+        self.pos_agent_dir = self.data_dir / "pos_agent"
+        self.language_dir = self.pos_agent_dir / "languages" / self.language
         if not self.language_dir.exists():
             self.language_dir.mkdir(parents=True)
 
@@ -63,10 +64,10 @@ class POSAgent:
 
     def load_pos_deprel_dict(self):
         try:
-            with open(Path(self.data_dir) / "pos_deprel_dict.json", "r", encoding="utf-8") as f:
+            with open(self.language_dir / f"{self.language}_pos_deprel_dict.json", "r", encoding="utf-8") as f:
                 return json.load(f)
         except FileNotFoundError:
-            logging.error(f"Error: pos_deprel_dict.json file not found in {self.data_dir}")
+            logging.error(f"Error: {self.language}_pos_deprel_dict.json file not found in {self.language_dir}")
             return {}
 
     def load_translated_content(self):
@@ -75,7 +76,7 @@ class POSAgent:
                 tmp = json.load(f)
                 self.translated_content = tmp
         except FileNotFoundError:
-            logging.error(f"Error: {self.data_dir}/translated_content.json file not found.")
+            logging.error(f"Error: {self.language_dir}/{self.language}_content.json file not found.")
             self.translated_content = ""
 
     def load_translated_content_keys(self):
