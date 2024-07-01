@@ -36,7 +36,7 @@ class DictionaryLoader:
         with open(config_file, 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=2, ensure_ascii=False)
 
-        protocol_class = self.load_protocol_class(config['protocol'])
+        protocol_class = self.load_protocol_class(config['protocol'], config)
         protocol_instance = protocol_class(config, data_dir)
         protocol_instance.setup()
 

@@ -48,21 +48,26 @@ class PhraseProcessor:
             data_dir=str(self.data_dir)
         )
 
-        self.dict_config_dir = self.data_dir / "dict_config"
+        self.dict_config_dir = self.data_dir / "dict_configs"
         if not self.dict_config_dir.exists():
             self.dict_config_dir.mkdir(parents=True)
 
-        if (self.dict_config_dir / f"{self.language}_dict_config.yaml").exists():
-            self.dict_config = self.dict_config_dir / f"{self.language}_dict_config.yaml"
+        if (self.dict_config_dir / f"{self.language}_dict_config.json").exists():
+            self.dict_config_path = self.dict_config_dir / f"{self.language}_dict_config.json"
         else:
-            self.dict_config = None
+            self.dict_config_path = None
 
         self.online_dictionary = False
-        if self.dict_config:
+        if self.dict_config_path:
+            with open(self.dict_config_path, "r") as f:
+                self.dict_config = json.loads(f.read())
             self.online_dictionary = True
             self.dictionary_loader = DictionaryLoader(self.data_dir)
-            if (self.data_dir / self.config['data_files']['root']).exists():
-                self.dictionary = self.dictionary_loader.load_dictionary(self.dict_config_dir, self.language)
+            root_path = Path(self.dict_config["data_files"]["root"])
+            logging.info(f"\n\n---->  root_path: {root_path}")
+            if root_path.exists():
+                logging.info("-----> Dictionary  exists.")
+                self.dictionary = self.dictionary_loader.load_dictionary(self.language)
             else:
                 self.dictionary = self.dictionary_loader.setup_dictionary(dict_config, self.data_dir)
 
@@ -161,15 +166,16 @@ class PhraseProcessor:
             try:
                 pos = self._get_part_of_speech(word, phrase, phrase_info)
                 enumerated_lemmas = self._get_enumerated_lemmas(word)
+                logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
              
-                definitions = self._get_definitions(word, phrase, pos, phrase_info, enumerated_lemmas, self.definition_generator)
+                #definitions = self._get_definitions(word, phrase, pos, phrase_info, enumerated_lemmas, self.definition_generator)
                 
-                match = self._match_definitions(word, phrase, pos, phrase_info, definitions)
+                #match = self._match_definitions(word, phrase, pos, phrase_info, definitions)
                 
-                if not match:
-                    new_entry = self._create_new_entry(word, pos, definitions[-1] if definitions else None)
-                    if new_entry:
-                        entries.append(new_entry)
+                #if not match:
+                #    new_entry = self._create_new_entry(word, pos, definitions[-1] if definitions else None)
+                #    if new_entry:
+                #        entries.append(new_entry)
 
             except Exception as e:
                 logging.error(f"Error processing word '{word.lower()}': {e}")
@@ -227,9 +233,7 @@ class PhraseProcessor:
     def _get_phrase_info(self, phrase):
         if self.use_stanza:
             phrase_info = self.phrase_analysis(phrase)
-            logging.info(f"\n------- phrase: {phrase} phrase_info: {json.dumps(phrase_info, indent=4, ensure_ascii=False)} -----\n")
         else:
-            logging.info(f"\n------- phrase: {phrase} -----\n")
             phrase_info = None
         return phrase_info
 
@@ -318,4 +322,5 @@ if __name__ == "__main__":
         }
     }
     phrase_processor = PhraseProcessor("Hungarian", "English")
-    #phrase_processor.process_phrase("A kutya szép.")
+    print(phrase_processor.online_dictionary)
+    #phrase_processor.process_phrase("A macska szép.")
