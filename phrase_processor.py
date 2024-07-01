@@ -1,4 +1,5 @@
 import json
+import csv
 import logging
 from pathlib import Path
 
@@ -89,15 +90,22 @@ class PhraseProcessor:
                 json.dump(pos_deprel_dict, f, ensure_ascii=False, indent=4)
             return pos_deprel_dict
 
-    def load_or_generate_pos_deprel_dict(self):
-        if self.pos_deprel_dict_file.exists():
-            with open(self.pos_deprel_dict_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        else:
-            pos_deprel_dict = self.generate_pos_deprel_dict()
-            with open(self.pos_deprel_dict_file, 'w', encoding='utf-8') as f:
-                json.dump(pos_deprel_dict, f, ensure_ascii=False, indent=4)
-            return pos_deprel_dict
+    def generate_pos_deprel_dict(self):
+        stanza_terms = {"pos": [], "deprel": []}
+        translated_terms = {}
+
+        # Read terms from CSV file
+        with open(f'{self.data_dir}/stanza_terms.csv', newline='') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                stanza_terms[row['category']].append(row['term'])
+
+        for category, terms in stanza_terms.items():
+            for term in terms:
+                translated_term = self.get_translated_term(term)
+                translated_terms[term] = translated_term
+
+        return translated_terms
 
 
     def get_translated_term(self, term):
@@ -305,5 +313,5 @@ if __name__ == "__main__":
             "root": "data/szotudastar/szotudastar_dictionary_root.json"
         }
     }
-    phrase_processor = PhraseProcessor("hungarian", "english", dict_config=dict_config)
-    phrase_processor.process_phrase("A kutya szép.")
+    phrase_processor = PhraseProcessor("hungarian", "english")
+    #phrase_processor.process_phrase("A kutya szép.")

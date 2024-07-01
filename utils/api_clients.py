@@ -2,6 +2,9 @@ import json
 from abc import ABC, abstractmethod
 import openai
 import anthropic
+import time
+
+SLEEP_TIME = 1
 
 class APIClient(ABC):
     @abstractmethod
@@ -36,4 +39,5 @@ class AnthropicClient(APIClient):
             max_tokens=max_tokens,
             temperature=temperature
         )
+        time.sleep(SLEEP_TIME)
         return response.content[0].text
