@@ -6,7 +6,7 @@ from jsonschema.exceptions import ValidationError
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s')
 
 class PydictTranslator:
     def __init__(self, language, model="gpt-3.5-turbo-0125"):

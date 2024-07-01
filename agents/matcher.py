@@ -8,7 +8,7 @@ from stanza.client.src.operations.app_ops import process_text, select_language, 
 from agents.match_reviewer import MatchReviewer
 from utils.api_clients import OpenAIClient, AnthropicClient
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s')
 
 class Matcher:
     def __init__(self, list_filepath, language, native_language, api_type="anthropic", model="claude-3-haiku-20240307"):
