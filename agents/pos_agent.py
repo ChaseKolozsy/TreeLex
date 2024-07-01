@@ -9,7 +9,7 @@ from utils.api_clients import OpenAIClient, AnthropicClient
 import time
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s')
 
 class POSAgent:
     def __init__(self, language, api_type="anthropic", model="claude-3-haiku-20240307", data_dir="data", translate=False):

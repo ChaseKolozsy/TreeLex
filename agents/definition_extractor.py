@@ -5,7 +5,7 @@ from utils.api_clients import OpenAIClient, AnthropicClient
 from utils.definition_utils import get_enumeration, add_definition_to_db, split_dictionary_content
 from agents.dict_entry_analyzer import DictEntryAnalyzer
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s')
 
 advanced_model = "claude-3-5-sonnet-20240620"
 affordable_model = "claude-3-haiku-20240307"

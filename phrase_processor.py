@@ -18,6 +18,8 @@ from utils.web_scraping_utils import extract_dictionary_data
 advanced_model = "claude-3-5-sonnet-20240620"
 affordable_model = "claude-3-haiku-20240307"
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s')
+
 class PhraseProcessor:
     def __init__(self, language, native_language, api_type="anthropic", model="claude-3-haiku-20240307", data_dir="data"):
         self.language = language
@@ -35,8 +37,9 @@ class PhraseProcessor:
         except Exception as e:
             logging.error(f"{e}")
             self.use_stanza = False
+        self.phrase_processor_dir = self.data_dir / "phrase_processor"
 
-        self.pos_deprel_dict_file = self.data_dir / "pos_deprel_dict.json"
+        self.pos_deprel_dict_file = self.phrase_processor_dir / f"{self.language}_pos_deprel_dict.json"
         self.pos_deprel_dict = self.load_or_generate_pos_deprel_dict()
         self.pos_agent = POSAgent(
             language=self.language,
@@ -85,10 +88,11 @@ class PhraseProcessor:
             with open(self.pos_deprel_dict_file, 'r', encoding='utf-8') as f:
                 return json.load(f)
         else:
-            pos_deprel_dict = self.generate_pos_deprel_dict()
-            with open(self.pos_deprel_dict_file, 'w', encoding='utf-8') as f:
-                json.dump(pos_deprel_dict, f, ensure_ascii=False, indent=4)
-            return pos_deprel_dict
+            print(self.pos_deprel_dict_file)
+            #pos_deprel_dict = self.generate_pos_deprel_dict()
+            #with open(self.pos_deprel_dict_file, 'w', encoding='utf-8') as f:
+            #    json.dump(pos_deprel_dict, f, ensure_ascii=False, indent=4)
+            #return pos_deprel_dict
 
     def generate_pos_deprel_dict(self):
         stanza_terms = {"pos": [], "deprel": []}
@@ -313,5 +317,5 @@ if __name__ == "__main__":
             "root": "data/szotudastar/szotudastar_dictionary_root.json"
         }
     }
-    phrase_processor = PhraseProcessor("hungarian", "english")
+    phrase_processor = PhraseProcessor("Hungarian", "English")
     #phrase_processor.process_phrase("A kutya szép.")

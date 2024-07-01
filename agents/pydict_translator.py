@@ -1,7 +1,6 @@
 import openai
 import json
 import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s')
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pathlib import Path

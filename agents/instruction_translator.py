@@ -6,7 +6,7 @@ from jsonschema.exceptions import ValidationError
 from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - [instruction_translator]')
 
 class InstructionTranslator:
     def __init__(self, language, model="gpt-4o", base_instructions={}, outfile=Path("data/translated_instructions.json")):
