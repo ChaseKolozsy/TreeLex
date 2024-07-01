@@ -1,5 +1,6 @@
 import json
 import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s')
 from pathlib import Path
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
