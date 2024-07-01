@@ -48,7 +48,7 @@ class GeneralProtocol:
         return self.base_url.format(word)
 
     def get_target_root(self):
-        return self._target_root
+        return self._target_root['root']['class']
 
     def login(self):
         return self._session

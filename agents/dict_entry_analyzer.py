@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from pathlib import Path
 from utils.api_clients import OpenAIClient, AnthropicClient
 
@@ -32,16 +33,24 @@ class DictEntryAnalyzer:
 
         self.base_instructions = f"""
             You are an assistant that analyzes dictionary entries. Given a word and its dictionary entry, you will:
-            1. Count the total number of primary definitions.
-            2. Count the number of all other possible definitions (synonyms, archaic definitions, etc.) 
-            3. Err on the side of adding more definitions. Be extremely liberal. If you see an enumeration, count it as a definition.
-            4. An entry should be split if it contains more than 20 possible definitions. 
+            1. Count the total number of numbers in the entry. Treat each number as a single count, regardless of its digits (e.g., both "10" and "29837732" count as one number each)
+            2. Count the total number of primary definitions.
+            3. Count the number of all other possible definitions (synonyms, archaic definitions, etc.)
+            4. Ensure that the total number of definitions (primary + other) is at least equal to the number count from step 1.
+            5. Err on the side of adding more definitions. Be extremely liberal. If you see a number before a sentence, count it as a definition.
+            6. An entry should be split if it contains more than 20 possible definitions. 
 
             Input will be in this format:
             {json.dumps(self.example_input_no_split, indent=2, ensure_ascii=False)}
 
             Your output should be strictly in JSON format like this:
-            {json.dumps(self.example_output_no_split, indent=2, ensure_ascii=False)}
+            {{
+                "number_count": <int>,
+                "primary_definitions": <int>,
+                "estimated_total_definitions": <int>,
+                "extremely_liberal_def_estimate": <int>,
+                "split": <bool>
+            }}
 
             Ensure your response is valid JSON and includes all required fields. Supply no commentary, strictly JSON.
         """
@@ -65,13 +74,20 @@ class DictEntryAnalyzer:
         else:
             raise ValueError(f"Unsupported API type: {self.api_type}")
 
+    def count_numbers(self, text):
+        return len(re.findall(r'\b\d+\b', text))
+
     def analyze_entry(self, word, entry):
         input_data = {
             "word": word,
-            "entry": entry
+            "entry": entry,
+            "number_count": self.count_numbers(entry)
         }
+
+
         message = {"role": "user", "content": json.dumps(input_data, indent=2)}
         self.messages.append(message)
+        logging.info(f"\n\n----> messages: {self.messages}")
 
         retries = 0
         while retries < self.max_retries:

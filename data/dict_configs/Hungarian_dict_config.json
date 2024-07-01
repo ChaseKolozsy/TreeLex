@@ -18,6 +18,8 @@
   },
   "html_exclusions": [
     "szolas",
-    "osszetett"
+    "osszetett",
+    "rovidites",
+    "kiejtes"
   ]
 }

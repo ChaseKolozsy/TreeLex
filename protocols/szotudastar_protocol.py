@@ -17,7 +17,7 @@ class SzotudastarProtocol:
         self.data_dir = Path(data_dir)
         self.login_url = config['login_url']
         self.session_file = config['session_file']
-        self.credentials_file = config['credentials_file']
+        self.credentials_file = Path(config['credentials_file'])
         self.urls = config['urls']
         self.base_url = config['base_url']
         self.fields_path = Path(config['data_files']['fields'])
@@ -58,7 +58,7 @@ class SzotudastarProtocol:
             with open(roots_dir / self.target_root_path, "w") as f:
                 json.dump(self._target_root, f, indent=2, ensure_ascii=False)
 
-    def login(self, username, password):
+    def login(self):
         session = self.get_session()
         if session:
             return session
@@ -66,6 +66,12 @@ class SzotudastarProtocol:
         session = requests.Session()
         login_page = session.get(self.login_url)
         login_page.raise_for_status()
+
+
+
+        config = load_config(self.credentials_file)
+        username = config['username']
+        password = config['password']
 
         soup = BeautifulSoup(login_page.text, 'html.parser')
         login_form = soup.find('form', {'id': 'login'})
@@ -113,7 +119,7 @@ class SzotudastarProtocol:
         return self.html_exclusions
 
     def get_target_root(self):
-        return self._target_root
+        return self._target_root['root']['class']
 
 if __name__ == "__main__":
     config = load_json_from_file("data/dict_configs/Hungarian_dict_config.json")

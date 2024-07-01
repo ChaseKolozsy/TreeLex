@@ -125,12 +125,13 @@ def fetch_dictionary_page(url: str, session: Optional[requests.Session] = None) 
     return response.text
 
 def extract_dictionary_data(
+                *,
         url: str, 
-        exclusions: List[str], 
-        target_root: Optional[str] = None, 
-        session: Optional[requests.Session] = None) -> Dict[str, List[str]]:
+        html_exclusions: List[str], 
+        target_root: Optional[str], 
+        session: Optional[requests.Session]) -> Dict[str, List[str]]:
     html_content = fetch_dictionary_page(url, session)
-    extractor = DictionaryExtractor(html_content, target_root, exclusions)
+    extractor = DictionaryExtractor(html_content=html_content, target_root=target_root, html_exclusions=html_exclusions)
     return extractor.get_extracted_data()
 
 def get_or_create_session(config_path: str) -> Optional[requests.Session]:

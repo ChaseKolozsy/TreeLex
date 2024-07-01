@@ -7,9 +7,9 @@ import json
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
 
 class DictionaryExtractor:
-    def __init__(self, html_content: str, target_root=None, exclusions: Optional[List[str]] = None):
+    def __init__(self, *, html_content: str, target_root: Optional[str], html_exclusions: Optional[List[str]]):
         self.soup = BeautifulSoup(html_content, 'html.parser')
-        self.exclusions = exclusions or []
+        self.exclusions = html_exclusions or []
         self.target_root = target_root
 
     def _load_schema(self, schema_path: str):
@@ -18,6 +18,7 @@ class DictionaryExtractor:
 
     def extract(self):
         root = self.target_root
+
         root_element = self.soup.find(class_=root) or self.soup.find(id=root)
         if root_element:
             return html_to_tree(root_element.prettify(), self.exclusions)

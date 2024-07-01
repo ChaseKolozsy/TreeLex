@@ -18,7 +18,7 @@ from utils.web_scraping_utils import extract_dictionary_data
 advanced_model = "claude-3-5-sonnet-20240620"
 affordable_model = "claude-3-haiku-20240307"
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(lineno)d - %(message)s')
 
 class PhraseProcessor:
     def __init__(self, language, native_language, api_type="anthropic", model="claude-3-haiku-20240307", data_dir="data"):
@@ -166,26 +166,33 @@ class PhraseProcessor:
             try:
                 pos = self._get_part_of_speech(word, phrase, phrase_info)
                 enumerated_lemmas = self._get_enumerated_lemmas(word)
-                logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
+                #logging.info(f"\n------- enumerated_lemmas: {enumerated_lemmas} -----\n")
              
-                #definitions = self._get_definitions(word, phrase, pos, phrase_info, enumerated_lemmas, self.definition_generator)
+                definitions = self._get_definitions(
+                    word=word, 
+                    phrase=phrase, 
+                    pos=pos, 
+                    phrase_info=phrase_info, 
+                    enumerated_lemmas=enumerated_lemmas, 
+                    definition_generator=self.definition_generator
+                )
                 
-                #match = self._match_definitions(word, phrase, pos, phrase_info, definitions)
+                match = self._match_definitions(word, phrase, phrase_info, definitions)
                 
-                #if not match:
-                #    new_entry = self._create_new_entry(word, pos, definitions[-1] if definitions else None)
-                #    if new_entry:
-                #        entries.append(new_entry)
-
+                if not match:
+                    new_entry = self._create_new_entry(word, pos, definitions[-1] if definitions else None)
+                    if new_entry:
+                        entries.append(new_entry)
             except Exception as e:
                 logging.error(f"Error processing word '{word.lower()}': {e}")
+                raise e
 
         return entries
 
-    def _get_definitions(self, word, phrase, pos, phrase_info, enumerated_lemmas, definition_generator):
+    def _get_definitions(self,*, word:str, phrase:str, pos:str, phrase_info:dict, enumerated_lemmas:list, definition_generator:DefinitionGenerator):
         definitions = []
         if enumerated_lemmas:
-            definitions = [lemma for lemma in enumerated_lemmas if lemma['part_of_speech'] == pos]
+            return enumerated_lemmas
         
         if not definitions:
             new_definition = definition_generator.generate_definition(word.lower(), phrase, pos, phrase_info)
@@ -198,7 +205,7 @@ class PhraseProcessor:
         
         return definitions
 
-    def _match_definitions(self, word, phrase, pos, phrase_info, definitions):
+    def _match_definitions(self, word, phrase, phrase_info, definitions):
         if not definitions:
             return None
 
@@ -213,6 +220,7 @@ class PhraseProcessor:
                 } for lemma in definitions
             }
         })
+        self.matcher.messages = []
         
         if match:
             logging.info(f"\n\nmatch: {match}\n\n")
@@ -232,7 +240,11 @@ class PhraseProcessor:
 
     def _get_phrase_info(self, phrase):
         if self.use_stanza:
-            phrase_info = self.phrase_analysis(phrase)
+            response = self.phrase_analysis(phrase)
+            if response.status_code == 200:
+                phrase_info = response.json()
+            else:
+                phrase_info = None
         else:
             phrase_info = None
         return phrase_info
@@ -266,7 +278,8 @@ class PhraseProcessor:
         session = self.dictionary.login()
         html_exclusions = self.dictionary.get_html_exclusions()
         target_root = self.dictionary.get_target_root()
-        extracted_data = extract_dictionary_data(url, session, html_exclusions, target_root)
+        logging.info(f"\n\n----> url: {url}\n session: {session}\n html_exclusions: {html_exclusions}\n target_root: {target_root}\n")
+        extracted_data = extract_dictionary_data(url=url, session=session, html_exclusions=html_exclusions, target_root=target_root)
         self.definition_extractor.run(word, extracted_data)
 
     def _process_existing_lemmas(self, word, phrase, pos, phrase_info, enumerated_lemmas):
@@ -323,4 +336,4 @@ if __name__ == "__main__":
     }
     phrase_processor = PhraseProcessor("Hungarian", "English")
     print(phrase_processor.online_dictionary)
-    #phrase_processor.process_phrase("A macska szép.")
+    phrase_processor.process_phrase("A macska szép.")

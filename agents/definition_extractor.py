@@ -34,7 +34,8 @@ class DefinitionExtractor:
             "You are an AI assistant specialized in extracting definitions from dictionary entries. "
             "Your task is to analyze the input, which contains a dictionary entry, and output a structured JSON object "
             "containing all definitions, their parts of speech, and example phrases if available. "
-            "If it is enumerated, it is probably a definition and it should be treated as its own entry and not consolidated with other definitions. "
+            "If an entry is enumerated, it is probably a definition and it should be treated as its own entry and not consolidated with other definitions. "
+            "If a part-of-speech is supplied for an entry, that is also a definition and should be extracted."
             "If an example phrase is not provided, make `phrase` an empty string, and generate an example phrase "
             "inside of `ai_phrase`. If pos is not provided, make `pos` an empty string, and infer the pos from the "
             "definition and the phrase inside of `inf_pos`. \n"
@@ -69,14 +70,20 @@ class DefinitionExtractor:
         else:
             raise ValueError(f"Unsupported API type: {self.api_type}")
 
-    def extract_definitions(self, word, dictionary_entry):
+    def extract_definitions(self, word, dictionary_entry, number_count=None):
         retries = 0
         while retries < self.max_retries:
             try:
-                message = {
-                    "role": "user",
-                    "content": f"Please extract definitions from the following dictionary entry:\n\n{dictionary_entry} for word {word}."
-                }
+                if number_count:    
+                    message = {
+                        "role": "user",
+                        "content": f"Please extract definitions from the following dictionary entry:\n\n{dictionary_entry} for word {word}.\n\nThe number of definitions should be about {number_count}."
+                    }
+                else:
+                    message = {
+                        "role": "user",
+                        "content": f"Please extract definitions from the following dictionary entry:\n\n{dictionary_entry} for word {word}."
+                    }
                 
                 if self.api_type == "openai":
                     response = self.client.create_chat_completion([{"role": "system", "content": self.system_message}, message], system=None)
@@ -119,6 +126,7 @@ class DefinitionExtractor:
 
     def run(self, word, dictionary_entry):
         split = DictEntryAnalyzer(self.language, self.language).run(word, dictionary_entry)
+        logging.info(f"\n\n----> split: {json.dumps(split, indent=2, ensure_ascii=False)}")
         if split['split'] and split['extremely_liberal_def_estimate'] > 25:
             dictionary_entry = split_dictionary_content(dictionary_entry)
         else:
@@ -126,7 +134,10 @@ class DefinitionExtractor:
 
         try:
             for part in dictionary_entry:
-                self.process_definitions(word, self.extract_definitions(word, part))
+                if not split['split']:
+                    self.process_definitions(word, self.extract_definitions(word, part, split['number_count']))
+                else:
+                    self.process_definitions(word, self.extract_definitions(word, part))
                 
                 logging.info("Definitions extracted successfully")
                 logging.info("Definitions processed and added to the database")

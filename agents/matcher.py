@@ -133,7 +133,7 @@ class Matcher:
             logging.error(f"Error loading list from {self.list_filepath}: {e}")
 
     def match_lemmas(self, input_data):
-        max_retries = len(input_data['definitions'])
+        max_retries = 1
         retries = 0
         success = False
         message = {"role": "user", "content": json.dumps(input_data, indent=4, ensure_ascii=False)}
@@ -146,6 +146,8 @@ class Matcher:
                     response_message = json.loads(self.client.create_chat_completion(self.messages, system=None))
                 else:
                     response_message = json.loads(self.client.create_chat_completion(self.messages, system=self.system_message))
+
+                logging.info(f"\n\n----> response_message: {response_message}")
 
                 validate(instance=response_message, schema=self.get_validation_schema())
 
@@ -170,10 +172,7 @@ class Matcher:
             except (ValidationError, Exception) as e:
                 logging.error(f"Error: {e}")
                 retries += 1
-                self.messages = back_up_messages[:-1]
-                message = {"role": "user", "content": json.dumps(input_data, indent=4, ensure_ascii=False)}
-                self.messages.append(message)
-                back_up_messages = self.messages.copy()
+                self.messages = back_up_messages
                 logging.info(f"Retrying... ({retries}/{max_retries})")
 
         return None, success
