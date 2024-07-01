@@ -4,7 +4,7 @@ import logging
 from nltk.stem import SnowballStemmer
 from utils.api_clients import AnthropicClient, OpenAIClient
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
 
 advanced_model = "claude-3-5-sonnet-20240620"
 affordable_model = "claude-3-haiku-20240307"

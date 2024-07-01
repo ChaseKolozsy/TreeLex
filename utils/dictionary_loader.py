@@ -1,6 +1,10 @@
 import importlib
 import json
 from pathlib import Path
+import logging
+
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
 
 class DictionaryLoader:
     def __init__(self, data_dir="data"):

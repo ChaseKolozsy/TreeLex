@@ -5,7 +5,7 @@ from jsonschema.exceptions import ValidationError
 from utils.api_clients import OpenAIClient, AnthropicClient
 
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - [match_reviewer]')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
 
 class MatchReviewer:
     def __init__(self, language, native_language, api_type="anthropic", model="claude-3-haiku-20240307"):

@@ -9,6 +9,9 @@ from utils.dictionary_extractor import DictionaryExtractor
 from utils.definition_utils import hash_dict
 from collections import OrderedDict
 import time
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
 
 class ScraperWrapper:
     def __init__(self, session=None):

@@ -18,7 +18,7 @@ import lexiwebdb.client.src.operations.enumerated_lemma_ops as enumerated_lemma_
 from utils.api_clients import OpenAIClient, AnthropicClient
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
 advanced_model = "claude-3-5-sonnet-20240620"
 
 class DefinitionGenerator:

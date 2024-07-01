@@ -2,6 +2,9 @@ from bs4 import BeautifulSoup
 from typing import List, Union, Optional
 import json
 
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
+
 class DictionaryExtractor:
     def __init__(self, html_content: str, target_root=None, exclusions: Optional[List[str]] = None):
         self.soup = BeautifulSoup(html_content, 'html.parser')

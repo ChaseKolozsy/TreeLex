@@ -1,5 +1,8 @@
 import pickle
 import os
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
 
 def save_session(session, filename='session.pkl'):
     with open(filename, 'wb') as f:

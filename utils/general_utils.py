@@ -1,6 +1,9 @@
 import json
 import yaml
 import re
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
 
 def load_config(config_path):
     with open(config_path, 'r') as file:

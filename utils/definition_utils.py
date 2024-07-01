@@ -2,6 +2,9 @@ import json
 import logging
 from lexiwebdb.client.src.operations import enumerated_lemma_ops
 
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s - %(filename)s - %(funcName)s')
+
 def extract_definitions(text):
     data = json.loads(text)
     base_lemma = data.get("base_lemma")
