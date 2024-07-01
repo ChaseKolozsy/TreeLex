@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from typing import List, Union, Optional
+import logging
 import json
 
 
